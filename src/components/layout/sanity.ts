@@ -1,4 +1,6 @@
-import { sanityFetch } from "@/service/sanity"
+import { cacheLife } from "next/cache"
+
+import { fetchLayoutData } from "@/service/sanity/layout"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
 export interface CompanyInfo {
@@ -11,32 +13,30 @@ export interface CompanyInfo {
 
 export async function fetchCurrentYear(): Promise<number> {
   "use cache"
+  cacheLife("days")
   return new Date().getFullYear()
 }
 
 export async function fetchProjectsCount(): Promise<number> {
-  "use cache"
-  return sanityFetch<number>({
-    query: /* groq */ `count(*[_type == "showcasePage"][0].projects)`
-  })
+  const { projectsCount } = await fetchLayoutData()
+  return projectsCount
 }
 
 export async function fetchPostsCount(): Promise<number> {
-  "use cache"
-  return sanityFetch<number>({
-    query: /* groq */ `count(*[_type == "post"])`
-  })
+  const { postsCount } = await fetchLayoutData()
+  return postsCount
+}
+
+// Navbar/Footer read these unguarded — absorb a missing singleton here.
+const EMPTY_COMPANY_INFO: CompanyInfo = {
+  github: null,
+  instagram: null,
+  twitter: null,
+  linkedIn: null,
+  newsletter: null
 }
 
 export async function fetchCompanyInfo(): Promise<CompanyInfo> {
-  "use cache"
-  return sanityFetch<CompanyInfo>({
-    query: /* groq */ `*[_type == "companyInfo"][0] {
-      github,
-      instagram,
-      twitter,
-      linkedIn,
-      newsletter
-    }`
-  })
+  const { companyInfo } = await fetchLayoutData()
+  return companyInfo ?? EMPTY_COMPANY_INFO
 }

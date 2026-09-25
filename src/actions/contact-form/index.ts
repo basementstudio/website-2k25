@@ -1,5 +1,7 @@
 "use server"
 
+import * as Sentry from "@sentry/nextjs"
+
 import { generateEmailTemplate } from "./template"
 
 interface ContactFormData {
@@ -11,6 +13,12 @@ interface ContactFormData {
 }
 
 export async function submitContactForm(formData: ContactFormData) {
+  return Sentry.withServerActionInstrumentation("submitContactForm", () =>
+    runContactForm(formData)
+  )
+}
+
+async function runContactForm(formData: ContactFormData) {
   try {
     const html = generateEmailTemplate(formData)
 
@@ -35,6 +43,7 @@ export async function submitContactForm(formData: ContactFormData) {
     return { success: true }
   } catch (error) {
     console.error("Error submitting form:", error)
+    Sentry.captureException(error)
     return { success: false, error: "Failed to submit form" }
   }
 }

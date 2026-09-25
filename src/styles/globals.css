@@ -122,7 +122,7 @@
 
   .with-diagonal-lines {
     @apply relative overflow-hidden;
-    @apply after:pointer-events-none after:absolute after:-inset-12;
+    @apply after:pointer-events-none after:absolute after:-inset-[64px];
   }
 
   .with-diagonal-lines:after {
@@ -164,10 +164,10 @@ img {
 
 @keyframes diagonalPatternAnimation {
   from {
-    background-position: 0 0;
+    transform: translate3d(-64px, 0, 0);
   }
   to {
-    background-position: 64px 0px;
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -284,6 +284,31 @@ p {
 @media (prefers-reduced-motion: reduce) {
   .machine-reveal {
     display: none;
+  }
+}
+
+/* Machine view (/ai) navigation: the content area (remounted per route by
+   template.tsx) flickers in like a phosphor refresh while the header above
+   stays put. On first document load it plays hidden under the boot shutter. */
+@keyframes machine-flicker {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.machine-flicker {
+  animation: machine-flicker 180ms steps(3, end);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .machine-flicker {
+    animation: none;
   }
 }
 

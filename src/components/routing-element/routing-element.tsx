@@ -61,14 +61,22 @@ const RoutingElementComponent = ({
   const pathname = usePathname()
   const setCursor = useCursor("default")
 
-  const {
-    currentTabIndex,
-    isCanvasTabMode,
-    currentScene,
-    scenes,
-    setCurrentTabIndex,
-    setEnteredByKeyboard
-  } = useNavigationStore()
+  // One derived boolean per hotspot: subscribing to the raw fields (or the
+  // whole store) re-rendered every hotspot on each navigation-store write,
+  // including the setCurrentScene that runs inside a tap. `scenes` is only
+  // read at keydown time, via getState().
+  const isFocusedTab = useNavigationStore(
+    (state) =>
+      state.isCanvasTabMode &&
+      state.currentScene?.tabs?.[state.currentTabIndex]?.tabClickableName ===
+        node.name
+  )
+  const setCurrentTabIndex = useNavigationStore(
+    (state) => state.setCurrentTabIndex
+  )
+  const setEnteredByKeyboard = useNavigationStore(
+    (state) => state.setEnteredByKeyboard
+  )
   const { handleNavigation } = useHandleNavigation()
   const { selected } = useInspectable()
 
@@ -115,6 +123,8 @@ const RoutingElementComponent = ({
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
+      const { scenes } = useNavigationStore.getState()
+
       if (event.key === "Enter" && scenes) {
         const trimmedPathname = pathname.replace("/", "")
         const tabIndex = scenes[0].tabs.findIndex(
@@ -128,14 +138,7 @@ const RoutingElementComponent = ({
         }
       }
     },
-    [
-      navigate,
-      pathname,
-      route,
-      scenes,
-      setCurrentTabIndex,
-      setEnteredByKeyboard
-    ]
+    [navigate, pathname, route, setCurrentTabIndex, setEnteredByKeyboard]
   )
 
   const handlePointerEnter = useCallback(
@@ -184,40 +187,24 @@ const RoutingElementComponent = ({
 
   useEffect(() => {
     if (activeRoute) setHover(false)
-    if (!isCanvasTabMode || !currentScene?.tabs) {
+    if (!isFocusedTab) {
       setHover(false)
       setCursor("default", null)
       return
     }
 
-    const currentTab = currentScene.tabs[currentTabIndex]
-    if (currentTab && currentTab.tabClickableName === node.name) {
-      setHover(true)
-      router.prefetch(route)
-      setCursor("pointer", hoverName)
+    setHover(true)
+    router.prefetch(route)
+    setCursor("pointer", hoverName)
 
-      window.addEventListener("keydown", handleKeyPress, { passive: true })
+    window.addEventListener("keydown", handleKeyPress, { passive: true })
 
-      return () => {
-        window.removeEventListener("keydown", handleKeyPress)
-        setCursor("default", null)
-      }
-    } else {
-      setHover(false)
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress)
       setCursor("default", null)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    activeRoute,
-    isCanvasTabMode,
-    currentScene?.tabs,
-    currentTabIndex,
-    node.name,
-    hoverName,
-    route,
-    router,
-    handleKeyPress
-  ])
+  }, [activeRoute, isFocusedTab, hoverName, route, router, handleKeyPress])
 
   useEffect(() => {
     if (!groupName || !groupHoverHandlers) return

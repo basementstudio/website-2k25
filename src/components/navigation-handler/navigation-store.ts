@@ -59,8 +59,14 @@ export const useNavigationStore = create<{
     set({ disableCameraTransition: disable }),
 
   isCameraTransitioning: false,
+  // called every frame from the camera useFrame loop, so bail when unchanged —
+  // an unconditional set() notifies every subscriber and floods React with updates
   setIsCameraTransitioning: (isTransitioning) =>
-    set({ isCameraTransitioning: isTransitioning }),
+    set((state) =>
+      state.isCameraTransitioning === isTransitioning
+        ? state
+        : { isCameraTransitioning: isTransitioning }
+    ),
 
   enteredByKeyboard: false,
   setEnteredByKeyboard: (value) => set({ enteredByKeyboard: value }),

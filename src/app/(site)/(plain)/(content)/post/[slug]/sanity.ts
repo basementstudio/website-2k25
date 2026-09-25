@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache"
+
 import {
   sanityFetch,
   sanityFetchCached,
@@ -41,9 +43,7 @@ export interface RelatedPost {
 // ---------------------------------------------------------------------------
 
 export async function fetchPostBySlug(
-  slug: string,
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
+  slug: string
 ): Promise<PostDetail | null> {
   const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{
     _id,
@@ -84,16 +84,34 @@ export async function fetchPostBySlug(
     heroImage ${imageFragment},
     heroVideo
   }`
-  if (options?.published) {
-    return sanityFetchStatic<PostDetail | null>({
-      query,
-      params: { slug }
-    })
-  }
   return sanityFetch<PostDetail | null>({
     query,
-    params: { slug }
+    params: { slug },
+    tag: "post.by-slug"
   })
+}
+
+export interface PostData {
+  post: PostDetail
+  relatedPosts: RelatedPost[]
+}
+
+/** Shared per-slug cache entry for the human post page and its `/ai` and `.md` mirrors. */
+export async function getPostData(slug: string): Promise<PostData | null> {
+  "use cache"
+  const post = await fetchPostBySlug(slug)
+
+  if (!post) {
+    cacheLife("hours")
+    return null
+  }
+
+  const relatedPosts = await fetchRelatedPosts(
+    post.slug,
+    post.categories?.map((category) => category.title) ?? []
+  )
+
+  return { post, relatedPosts }
 }
 
 export interface PostIndexEntry {
@@ -110,7 +128,8 @@ export async function fetchAllPostsForIndex(): Promise<PostIndexEntry[]> {
   }`
   return sanityFetchCached<PostIndexEntry[]>({
     query,
-    perspective: "published"
+    perspective: "published",
+    tag: "post.index"
   })
 }
 
@@ -118,7 +137,14 @@ export async function fetchRelatedPosts(
   currentSlug: string,
   currentCategoryTitles: string[]
 ): Promise<RelatedPost[]> {
-  const query = /* groq */ `*[_type == "post"] | order(date desc){
+  if (currentCategoryTitles.length === 0) return []
+
+  // Filter + range pushed into GROQ instead of fetching all posts to keep 3.
+  const query = /* groq */ `*[
+    _type == "post" &&
+    slug.current != $slug &&
+    count(categories[@->title in $titles]) > 0
+  ] | order(date desc)[0...3]{
     _id,
     title,
     "slug": slug.current,
@@ -127,7 +153,9 @@ export async function fetchRelatedPosts(
     categories[]->{ title, "slug": slug.current }
   }`
   const posts = await sanityFetch<RelatedPost[]>({
-    query
+    query,
+    params: { slug: currentSlug, titles: currentCategoryTitles },
+    tag: "post.related"
   })
 
   return selectRelatedPosts({
@@ -141,7 +169,8 @@ export async function fetchAllPostSlugs(): Promise<string[]> {
   const query = /* groq */ `*[_type == "post"]{ "slug": slug.current }.slug`
   return sanityFetchStatic<string[]>({
     query,
-    perspective: "published"
+    perspective: "published",
+    tag: "post.slugs.static-params"
   })
 }
 
@@ -155,6 +184,8 @@ export async function fetchPostMeta(
   } | null>({
     query,
     params: { slug },
-    perspective: "published"
+    perspective: "published",
+    boundEmptyResult: true,
+    tag: "post.meta"
   })
 }

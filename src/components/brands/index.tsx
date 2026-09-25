@@ -1,6 +1,6 @@
 "use client"
 
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, m } from "motion/react"
 import Image from "next/image"
 import { useState } from "react"
 
@@ -21,7 +21,7 @@ const BrandLogo = ({ logo }: { logo: Brand["logo"] }) => {
         alt={logo.alt}
         width={160}
         height={88}
-        className="max-w-full object-contain"
+        className="object-contain"
       />
     </div>
   )
@@ -30,7 +30,7 @@ const BrandLogo = ({ logo }: { logo: Brand["logo"] }) => {
 export const AnimatedTitle = ({ brandName }: { brandName: string }) => (
   <AnimatePresence mode="wait">
     {brandName ? (
-      <motion.span
+      <m.span
         animate={{ opacity: 1, y: 0 }}
         className="ml-px inline-flex items-center gap-x-2 text-f-h3-mobile text-brand-w1 lg:text-f-h3"
         exit={{ opacity: 0, y: -10 }}
@@ -39,9 +39,9 @@ export const AnimatedTitle = ({ brandName }: { brandName: string }) => (
         transition={{ ease: "easeOut", duration: 0.2 }}
       >
         {brandName} <ExternalLinkIcon className="size-4" />
-      </motion.span>
+      </m.span>
     ) : (
-      <motion.span
+      <m.span
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         initial={{ opacity: 0, y: 10 }}
@@ -49,7 +49,7 @@ export const AnimatedTitle = ({ brandName }: { brandName: string }) => (
         transition={{ ease: "easeOut", duration: 0.2 }}
       >
         Visionaries
-      </motion.span>
+      </m.span>
     )}
   </AnimatePresence>
 )
@@ -60,7 +60,7 @@ interface BrandsDesktopProps {
 
 export const BrandsDesktop = ({ brands }: BrandsDesktopProps) => {
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null)
-  const isLargeDesktop = useMedia("(min-width: 1280px)")
+  const isLargeDesktop = useMedia("(min-width: 1536px)")
   const isDesktop = useMedia("(min-width: 1024px)")
 
   const debouncedHoveredBrandId = useDebounceValue(
@@ -72,7 +72,9 @@ export const BrandsDesktop = ({ brands }: BrandsDesktopProps) => {
     ? brands.find((row) => row._id === debouncedHoveredBrandId)?._title
     : undefined
 
-  const max = isLargeDesktop ? 32 : 30
+  // Cap is visual only (logo grid needs full rows) — /index.md lists every
+  // client on purpose, don't "fix" that to match this number.
+  const max = isLargeDesktop ? 40 : 36
   const groupSize = isLargeDesktop ? 8 : 6
   const available = Math.min(brands.length, max)
   const count = Math.floor(available / groupSize) * groupSize
@@ -89,9 +91,9 @@ export const BrandsDesktop = ({ brands }: BrandsDesktopProps) => {
       </div>
 
       <div className="relative col-span-full">
-        <div className="grid-rows-auto group grid grid-cols-6 gap-3 xl:grid-cols-8">
+        <div className="grid-rows-auto group grid grid-cols-6 gap-3 2xl:grid-cols-8">
           {filteredBrands.map((brand) => (
-            <motion.a
+            <m.a
               className="aspect-[202/110] text-brand-w1 focus-visible:!ring-offset-0"
               href={brand.website ?? ""}
               key={brand._id}
@@ -118,7 +120,7 @@ export const BrandsDesktop = ({ brands }: BrandsDesktopProps) => {
                 />
                 <BrandLogo logo={brand.logo} />
               </div>
-            </motion.a>
+            </m.a>
           ))}
         </div>
       </div>

@@ -1,0 +1,57 @@
+"use client"
+
+import { useEffect } from "react"
+
+import type { WeatherApiResponse } from "@/app/api/weather/weather-data"
+
+import { applyLiveWeather, useWeather } from "./weather-store"
+
+const POLL_MS = 10 * 60 * 1000
+
+export function useLiveWeather() {
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval> | undefined
+    let lastAttempt = 0
+    const controller = new AbortController()
+
+    const tick = async () => {
+      lastAttempt = Date.now()
+      try {
+        const res = await fetch("/api/weather", { signal: controller.signal })
+        const data: WeatherApiResponse = await res.json()
+        if (res.ok && data.ok) applyLiveWeather(data)
+        else {
+          useWeather.setState({ liveStatus: "error" })
+          console.warn("Weather API degraded; keeping previous conditions")
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          useWeather.setState({ liveStatus: "error" })
+          console.warn("Weather fetch failed:", error)
+        }
+      }
+    }
+
+    const start = () => {
+      if (timer) return
+      if (Date.now() - lastAttempt > POLL_MS) tick()
+      timer = setInterval(tick, POLL_MS)
+    }
+    const stop = () => {
+      clearInterval(timer)
+      timer = undefined
+    }
+    const onVisibility = () =>
+      document.visibilityState === "visible" ? start() : stop()
+
+    onVisibility()
+    document.addEventListener("visibilitychange", onVisibility, {
+      passive: true
+    })
+    return () => {
+      stop()
+      document.removeEventListener("visibilitychange", onVisibility)
+      controller.abort()
+    }
+  }, [])
+}

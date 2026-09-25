@@ -26,6 +26,9 @@ export const COMPANY_FACTS = {
   addressCity: "Mar del Plata",
   addressCountry: "AR",
   areaServed: "Worldwide",
+  // Published across the site (footer, contact page, JSON-LD ContactPoints).
+  contactEmail: "hello@basement.studio",
+  salesEmail: "sales@basement.studio",
   description:
     "basement.studio is an Argentina-based digital design and engineering studio specializing in high-performance websites, branding, 3D interactive experiences, and marketing execution for technology companies, primarily in the San Francisco Bay Area.",
   services: [
@@ -35,17 +38,19 @@ export const COMPANY_FACTS = {
     "Marketing campaign execution",
     "Product engineering"
   ],
+  // Follows the homepage logo grid's curated order (Sanity homepage.clients).
   notableClients: [
+    "SpaceX AI",
     "Vercel",
     "Next.js",
-    "X (formerly Twitter)",
+    "Linear",
     "Cursor",
+    "Scale AI",
+    "World Labs",
     "ElevenLabs",
     "Harvey AI",
-    "Scale AI",
-    "MrBeast",
-    "World Labs",
-    "Profound"
+    "Profound",
+    "MrBeast"
   ],
   knowsAbout: [
     "Web design",

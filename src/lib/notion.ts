@@ -1,4 +1,5 @@
 import { APIErrorCode, Client, isNotionClientError } from "@notionhq/client"
+import * as Sentry from "@sentry/nextjs"
 
 type NotionPageProperties = NonNullable<
   Parameters<Client["pages"]["create"]>[0]["properties"]
@@ -223,6 +224,12 @@ export async function submitApplication(data: CareerApplication) {
       email: data.email,
       message,
       error
+    })
+    // Captured, not rethrown — the caller reads failure as a return value, so
+    // nothing else reports an outage. No email: beforeSend misses extras.
+    Sentry.captureException(error, {
+      tags: { integration: "notion" },
+      extra: { position: data.position, notionMessage: message }
     })
     return { success: false, error: message }
   }

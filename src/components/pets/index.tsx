@@ -4,7 +4,6 @@ import {
   useTexture
 } from "@react-three/drei"
 import { track } from "@vercel/analytics"
-import posthog from "posthog-js"
 import { useEffect, useMemo } from "react"
 import * as THREE from "three"
 import { Color } from "three"
@@ -183,7 +182,6 @@ function PetsInner({
     if (bostonIdleAction) {
       bostonIdleAction.timeScale = 1.0
       track("boston_pet")
-      posthog.capture("boston_pet")
     }
   }
 

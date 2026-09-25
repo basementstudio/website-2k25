@@ -1,5 +1,436 @@
-// this module will be dynamically imported only on debug
+"use client"
 
+import { button, Leva, useControls } from "leva"
+import { useEffect, useRef } from "react"
+
+import {
+  applyTimePreset,
+  applyWeatherPreset,
+  SKY_TIME_PRESETS,
+  SKY_WEATHER_PRESETS,
+  skyDebug,
+  type SkyTimePreset,
+  type SkyWeatherPreset
+} from "@/components/sky/sky-debug"
+import { useSceneTime } from "@/components/sky/time-store"
+import {
+  applyCustomWeather,
+  useWeather
+} from "@/components/weather/weather-store"
+import { useMesh } from "@/hooks/use-mesh"
+
+import {
+  postprocessingDebug,
+  registerLevaSetters,
+  useDebugCameraStore
+} from "./debug-state"
 import { ReactScan } from "./react-scan"
 
-export const OnlyDebug = () => <ReactScan />
+const onNumberChange =
+  (write: (value: number) => void) =>
+  (value: number, _path: string, context: { initial: boolean }) => {
+    write(value)
+    if (!context.initial) postprocessingDebug.hasChanged.current = true
+  }
+
+const CameraDebugControls = () => {
+  const setFlyMode = useDebugCameraStore((state) => state.setFlyMode)
+
+  useControls("camera", {
+    flyMode: {
+      value: false,
+      onChange: setFlyMode
+    }
+  })
+
+  useEffect(() => () => setFlyMode(false), [setFlyMode])
+
+  return null
+}
+
+const CITY_DEFAULTS = { x: -56, y: 1.38, z: 72, scaleX: 7.43, scaleY: 23.7 }
+
+const cityMesh = () => useMesh.getState().city.mesh
+
+const CityDebugControls = () => {
+  const mesh = useMesh((s) => s.city.mesh)
+
+  useControls(
+    "city skyline",
+    () => ({
+      posX: {
+        value: cityMesh()?.position.x ?? CITY_DEFAULTS.x,
+        min: -200,
+        max: 100,
+        step: 0.1,
+        onChange: (value: number) => {
+          cityMesh()?.position.setX(value)
+        }
+      },
+      posY: {
+        value: cityMesh()?.position.y ?? CITY_DEFAULTS.y,
+        min: -30,
+        max: 60,
+        step: 0.05,
+        onChange: (value: number) => {
+          cityMesh()?.position.setY(value)
+        }
+      },
+      posZ: {
+        value: cityMesh()?.position.z ?? CITY_DEFAULTS.z,
+        min: 60,
+        max: 250,
+        step: 0.1,
+        onChange: (value: number) => {
+          cityMesh()?.position.setZ(value)
+        }
+      },
+      scaleX: {
+        value: cityMesh()?.scale.x ?? CITY_DEFAULTS.scaleX,
+        min: 0.5,
+        max: 80,
+        step: 0.05,
+        onChange: (value: number) => {
+          cityMesh()?.scale.setX(value)
+        }
+      },
+      scaleY: {
+        value: cityMesh()?.scale.y ?? CITY_DEFAULTS.scaleY,
+        min: 0.5,
+        max: 80,
+        step: 0.05,
+        onChange: (value: number) => {
+          cityMesh()?.scale.setY(value)
+        }
+      },
+      copyTransform: button(() => {
+        const m = cityMesh()
+        if (!m) return
+        const exact = `position (${m.position.x}, ${m.position.y}, ${m.position.z}) scale (${m.scale.x}, ${m.scale.y})`
+        console.info("[city skyline]", exact)
+        navigator.clipboard?.writeText(exact).catch(() => {})
+      })
+    }),
+    [mesh]
+  )
+
+  return null
+}
+
+const SkyDebugControls = () => {
+  const setSkyRef = useRef<((values: Record<string, unknown>) => void) | null>(
+    null
+  )
+
+  const syncing = useRef(false)
+  const syncSlidersFromDebug = () => {
+    const d = skyDebug.current
+    const timePreset = useSceneTime.getState().preset
+    const weather = useWeather.getState()
+    const sun =
+      d.overrideSun || timePreset === "live" ? d : SKY_TIME_PRESETS[timePreset]
+    syncing.current = true
+    setSkyRef.current?.({
+      timePreset,
+      weatherPreset: weather.preset,
+      timeScale: d.timeScale,
+      overrideSun: d.overrideSun,
+      elevation: sun.elevation,
+      azimuth: sun.azimuth,
+      overrideWeather: d.overrideWeather,
+      cloudCover: weather.cloudCover,
+      rainFactor: weather.isRaining ? weather.rainIntensity : 0,
+      windSpeed: weather.windSpeed
+    })
+    syncing.current = false
+  }
+
+  const updateDebugWeather = () => {
+    const d = skyDebug.current
+    if (!d.overrideWeather) return
+    applyCustomWeather({
+      cloudCover: d.cloudCover,
+      isRaining: d.rainFactor > 0,
+      rainIntensity: d.rainFactor,
+      windSpeed: d.windSpeed
+    })
+  }
+
+  const [, setSky] = useControls("sky", () => ({
+    timePreset: {
+      value: "live" as string,
+      options: ["live", ...Object.keys(SKY_TIME_PRESETS)],
+      onChange: (
+        value: string,
+        _path: string,
+        context: { initial: boolean }
+      ) => {
+        if (context.initial || syncing.current) return
+        applyTimePreset(value as SkyTimePreset)
+      }
+    },
+    weatherPreset: {
+      value: "live" as string,
+      options: ["live", "custom", ...Object.keys(SKY_WEATHER_PRESETS)],
+      onChange: (
+        value: string,
+        _path: string,
+        context: { initial: boolean }
+      ) => {
+        if (context.initial || syncing.current || value === "custom") return
+        applyWeatherPreset(value as SkyWeatherPreset)
+      }
+    },
+    overrideSun: {
+      value: skyDebug.current.overrideSun,
+      onChange: (value: boolean) => {
+        if (syncing.current) return
+        skyDebug.current.overrideSun = value
+        const preset = useSceneTime.getState().preset
+        if (value && preset !== "live") {
+          skyDebug.current.elevation = SKY_TIME_PRESETS[preset].elevation
+          skyDebug.current.azimuth = SKY_TIME_PRESETS[preset].azimuth
+        }
+      }
+    },
+    elevation: {
+      value: skyDebug.current.elevation,
+      min: -90,
+      max: 90,
+      step: 0.5,
+      onChange: (value: number) => {
+        if (syncing.current) return
+        skyDebug.current.elevation = value
+      }
+    },
+    azimuth: {
+      value: skyDebug.current.azimuth,
+      min: 0,
+      max: 360,
+      step: 1,
+      onChange: (value: number) => {
+        if (syncing.current) return
+        skyDebug.current.azimuth = value
+      }
+    },
+    timeScale: {
+      value: skyDebug.current.timeScale,
+      min: 1,
+      max: 5000,
+      step: 1,
+      onChange: (value: number) => {
+        if (syncing.current) return
+        skyDebug.current.timeScale = value
+      }
+    },
+    yawOffset: {
+      value: skyDebug.current.yawOffset,
+      min: -180,
+      max: 180,
+      step: 1,
+      onChange: (value: number) => {
+        skyDebug.current.yawOffset = value
+      }
+    },
+    overrideWeather: {
+      value: skyDebug.current.overrideWeather,
+      onChange: (
+        value: boolean,
+        _path: string,
+        context: { initial: boolean }
+      ) => {
+        if (context.initial || syncing.current) return
+        skyDebug.current.overrideWeather = value
+        if (value) {
+          const weather = useWeather.getState()
+          skyDebug.current.cloudCover = weather.cloudCover
+          skyDebug.current.rainFactor = weather.isRaining
+            ? weather.rainIntensity
+            : 0
+          skyDebug.current.windSpeed = weather.windSpeed
+          updateDebugWeather()
+        } else applyWeatherPreset("live")
+      }
+    },
+    cloudCover: {
+      value: skyDebug.current.cloudCover,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange: (value: number) => {
+        if (syncing.current) return
+        skyDebug.current.cloudCover = value
+        updateDebugWeather()
+      }
+    },
+    rainFactor: {
+      value: skyDebug.current.rainFactor,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange: (value: number) => {
+        if (syncing.current) return
+        skyDebug.current.rainFactor = value
+        updateDebugWeather()
+      }
+    },
+    windSpeed: {
+      value: skyDebug.current.windSpeed,
+      min: 0,
+      max: 120,
+      step: 1,
+      onChange: (value: number) => {
+        if (syncing.current) return
+        skyDebug.current.windSpeed = value
+        updateDebugWeather()
+      }
+    },
+    sunIntensity: {
+      value: skyDebug.current.sunIntensity,
+      min: 0,
+      max: 60,
+      step: 0.5,
+      onChange: (value: number) => {
+        skyDebug.current.sunIntensity = value
+      }
+    },
+    sunDiscIntensity: {
+      value: skyDebug.current.sunDiscIntensity,
+      min: 0,
+      max: 200,
+      step: 1,
+      onChange: (value: number) => {
+        skyDebug.current.sunDiscIntensity = value
+      }
+    }
+  }))
+
+  useEffect(() => {
+    setSkyRef.current = setSky
+    syncSlidersFromDebug()
+    const stopTime = useSceneTime.subscribe(syncSlidersFromDebug)
+    const stopWeather = useWeather.subscribe(syncSlidersFromDebug)
+    return () => {
+      stopTime()
+      stopWeather()
+      setSkyRef.current = null
+    }
+    // The subscriptions read current store values and write through setSkyRef.
+  }, [setSky])
+
+  return null
+}
+
+const PostprocessingDebugControls = () => {
+  const [, setBasics] = useControls("Basics", () => ({
+    contrast: {
+      value: postprocessingDebug.basics.current.contrast,
+      min: 0,
+      max: 2,
+      step: 0.01,
+      onChange: onNumberChange((value) => {
+        postprocessingDebug.basics.current.contrast = value
+      })
+    },
+    brightness: {
+      value: postprocessingDebug.basics.current.brightness,
+      min: 0,
+      max: 2,
+      step: 0.01,
+      onChange: onNumberChange((value) => {
+        postprocessingDebug.basics.current.brightness = value
+      })
+    },
+    exposure: {
+      value: postprocessingDebug.basics.current.exposure,
+      min: 0,
+      max: 2,
+      step: 0.01,
+      onChange: onNumberChange((value) => {
+        postprocessingDebug.basics.current.exposure = value
+      })
+    },
+    gamma: {
+      value: postprocessingDebug.basics.current.gamma,
+      min: 0,
+      max: 2,
+      step: 0.01,
+      onChange: onNumberChange((value) => {
+        postprocessingDebug.basics.current.gamma = value
+      })
+    }
+  }))
+
+  const [, setBloom] = useControls("Bloom", () => ({
+    strength: {
+      value: postprocessingDebug.bloom.current.strength,
+      min: 0,
+      max: 10,
+      step: 0.01,
+      onChange: onNumberChange((value) => {
+        postprocessingDebug.bloom.current.strength = value
+      })
+    },
+    radius: {
+      value: postprocessingDebug.bloom.current.radius,
+      min: 0,
+      max: 10,
+      step: 0.01,
+      onChange: onNumberChange((value) => {
+        postprocessingDebug.bloom.current.radius = value
+      })
+    },
+    threshold: {
+      value: postprocessingDebug.bloom.current.threshold,
+      min: 0,
+      max: 10,
+      step: 0.01,
+      onChange: onNumberChange((value) => {
+        postprocessingDebug.bloom.current.threshold = value
+      })
+    }
+  }))
+
+  const [, setVignette] = useControls("Vignette", () => ({
+    radius: {
+      value: postprocessingDebug.vignette.current.radius,
+      min: 0,
+      max: 5,
+      step: 0.01,
+      onChange: onNumberChange((value) => {
+        postprocessingDebug.vignette.current.radius = value
+      })
+    },
+    spread: {
+      value: postprocessingDebug.vignette.current.spread,
+      min: 0,
+      max: 5,
+      step: 0.01,
+      onChange: onNumberChange((value) => {
+        postprocessingDebug.vignette.current.spread = value
+      })
+    }
+  }))
+
+  useEffect(() => {
+    registerLevaSetters({ setBasics, setBloom, setVignette })
+    return () => {
+      registerLevaSetters(null)
+      postprocessingDebug.hasChanged.current = false
+    }
+  }, [setBasics, setBloom, setVignette])
+
+  return null
+}
+
+// Dynamically imported from ./index only when ?debug is present.
+export const OnlyDebug = () => (
+  <>
+    <Leva collapsed fill />
+    <CameraDebugControls />
+    <SkyDebugControls />
+    <CityDebugControls />
+    <PostprocessingDebugControls />
+    <ReactScan />
+  </>
+)

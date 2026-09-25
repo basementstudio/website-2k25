@@ -1,18 +1,12 @@
 import { COMPANY_FACTS } from "@/lib/company-facts"
+import { SITE_URL } from "@/lib/constants"
 
-const SITE_URL = "https://basement.studio"
-const SITE_NAME = "basement.studio"
+import { type Award, formatAwards } from "../format-award"
 
 interface Founder {
   name: string
   url?: string | null
   jobTitle?: string | null
-}
-
-interface Award {
-  title?: string | null
-  date?: string | number | null
-  projectName?: string | null
 }
 
 interface ContactPoint {
@@ -40,29 +34,6 @@ interface OrganizationData {
 }
 
 export const ORGANIZATION_ID = `${SITE_URL}/#organization`
-const formatAward = (award: Award) => {
-  const title = typeof award.title === "string" ? award.title.trim() : ""
-
-  if (!title) return null
-
-  const year =
-    award.date !== null && award.date !== undefined
-      ? new Date(award.date).getUTCFullYear()
-      : null
-
-  const projectName = award.projectName?.trim()
-  const projectAlreadyIncludesYear =
-    projectName && year ? projectName.endsWith(String(year)) : false
-
-  if (projectName && year && projectAlreadyIncludesYear) {
-    return `${title} - ${projectName}`
-  }
-  if (projectName && year) return `${title} - ${projectName} ${year}`
-  if (projectName) return `${title} - ${projectName}`
-  if (year) return `${title} ${year}`
-
-  return title
-}
 
 export const generateOrganizationSchema = (data: OrganizationData) => {
   const sameAs = [
@@ -71,13 +42,7 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
     data.social.twitter,
     data.social.linkedIn
   ].filter((v): v is string => Boolean(v))
-  const award = [
-    ...new Set(
-      (data.awards ?? [])
-        .map(formatAward)
-        .filter((value): value is string => Boolean(value))
-    )
-  ]
+  const award = formatAwards(data.awards)
   const hasAddress =
     data.addressCity || data.addressRegion || data.addressCountry
 
@@ -90,10 +55,9 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
     }))
 
   return {
-    "@context": "https://schema.org",
     "@type": "Organization",
     "@id": ORGANIZATION_ID,
-    name: SITE_NAME,
+    name: COMPANY_FACTS.name,
     alternateName: [...COMPANY_FACTS.alternateNames],
     url: SITE_URL,
     areaServed: COMPANY_FACTS.areaServed,
@@ -134,8 +98,9 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
 }
 
 export const generateWebSiteSchema = () => ({
-  "@context": "https://schema.org",
   "@type": "WebSite",
-  name: SITE_NAME,
-  url: SITE_URL
+  "@id": `${SITE_URL}/#website`,
+  name: COMPANY_FACTS.name,
+  url: SITE_URL,
+  publisher: { "@id": ORGANIZATION_ID }
 })

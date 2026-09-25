@@ -1,10 +1,13 @@
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
+import * as Sentry from "@sentry/nextjs"
 import dynamic from "next/dynamic"
 import { useEffect, useRef } from "react"
 import { Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { markCanvasBootStage } from "@/lib/canvas-boot"
+import { workerErrorFromMessage, workerErrorReport } from "@/lib/worker-error"
 import { cn } from "@/utils/cn"
 
 import { useNavigationStore } from "../navigation-handler/navigation-store"
@@ -57,6 +60,7 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
       }
     )
 
+    markCanvasBootStage("worker-spawned")
     useAppLoadingStore.setState({ worker })
 
     // start the loading scene
@@ -68,23 +72,47 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
     worker.addEventListener("message", (e: MessageEvent<{ type: string }>) => {
       const { type } = e.data
 
+      const forwarded = workerErrorFromMessage(e.data)
+      if (forwarded) {
+        Sentry.captureException(forwarded, { tags: { worker: "loading" } })
+        return
+      }
+
       if (type === "loading-transition-complete") {
         useAppLoadingStore.setState({ showLoadingCanvas: false })
       }
 
       if (type === "offscreen-canvas-loaded") {
+        markCanvasBootStage("offscreen-ready")
         useAppLoadingStore.setState({ offscreenCanvasReady: true })
       }
     })
 
-    const handleError = (error: ErrorEvent) => {
-      console.error("[LoadingCanvas] Worker error:", error)
+    const handleError = (event: Event) => {
+      console.error("[LoadingCanvas] Worker error:", event)
+      // Uncanceled, it reaches window.onerror and Sentry files a second copy.
+      event.preventDefault()
+
+      const { error, detail } = workerErrorReport(event, "loading")
+      Sentry.captureException(error, {
+        tags: { worker: "loading" },
+        ...(detail ? { extra: { detail } } : {})
+      })
+
+      // `loading-transition-complete` can no longer arrive, so the black
+      // overlay would sit there until the boot timeout. `offscreenCanvasReady`
+      // gates usePreloadAssets, which would otherwise never fire.
+      useAppLoadingStore.setState({
+        showLoadingCanvas: false,
+        offscreenCanvasReady: true
+      })
     }
 
     worker.addEventListener("error", handleError)
 
     return () => {
       worker.terminate()
+      useAppLoadingStore.setState({ worker: null })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

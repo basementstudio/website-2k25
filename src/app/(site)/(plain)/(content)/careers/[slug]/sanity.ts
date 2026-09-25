@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache"
+
 import {
   sanityFetch,
   sanityFetchCached,
@@ -31,9 +33,7 @@ export interface CareerPosition {
 // ---------------------------------------------------------------------------
 
 export async function fetchCareerPosition(
-  slug: string,
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
+  slug: string
 ): Promise<CareerPosition | null> {
   const query = /* groq */ `*[_type == "openPosition" && slug.current == $slug][0]{
     _id,
@@ -51,16 +51,21 @@ export async function fetchCareerPosition(
       skills[] { title, slug }
     }
   }`
-  if (options?.published) {
-    return sanityFetchStatic<CareerPosition | null>({
-      query,
-      params: { slug }
-    })
-  }
   return sanityFetch<CareerPosition | null>({
     query,
-    params: { slug }
+    params: { slug },
+    tag: "careers.position-by-slug"
   })
+}
+
+/** Shared per-slug cache entry for the human position page and the `.md` builder. */
+export async function getPositionData(
+  slug: string
+): Promise<CareerPosition | null> {
+  "use cache"
+  const position = await fetchCareerPosition(slug)
+  if (!position) cacheLife("hours")
+  return position
 }
 
 export interface OpenPositionIndexEntry {
@@ -77,7 +82,8 @@ export async function fetchAllOpenPositionsForIndex(): Promise<
   }`
   return sanityFetchCached<OpenPositionIndexEntry[]>({
     query,
-    perspective: "published"
+    perspective: "published",
+    tag: "careers.positions-index"
   })
 }
 
@@ -85,7 +91,8 @@ export async function fetchAllOpenPositionSlugs(): Promise<string[]> {
   const query = /* groq */ `*[_type == "openPosition" && isOpen == true]{ "slug": slug.current }.slug`
   return sanityFetchStatic<string[]>({
     query,
-    perspective: "published"
+    perspective: "published",
+    tag: "careers.position-slugs.static-params"
   })
 }
 
@@ -96,6 +103,8 @@ export async function fetchCareerPositionMeta(
   return sanityFetchCached<{ title: string } | null>({
     query,
     params: { slug },
-    perspective: "published"
+    perspective: "published",
+    boundEmptyResult: true,
+    tag: "careers.position-meta"
   })
 }

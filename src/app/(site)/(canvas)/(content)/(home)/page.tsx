@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 import { Contact } from "@/components/layout/contact"
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generateWebSiteSchema } from "@/lib/structured-data/schemas/organization"
 import { generateProfessionalServiceSchema } from "@/lib/structured-data/schemas/professional-service-entity"
 import { fetchOrganizationData } from "@/service/sanity/organization"
@@ -33,12 +33,14 @@ const Homepage = async () => {
 
   return (
     <div className="flex flex-col gap-18 lg:gap-32">
-      <JsonLd data={generateWebSiteSchema()} />
-      <JsonLd
-        data={generateProfessionalServiceSchema({
-          services: serviceTitles,
-          email: orgData.email
-        })}
+      <PageJsonLd
+        nodes={[
+          generateWebSiteSchema(),
+          generateProfessionalServiceSchema({
+            services: serviceTitles,
+            email: orgData.email
+          })
+        ]}
       />
       <Intro data={data} />
       <Brands data={data} />

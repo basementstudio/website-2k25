@@ -16,10 +16,20 @@ import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { beginScoreSession } from "@/service/supabase/client"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
 import { Basketball } from "./basketball"
+import { STATIC_GROUP } from "./collision"
+import {
+  armCurveball,
+  CurveballForce,
+  resetSpinTracking,
+  trackSpin
+} from "./curveball"
+import { GhostBalls } from "./ghost-balls"
+import { NetPhysics } from "./net-physics"
 import { RigidBodies } from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
@@ -259,6 +269,9 @@ const HoopMinigameInner = () => {
         clearInterval(timerInterval.current)
       }
 
+      // server-signed session backing this game's eventual score submission
+      beginScoreSession()
+
       setIsGameActive(true)
       setTimeRemaining(gameDuration)
       isTimerLow.current = false
@@ -396,7 +409,7 @@ const HoopMinigameInner = () => {
   ])
 
   const handlePointerUp = useCallback(() => {
-    utilsHandlePointerUp({
+    const threw = utilsHandlePointerUp({
       ballRef,
       dragStartPos: positionVectors.dragStartPos,
       hasMovedSignificantly,
@@ -410,6 +423,14 @@ const HoopMinigameInner = () => {
       playSoundFX,
       throwVelocity: throwVelocity.current
     })
+
+    // only a release that actually launched a throw may charge the
+    // curveball — a dropped ball must not receive spin/curve forces
+    if (threw) {
+      armCurveball()
+    } else {
+      resetSpinTracking()
+    }
   }, [
     isGameActive,
     hoopPosition,
@@ -601,6 +622,7 @@ const HoopMinigameInner = () => {
       // Don't allow grabbing the ball when timer is low
       if (isTimerLow.current) return
 
+      resetSpinTracking()
       utilsHandlePointerDown({
         event,
         ballRef,
@@ -622,6 +644,7 @@ const HoopMinigameInner = () => {
     (event: any) => {
       if (!isDragging) return
 
+      trackSpin(event.clientX, event.clientY)
       utilsHandlePointerMove({
         event,
         ballRef,
@@ -676,10 +699,18 @@ const HoopMinigameInner = () => {
   return (
     <>
       {basketball.hoop && clonedHoopRef.current && (
-        <RigidBody type="fixed" colliders="trimesh">
+        <RigidBody
+          type="fixed"
+          colliders="trimesh"
+          collisionGroups={STATIC_GROUP}
+        >
           <primitive object={clonedHoopRef.current} />
         </RigidBody>
       )}
+
+      <NetPhysics ballRef={ballRef} />
+
+      <CurveballForce ballRef={ballRef} />
 
       {readyToPlay && (
         <>
@@ -697,6 +728,8 @@ const HoopMinigameInner = () => {
           />
         </>
       )}
+
+      <GhostBalls ballRef={ballRef} />
 
       <RigidBodies hoopPosition={hoopPosition} />
     </>

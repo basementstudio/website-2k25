@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache"
+
 import {
   sanityFetch,
   sanityFetchCached,
@@ -90,15 +92,22 @@ const projectMetaQuery = /* groq */ `
   *[_type == "project" && slug.current == $slug][0]{ title, content }
 `
 
-const relatedProjectsQuery = /* groq */ `
+// Slugs only — icon+lqip is fetched separately for just the 2 selected.
+const relatedProjectsSlugsQuery = /* groq */ `
   *[_type == "showcasePage"][0]{
     "projects": projects[]->{
       _id,
       title,
-      "slug": slug.current,
-      icon ${imageFragment}
+      "slug": slug.current
     }
   }.projects
+`
+
+const relatedProjectsIconsQuery = /* groq */ `
+  *[_type == "project" && slug.current in $slugs]{
+    "slug": slug.current,
+    icon ${imageFragment}
+  }
 `
 
 // ---------------------------------------------------------------------------
@@ -106,20 +115,23 @@ const relatedProjectsQuery = /* groq */ `
 // ---------------------------------------------------------------------------
 
 export async function fetchProjectBySlug(
-  slug: string,
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
+  slug: string
 ): Promise<ShowcaseProjectDetail | null> {
-  if (options?.published) {
-    return sanityFetchStatic<ShowcaseProjectDetail | null>({
-      query: projectBySlugQuery,
-      params: { slug }
-    })
-  }
   return sanityFetch<ShowcaseProjectDetail | null>({
     query: projectBySlugQuery,
-    params: { slug }
+    params: { slug },
+    tag: "showcase.project-by-slug"
   })
+}
+
+/** Shared per-slug cache entry for the human project page and the `.md` builder. */
+export async function getProjectData(
+  slug: string
+): Promise<ShowcaseProjectDetail | null> {
+  "use cache"
+  const project = await fetchProjectBySlug(slug)
+  if (!project) cacheLife("hours")
+  return project
 }
 
 export interface ProjectIndexEntry {
@@ -136,7 +148,8 @@ export async function fetchAllProjectsForIndex(): Promise<ProjectIndexEntry[]> {
   }`
   return sanityFetchCached<ProjectIndexEntry[]>({
     query,
-    perspective: "published"
+    perspective: "published",
+    tag: "showcase.projects-index"
   })
 }
 
@@ -145,7 +158,8 @@ export async function fetchAllProjectSlugs(): Promise<Array<{
 }> | null> {
   return sanityFetchStatic<Array<{ slug: string }> | null>({
     query: allProjectSlugsQuery,
-    perspective: "published"
+    perspective: "published",
+    tag: "showcase.project-slugs.static-params"
   })
 }
 
@@ -158,20 +172,49 @@ export async function fetchProjectMeta(
   } | null>({
     query: projectMetaQuery,
     params: { slug },
-    perspective: "published"
+    perspective: "published",
+    boundEmptyResult: true,
+    tag: "showcase.project-meta"
+  })
+}
+
+/** Selection without the icons fetch — all the `.md` builder needs. */
+export async function fetchRelatedProjectSlugs(
+  excludeSlug: string
+): Promise<RelatedProject[]> {
+  const all = await sanityFetchCached<Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null>({
+    query: relatedProjectsSlugsQuery,
+    tag: "showcase.related-projects"
+  })
+  if (!all) return []
+
+  return selectRelatedProjects({
+    projects: all.map((project) => ({ ...project, icon: null })),
+    excludeSlug
   })
 }
 
 export async function fetchRelatedProjects(
   excludeSlug: string
 ): Promise<RelatedProject[]> {
-  const all = await sanityFetchCached<RelatedProject[] | null>({
-    query: relatedProjectsQuery
-  })
-  if (!all) return []
+  const selected = await fetchRelatedProjectSlugs(excludeSlug)
+  if (!selected.length) return []
 
-  return selectRelatedProjects({
-    projects: all,
-    excludeSlug
+  const icons = await sanityFetchCached<
+    Array<{ slug: string; icon: SanityImage | null }>
+  >({
+    query: relatedProjectsIconsQuery,
+    params: { slugs: selected.map((project) => project.slug) },
+    tag: "showcase.related-project-icons"
   })
+  const iconBySlug = new Map(icons.map((i) => [i.slug, i.icon]))
+
+  return selected.map((project) => ({
+    ...project,
+    icon: iconBySlug.get(project.slug) ?? null
+  }))
 }

@@ -13,11 +13,7 @@ else
   echo "Skipping 'sanity schema deploy' — SANITY_AUTH_TOKEN is not set."
 fi
 
-if [[ $VERCEL_ENV == "production"  ]] ; then
-  pnpm run build
-  curl --proto '=https' --tlsv1.2 -LsSf https://github.com/PostHog/posthog/releases/download/posthog-cli-v0.0.4/posthog-cli-installer.sh | sh
-  /vercel/.posthog/posthog-cli --host https://us.posthog.com sourcemap inject --directory ./.next/static/chunks
-  /vercel/.posthog/posthog-cli --host https://us.posthog.com sourcemap upload --directory ./.next/static/chunks
-else
-  pnpm run build
-fi
+# Since Next 16.3, Vercel's build adapter relocates the client output into
+# .vercel/output during `next build`, so post-build steps no longer find
+# ./.next/static — sourcemap upload has to happen inside the build instead.
+pnpm run build

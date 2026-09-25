@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next"
 
+import { SITE_URL } from "@/lib/constants"
 import { sanityFetchCached } from "@/service/sanity"
-
-const SITE_URL = "https://basement.studio"
 
 const SITEMAP_QUERY = /* groq */ `{
   "posts": *[_type == "post" && defined(slug.current)]{
@@ -42,7 +41,8 @@ const staticRoutes: Array<{ href: string; priority: number }> = [
   { href: "/blog", priority: 0.8 },
   { href: "/people", priority: 0.7 },
   { href: "/contact", priority: 0.7 },
-  { href: "/ai", priority: 0.5 },
+  { href: "/faq", priority: 0.7 },
+  { href: "/ai/home", priority: 0.5 },
   { href: "/lab", priority: 0.5 },
   { href: "/basketball", priority: 0.3 },
   { href: "/doom", priority: 0.3 }
@@ -51,7 +51,8 @@ const staticRoutes: Array<{ href: string; priority: number }> = [
 async function getSitemapData(): Promise<SitemapData> {
   return sanityFetchCached<SitemapData>({
     query: SITEMAP_QUERY,
-    perspective: "published"
+    perspective: "published",
+    tag: "sitemap.entries"
   })
 }
 

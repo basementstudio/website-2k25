@@ -1,9 +1,9 @@
 import { COMPANY_FACTS } from "@/lib/company-facts"
-import { sanityFetch } from "@/service/sanity"
+import { fetchLayoutData } from "@/service/sanity/layout"
 
 /**
  * Data feeding the schema.org Organization node rendered on every page (see
- * `src/app/(site)/layout.tsx`). Stable identity facts come from
+ * `src/lib/structured-data/page-json-ld.tsx`). Stable identity facts come from
  * `COMPANY_FACTS`; awards and social links come from Sanity so they stay in
  * sync with what the site publishes.
  */
@@ -34,30 +34,15 @@ export interface OrganizationStructuredData {
   }
 }
 
-const organizationQuery = /* groq */ `{
-  "companyInfo": *[_type == "companyInfo"][0]{
-    github,
-    instagram,
-    twitter,
-    linkedIn
-  },
-  "awards": *[_type == "award" && defined(title)] | order(date desc){
-    title,
-    date,
-    "projectName": project->title
-  }
-}`
-
 const getOrganizationFallback = (): OrganizationStructuredData => ({
   description: COMPANY_FACTS.description,
   foundingDate: COMPANY_FACTS.foundingDate,
-  // Contact emails published across the site (footer, contact page, contact
-  // form). `email` is the primary general inbox; `contactPoints` exposes the
-  // same plus the sales inbox as schema.org ContactPoints.
-  email: "hello@basement.studio",
+  // `email` is the primary general inbox; `contactPoints` exposes the same
+  // plus the sales inbox as schema.org ContactPoints.
+  email: COMPANY_FACTS.contactEmail,
   contactPoints: [
-    { email: "hello@basement.studio", contactType: "customer support" },
-    { email: "sales@basement.studio", contactType: "sales" }
+    { email: COMPANY_FACTS.contactEmail, contactType: "customer support" },
+    { email: COMPANY_FACTS.salesEmail, contactType: "sales" }
   ],
   addressCity: COMPANY_FACTS.addressCity,
   addressRegion: null,
@@ -74,33 +59,17 @@ const getOrganizationFallback = (): OrganizationStructuredData => ({
 })
 
 export async function fetchOrganizationData(): Promise<OrganizationStructuredData> {
-  "use cache"
-
   try {
-    const data = await sanityFetch<{
-      companyInfo: {
-        github: string | null
-        instagram: string | null
-        twitter: string | null
-        linkedIn: string | null
-      } | null
-      awards: Array<{
-        title: string
-        date: string | null
-        projectName: string | null
-      }> | null
-    }>({
-      query: organizationQuery
-    })
+    const { companyInfo, awards } = await fetchLayoutData()
 
     return {
       ...getOrganizationFallback(),
-      awards: data.awards ?? [],
+      awards: awards ?? [],
       social: {
-        github: data.companyInfo?.github ?? null,
-        instagram: data.companyInfo?.instagram ?? null,
-        twitter: data.companyInfo?.twitter ?? null,
-        linkedIn: data.companyInfo?.linkedIn ?? null
+        github: companyInfo?.github ?? null,
+        instagram: companyInfo?.instagram ?? null,
+        twitter: companyInfo?.twitter ?? null,
+        linkedIn: companyInfo?.linkedIn ?? null
       }
     }
   } catch (error) {

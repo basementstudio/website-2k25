@@ -27,19 +27,21 @@ export interface MarkdownRoute {
 export const markdownRoutes: MarkdownRoute[] = [
   {
     mdRegex: /^\/post\/([^/]+)\.md$/,
-    htmlRegex: /^\/post\/([^/.]+)$/,
+    // Same char class as mdRegex — dotted slugs (e.g. "next.js-thing") were
+    // silently skipped otherwise.
+    htmlRegex: /^\/post\/([^/]+)$/,
     apiPath: "/api/post/[slug].md",
     publicMdPath: "/post/[slug].md"
   },
   {
     mdRegex: /^\/showcase\/([^/]+)\.md$/,
-    htmlRegex: /^\/showcase\/([^/.]+)$/,
+    htmlRegex: /^\/showcase\/([^/]+)$/,
     apiPath: "/api/showcase/[slug].md",
     publicMdPath: "/showcase/[slug].md"
   },
   {
     mdRegex: /^\/careers\/([^/]+)\.md$/,
-    htmlRegex: /^\/careers\/([^/.]+)$/,
+    htmlRegex: /^\/careers\/([^/]+)$/,
     apiPath: "/api/careers/[slug].md",
     publicMdPath: "/careers/[slug].md"
   },
@@ -67,5 +69,30 @@ export const markdownRoutes: MarkdownRoute[] = [
     htmlRegex: /^\/showcase$/,
     apiPath: "/api/showcase.md",
     publicMdPath: "/showcase.md"
+  },
+  {
+    mdRegex: /^\/faq\.md$/,
+    htmlRegex: /^\/faq$/,
+    apiPath: "/api/faq.md",
+    publicMdPath: "/faq.md"
+  },
+  {
+    // Exact match — `/blog/<category>` pages get no mirror (filtered lists).
+    mdRegex: /^\/blog\.md$/,
+    htmlRegex: /^\/blog$/,
+    apiPath: "/api/blog.md",
+    publicMdPath: "/blog.md"
+  },
+  {
+    mdRegex: /^\/contact\.md$/,
+    htmlRegex: /^\/contact$/,
+    apiPath: "/api/contact.md",
+    publicMdPath: "/contact.md"
+  },
+  {
+    mdRegex: /^\/lab\.md$/,
+    htmlRegex: /^\/lab$/,
+    apiPath: "/api/lab.md",
+    publicMdPath: "/lab.md"
   }
 ]

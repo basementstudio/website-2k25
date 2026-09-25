@@ -1,60 +1,44 @@
 "use client"
 
-import dynamic from "next/dynamic"
-import { memo, Suspense, useEffect, useRef, useState } from "react"
+import { memo, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Object3D } from "three"
 import * as THREE from "three"
 
 import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
+import { LedLeaderboard } from "@/components/basketball/led-leaderboard"
+import { LedScoreboard } from "@/components/basketball/led-scoreboard"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { ChristmasTree } from "@/components/christmas-tree"
+import {
+  CITY_POSITION,
+  CITY_SCALE,
+  CitySkyline
+} from "@/components/city-skyline"
 import { Clock } from "@/components/clock"
 import { Godrays } from "@/components/godrays"
-import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { OutdoorCars } from "@/components/outdoor-cars"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
+import { Sky } from "@/components/sky"
 import { SpeakerHover } from "@/components/speaker-hover"
 import { Weather } from "@/components/weather"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
+import { markCanvasBootStage } from "@/lib/canvas-boot"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { createIpodScreenMaterial } from "@/shaders/material-ipod-screen"
 import { createNotFoundMaterial } from "@/shaders/material-not-found"
 
-import { BakesLoader } from "./bakes"
 import { extractMeshes } from "./extract-meshes"
 import { useFrameLoop } from "./use-frame-loop"
 import { useLoader } from "./use-loader"
 
-const PhysicsWorld = dynamic(
-  () =>
-    import("@react-three/rapier").then((mod) => {
-      const { Physics } = mod
-      return function PhysicsWrapper({
-        children,
-        paused,
-        gravity
-      }: {
-        children: React.ReactNode
-        paused: boolean
-        gravity: [number, number, number]
-      }) {
-        return (
-          <Physics paused={paused} gravity={gravity}>
-            {children}
-          </Physics>
-        )
-      }
-    }),
-  { ssr: false }
-)
+const legacySkyNodes = ["TX_Sky001", "TX_Sky002", "cloudy_01", "cloudy_02"]
 
 // Meshes whose texture packs a second image for the back of the sheet at
 // U + 0.5 — see TWO_SIDED_ATLAS in material-global-shader. Must also be in
@@ -77,31 +61,19 @@ export const Map = memo(() => {
 
   useFrameLoop()
 
-  const scene = useCurrentScene()
-  const currentScene = useNavigationStore((state) => state.currentScene)
+  const tabs = useNavigationStore((state) => state.currentScene?.tabs)
 
-  const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
-
-  useEffect(() => {
-    const routingNodes: Record<string, Mesh> = {}
+  const routingMeshes = useMemo(() => {
+    const meshes: Record<string, Mesh> = {}
     routingElements?.traverse((child) => {
       if (child instanceof Mesh) {
-        const matchingTab = currentScene?.tabs?.find(
-          (tab) => child.name === tab.tabClickableName
-        )
-
-        if (matchingTab) {
-          routingNodes[matchingTab.tabClickableName] = child
-        }
+        meshes[child.name] = child
       }
     })
-
-    setRoutingNodes(routingNodes)
-  }, [currentScene, routingElements])
+    return meshes
+  }, [routingElements])
 
   const alreadyTraversed = useRef(false)
-
-  const [materialsReady, setMaterialsReady] = useState(false)
 
   useEffect(() => {
     if (alreadyTraversed.current) return
@@ -117,8 +89,13 @@ export const Map = memo(() => {
     ) {
       const traverse = (
         child: Object3D,
-        overrides?: { FOG?: boolean; GODRAY?: boolean }
+        overrides?: { FOG?: boolean; GODRAY?: boolean; OUTDOOR?: boolean }
       ) => {
+        if (legacySkyNodes.includes(child.name)) {
+          child.visible = false
+          return
+        }
+
         if (child.name === "SM_TvScreen_4" && "isMesh" in child) {
           const meshChild = child as Mesh
           useMesh.setState({ cctv: { screen: meshChild } })
@@ -163,8 +140,8 @@ export const Map = memo(() => {
             (video) => video.mesh === meshChild.name
           )
           const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
-          const isClouds = meshChild.name === "cloudy_01"
           const isGlass = glassMaterials.includes(currentMaterial.name)
+          const isCity = meshChild.name === "TX_Building"
           const isDaylight = meshChild.name === "DL_ScreenB"
 
           currentMaterial.side = doubleSideElements.includes(meshChild.name)
@@ -215,7 +192,8 @@ export const Map = memo(() => {
             FOG: overrides?.FOG,
             MATCAP: withMatcap !== undefined,
             VIDEO: withVideo !== undefined,
-            CLOUDS: isClouds,
+            OUTDOOR: overrides?.OUTDOOR,
+            CITY: isCity,
             DAYLIGHT: isDaylight,
             // Merge-by-material meshes carry a 3rd UV set (TEXCOORD_2) with
             // their placement in the shared lightmap atlas — see bakes.tsx.
@@ -244,28 +222,69 @@ export const Map = memo(() => {
 
           meshChild.material = newMaterials
 
+          if (
+            meshChild.name === "SM_Glass_Dust" &&
+            !Array.isArray(newMaterials)
+          ) {
+            newMaterials.uniforms.opacity.value =
+              (newMaterials.uniforms.opacity.value as number) * 0.5
+          }
+
+          if (isCity && !Array.isArray(newMaterials)) {
+            meshChild.position.set(...CITY_POSITION)
+            meshChild.scale.setX(CITY_SCALE.x)
+            meshChild.scale.setY(CITY_SCALE.y)
+            useMesh.setState({
+              city: { material: newMaterials, mesh: meshChild }
+            })
+          }
+
           meshChild.userData.hasGlobalMaterial = true
         }
       }
 
-      office.traverse((child) => traverse(child))
-      officeItems.traverse((child) => traverse(child))
-      routingElements.traverse((child) => traverse(child, { FOG: false }))
-      outdoor.traverse((child) => traverse(child, { FOG: false }))
-      outdoorCars.traverse((child) => traverse(child, { FOG: false }))
-      godrays.traverse((child) => traverse(child, { GODRAY: true }))
-
-      extractMeshes({
-        office,
-        officeItems,
-        godrays,
-        outdoorCars,
-        basketballNet,
-        inspectables
-      })
-
       alreadyTraversed.current = true
-      setMaterialsReady(true)
+
+      // One material swap per mesh across seven scene graphs — run per-graph
+      // with a yield in between so it lands as several short tasks instead of
+      // one uninterruptible long task right after the GLTFs decode.
+      const steps = [
+        () => office.traverse((child) => traverse(child)),
+        () => officeItems.traverse((child) => traverse(child)),
+        () =>
+          routingElements.traverse((child) => traverse(child, { FOG: false })),
+        () =>
+          outdoor.traverse((child) =>
+            traverse(child, { FOG: false, OUTDOOR: true })
+          ),
+        () =>
+          outdoorCars.traverse((child) =>
+            traverse(child, { FOG: false, OUTDOOR: true })
+          ),
+        () => godrays.traverse((child) => traverse(child, { GODRAY: true })),
+        () => {
+          extractMeshes({
+            office,
+            officeItems,
+            godrays,
+            outdoorCars,
+            basketballNet,
+            inspectables
+          })
+
+          markCanvasBootStage("map-ready")
+          useMesh.setState({ mapMaterialsReady: true })
+        }
+      ]
+
+      const runSteps = async () => {
+        for (const step of steps) {
+          step()
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        }
+      }
+
+      runSteps()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -297,15 +316,10 @@ export const Map = memo(() => {
       {/*Blog */}
       <BlogDoor />
       <LockedDoor />
-      <Suspense fallback={null}>
-        <PhysicsWorld gravity={[0, -24, 0]} paused={scene !== "blog"}>
-          {/* TODO: shut down physics after x seconds of not being in blog scene */}
-          {/* TODO: basketball should use the same physics world */}
-          <Lamp />
-        </PhysicsWorld>
-      </Suspense>
 
       {/*Services */}
+      <Sky />
+      <CitySkyline />
       <Weather />
       <OutdoorCars />
       <ChristmasTree />
@@ -316,12 +330,13 @@ export const Map = memo(() => {
         <primitive object={useMesh.getState().basketball.hoop as Mesh} />
       )}
       <Net />
+      <LedScoreboard />
+      <LedLeaderboard />
 
       {/* Routing */}
-      {Object.values(routingNodes).map((node) => {
-        const matchingTab = currentScene?.tabs?.find(
-          (tab) => tab.tabClickableName === node.name
-        )
+      {tabs?.map((tab) => {
+        const node = routingMeshes[tab.tabClickableName]
+        if (!node) return null
 
         const isLabGroup =
           node.name === "LaboratoryHome_HoverA" ||
@@ -332,14 +347,12 @@ export const Map = memo(() => {
           <RoutingElement
             key={node.name}
             node={node}
-            route={matchingTab?.tabRoute ?? ""}
-            hoverName={matchingTab?.tabHoverName ?? node.name}
+            route={tab.tabRoute ?? ""}
+            hoverName={tab.tabHoverName ?? node.name}
             groupName={groupName}
           />
         )
       })}
-
-      <BakesLoader materialsReady={materialsReady} />
     </group>
   )
 })

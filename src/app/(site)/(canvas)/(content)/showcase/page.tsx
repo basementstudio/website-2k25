@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generateCollectionPageSchema } from "@/lib/structured-data/schemas/collection"
 
 import { Hero } from "./hero"
@@ -32,7 +32,7 @@ const ShowcaseIndexPage = async () => {
 
   return (
     <>
-      <JsonLd data={collectionSchema} />
+      <PageJsonLd nodes={[collectionSchema]} />
       <div id="list" className="-translate-y-[3.25rem]" />
       <div className="flex scroll-m-4 flex-col gap-9 lg:gap-24">
         <Hero />

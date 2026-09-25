@@ -1,15 +1,15 @@
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generateBreadcrumbSchema } from "@/lib/structured-data/schemas/breadcrumb"
 import { generateCreativeWorkSchema } from "@/lib/structured-data/schemas/creative-work"
 import { truncateDescription } from "@/utils/seo"
 
 import {
   fetchAllProjectSlugs,
-  fetchProjectBySlug,
-  fetchProjectMeta
+  fetchProjectMeta,
+  getProjectData
 } from "./sanity"
 import { ProjectWrapper } from "./wrapper"
 
@@ -39,14 +39,9 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
   }
 }
 
-async function getProject(slug: string) {
-  "use cache"
-  return fetchProjectBySlug(slug)
-}
-
 export default async function ProjectPost({ params }: ProjectPostProps) {
   const { slug } = await params
-  const project = await getProject(slug)
+  const project = await getProjectData(slug)
 
   if (!project) return notFound()
 
@@ -75,8 +70,7 @@ export default async function ProjectPost({ params }: ProjectPostProps) {
 
   return (
     <>
-      {creativeWorkSchema ? <JsonLd data={creativeWorkSchema} /> : null}
-      <JsonLd data={breadcrumbSchema} />
+      <PageJsonLd nodes={[creativeWorkSchema, breadcrumbSchema]} />
       <ProjectWrapper entry={project} />
     </>
   )

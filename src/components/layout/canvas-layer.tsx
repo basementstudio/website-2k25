@@ -1,7 +1,7 @@
 "use client"
 
+import * as Sentry from "@sentry/nextjs"
 import dynamic from "next/dynamic"
-import posthog from "posthog-js"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { useAirplaneStore } from "@/components/airplane-mode/store"
@@ -11,10 +11,16 @@ import {
   AppLoadingHandler,
   useAppLoadingStore
 } from "@/components/loading/app-loading-handler"
+import { useCanvasAvailability } from "@/hooks/use-canvas-availability"
+import { markCanvasBootStage } from "@/lib/canvas-boot"
 import { cn } from "@/utils/cn"
 
 const Scene = dynamic(
-  () => import("@/components/scene").then((mod) => mod.Scene),
+  () =>
+    import("@/components/scene").then((mod) => {
+      markCanvasBootStage("scene-chunk")
+      return mod.Scene
+    }),
   { ssr: false, loading: () => null }
 )
 
@@ -22,15 +28,16 @@ const Scene = dynamic(
 // client navigations. Whether it's visible is driven by `isCanvasInPage`, which
 // route-group layouts set (via <SetCanvasMode>) — no `usePathname` needed.
 export const CanvasLayer = () => {
+  useCanvasAvailability()
   const airplaneActive = useAirplaneStore((s) => s.phase !== "off")
+
   // `isCanvasInPage` (sticky) keeps the Scene mounted across navigations;
   // `canvasVisible` toggles whether it's shown for the current route.
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
   const canvasVisible = useAppLoadingStore((state) => state.canvasVisible)
-  const canvasErrorBoundaryTriggered = useAppLoadingStore(
-    (state) => state.canvasErrorBoundaryTriggered
+  const canvasUnavailable = useAppLoadingStore(
+    (state) => state.canvasUnavailable
   )
-  const show = canvasVisible && !canvasErrorBoundaryTriggered
 
   return (
     <>
@@ -38,28 +45,28 @@ export const CanvasLayer = () => {
         <CustomCursor />
       </div>
 
-      <ErrorBoundary
-        fallback={<div className="h-[37px]" aria-hidden />}
-        onError={(error) => {
-          posthog.captureException(error)
-          useAppLoadingStore.setState({
-            canvasErrorBoundaryTriggered: true,
-            isCanvasInPage: false
-          })
-        }}
-      >
-        <div
-          className={cn(
-            "canvas-container relative top-0 h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
-            !show && "pointer-events-none invisible fixed opacity-0",
-            airplaneActive && "!fixed !inset-0 !z-[2147482999] !h-[100svh]"
-          )}
+      {/* Dead weight without a renderer: an invisible overlay and a 3D-only viewer. */}
+      {!canvasUnavailable && (
+        <ErrorBoundary
+          fallback={null}
+          onError={(error, info) => {
+            Sentry.captureReactException(error, info)
+            useAppLoadingStore.getState().reportCanvasUnavailable()
+          }}
         >
-          {isCanvasInPage && <Scene />}
-          <AppLoadingHandler />
-          <InspectableViewer />
-        </div>
-      </ErrorBoundary>
+          <div
+            className={cn(
+              "canvas-container absolute top-0 h-[var(--canvas-offset)] w-full lg:fixed lg:aspect-auto",
+              !canvasVisible && "pointer-events-none invisible fixed opacity-0",
+              airplaneActive && "!fixed !inset-0 !z-[2147482999] !h-[100svh]"
+            )}
+          >
+            {isCanvasInPage && <Scene />}
+            <AppLoadingHandler />
+            <InspectableViewer />
+          </div>
+        </ErrorBoundary>
+      )}
     </>
   )
 }

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generateBlogPostingSchema } from "@/lib/structured-data/schemas/blog-posting"
 import { generateBreadcrumbSchema } from "@/lib/structured-data/schemas/breadcrumb"
 import { truncateDescription } from "@/utils/seo"
@@ -9,12 +9,7 @@ import { truncateDescription } from "@/utils/seo"
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import { Content } from "./content"
 import { More } from "./more"
-import {
-  fetchAllPostSlugs,
-  fetchPostBySlug,
-  fetchPostMeta,
-  fetchRelatedPosts
-} from "./sanity"
+import { fetchAllPostSlugs, fetchPostMeta, getPostData } from "./sanity"
 import { BlogTitle } from "./title"
 
 interface ProjectPostProps {
@@ -41,20 +36,6 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
       canonical: `https://basement.studio/post/${slug}`
     }
   }
-}
-
-async function getPostData(slug: string) {
-  "use cache"
-  const post = await fetchPostBySlug(slug)
-
-  if (!post) return null
-
-  const relatedPosts = await fetchRelatedPosts(
-    post.slug,
-    post.categories?.map((category) => category.title) ?? []
-  )
-
-  return { post, relatedPosts }
 }
 
 export default async function Blog({ params }: ProjectPostProps) {
@@ -84,8 +65,7 @@ export default async function Blog({ params }: ProjectPostProps) {
 
   return (
     <>
-      <JsonLd data={blogPostingSchema} />
-      <JsonLd data={breadcrumbSchema} />
+      <PageJsonLd nodes={[blogPostingSchema, breadcrumbSchema]} />
       <div className="relative bg-brand-k pt-12 lg:pb-24">
         <div className="lg:pb-25 flex flex-col gap-24">
           <BlogTitle title={post.title} />

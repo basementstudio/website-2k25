@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "motion/react"
 import Image from "next/image"
 import {
   Fragment,
@@ -17,6 +16,7 @@ import { Placeholder } from "@/components/primitives/placeholder"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
+import { displayPlatform, platformAriaLabel } from "@/utils/social-platform"
 
 import type { PersonDisplay } from "./sanity"
 
@@ -152,9 +152,12 @@ export const Crew = ({ data }: { data: PersonDisplay[] }) => {
                             href={socialNetwork.url}
                             target="_blank"
                             className="bg-brand-0"
+                            aria-label={platformAriaLabel(
+                              socialNetwork.platform
+                            )}
                           >
-                            <span className="actionable">
-                              {socialNetwork.platform}
+                            <span className="actionable" aria-hidden>
+                              {displayPlatform(socialNetwork.platform)}
                             </span>
                           </Link>
                           {index < person.socialNetworks.length - 1 && (
@@ -279,15 +282,14 @@ export const Face = ({
   setHoveredPerson,
   hoveredPerson
 }: FaceProps) => (
-  <motion.div
+  <div
     key={person.title}
-    className="with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 lg:aspect-[136/156]"
-    onMouseEnter={() => setHoveredPerson(person.title)}
-    onMouseLeave={() => setHoveredPerson(null)}
-    animate={{
+    className="with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 transition-opacity duration-200 ease-in-out lg:aspect-[136/156]"
+    style={{
       opacity: hoveredPerson ? (hoveredPerson === person.title ? 1 : 0.5) : 1
     }}
-    transition={{ duration: 0.2, ease: "easeInOut" }}
+    onMouseEnter={() => setHoveredPerson(person.title)}
+    onMouseLeave={() => setHoveredPerson(null)}
   >
     <div className="after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
       {person.image ? (
@@ -308,7 +310,7 @@ export const Face = ({
         { "opacity-100": hoveredPerson === person.title }
       )}
     />
-  </motion.div>
+  </div>
 )
 
 interface CrewFooterProps {

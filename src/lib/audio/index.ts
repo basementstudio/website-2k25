@@ -156,8 +156,11 @@ export class WebAudioPlayer {
   public ambienceVolume: number
   private audioSources: Set<AudioSource> = new Set()
 
-  constructor() {
-    this.audioContext = new (window.AudioContext || window.AudioContext)()
+  // Accepts an existing context so the unlock gesture can create/resume the
+  // AudioContext synchronously (autoplay policy) while the graph construction
+  // here runs deferred, off the tap's INP-measured critical path.
+  constructor(audioContext?: AudioContext) {
+    this.audioContext = audioContext ?? new AudioContext()
 
     // master output
     this.masterOutput = this.audioContext.createGain()
@@ -205,7 +208,14 @@ export class WebAudioPlayer {
   ): Promise<AudioSource> {
     return new Promise((resolve, reject) => {
       fetch(url)
-        .then((response) => response.arrayBuffer())
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(
+              `Failed to fetch audio (${response.status}): ${url}`
+            )
+          }
+          return response.arrayBuffer()
+        })
         .then((arrayBuffer) => {
           return this.audioContext.decodeAudioData(
             arrayBuffer,
@@ -236,6 +246,8 @@ export class WebAudioPlayer {
             }
           )
         })
+        // a network failure must reject, or awaiters hang forever
+        .catch(reject)
     })
   }
 

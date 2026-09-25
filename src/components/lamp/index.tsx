@@ -4,7 +4,6 @@ import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { track } from "@vercel/analytics"
 import { MeshLineGeometry, MeshLineMaterial } from "meshline"
 import { animate } from "motion"
-import posthog from "posthog-js"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
@@ -75,6 +74,9 @@ const useExrLampLightmaps = (onUrl: string, offUrl: string) => {
 }
 
 extend({ MeshLineGeometry, MeshLineMaterial })
+
+// The rope was tuned at gravity -24; the shared world runs at rapier's default.
+const LAMP_GRAVITY_SCALE = 24 / 9.81
 
 const colorWhenOn = new THREE.Color("#f2f2f2")
 const colorWhenOff = new THREE.Color("#595959")
@@ -275,7 +277,6 @@ export const Lamp = memo(function LampInner() {
     if (!shouldToggle) {
       setLight(!light)
       track("lamp_pulled")
-      posthog.capture("lamp_pulled")
       desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -322,6 +323,7 @@ export const Lamp = memo(function LampInner() {
           position={[0, -0.02, 0]}
           angularDamping={100}
           linearDamping={2}
+          gravityScale={LAMP_GRAVITY_SCALE}
         >
           <BallCollider args={[0.01]} />
         </RigidBody>
@@ -331,6 +333,7 @@ export const Lamp = memo(function LampInner() {
           position={[0, -0.04, 0]}
           angularDamping={100}
           linearDamping={2}
+          gravityScale={LAMP_GRAVITY_SCALE}
         >
           <BallCollider args={[0.01]} />
         </RigidBody>
@@ -340,6 +343,7 @@ export const Lamp = memo(function LampInner() {
           position={[0, -0.06, 0]}
           angularDamping={100}
           linearDamping={2}
+          gravityScale={LAMP_GRAVITY_SCALE}
           type={dragged ? "kinematicPosition" : "dynamic"}
         >
           <BallCollider args={[0.01]} />

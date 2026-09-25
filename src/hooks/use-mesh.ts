@@ -1,4 +1,4 @@
-import { Box3, Mesh } from "three"
+import { Box3, Mesh, ShaderMaterial } from "three"
 import { create } from "zustand"
 
 interface blog {
@@ -86,6 +86,8 @@ export interface MeshStore {
   cars: (Mesh | null)[]
   cctv: { screen: Mesh | null }
   ipodScreen: Mesh | null
+  city: { material: ShaderMaterial | null; mesh: Mesh | null }
+  mapMaterialsReady: boolean
 }
 
 export const useMesh = create<MeshStore>()(() => ({
@@ -124,5 +126,14 @@ export const useMesh = create<MeshStore>()(() => ({
   cctv: {
     screen: null
   },
-  ipodScreen: null
+  ipodScreen: null,
+  city: {
+    material: null,
+    mesh: null
+  },
+  mapMaterialsReady: false
 }))
+
+if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
+  ;(window as unknown as Record<string, unknown>).__mesh = useMesh
+}

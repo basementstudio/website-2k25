@@ -1,5 +1,10 @@
 "use server"
 
+import * as Sentry from "@sentry/nextjs"
+
+// The "General" audience segment in the Resend dashboard.
+const NEWSLETTER_SEGMENT_ID = "67cdd754-44a1-492e-8ed3-47dbdac70398"
+
 type State = {
   success: boolean
   message: string
@@ -9,6 +14,12 @@ export async function subscribe(
   _prevState: State,
   formData: FormData
 ): Promise<State> {
+  return Sentry.withServerActionInstrumentation("subscribe", () =>
+    runSubscribe(formData)
+  )
+}
+
+async function runSubscribe(formData: FormData): Promise<State> {
   try {
     const email = formData.get("email")
 
@@ -16,40 +27,38 @@ export async function subscribe(
       throw new Error("Email is Required")
     }
 
-    const mailchimpApiKey = process.env.MAILCHIMP_API_KEY
-    const mailchimpServer = process.env.MAILCHIMP_API_SERVER
-    const mailchimpAudience = process.env.MAILCHIMP_LIST_ID
+    const resendApiKey = process.env.RESEND_API_KEY
 
-    if (!mailchimpApiKey || !mailchimpServer || !mailchimpAudience) {
-      throw new Error("Missing Mailchimp environment variables")
+    if (!resendApiKey) {
+      throw new Error("Missing Resend environment variables")
     }
 
-    const url = `https://${mailchimpServer}.api.mailchimp.com/3.0/lists/${mailchimpAudience}/members`
-
-    const response = await fetch(url, {
+    const response = await fetch("https://api.resend.com/contacts", {
       method: "POST",
       headers: {
-        Authorization: `Basic ${Buffer.from(`anystring:${mailchimpApiKey}`).toString("base64")}`,
+        Authorization: `Bearer ${resendApiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        email_address: email,
-        status: "subscribed",
-        tags: ["Newsletter"]
+        email,
+        unsubscribed: false,
+        segments: [{ id: NEWSLETTER_SEGMENT_ID }]
       })
     })
 
     const data = await response.json()
 
     if (!response.ok) {
-      // Check for specific Mailchimp error types
-      if (data.title === "Member Exists") {
+      if (
+        response.status === 409 ||
+        /already exists/i.test(data.message ?? "")
+      ) {
         return {
           success: false,
           message: "already registered"
         }
       }
-      throw new Error(data.detail || "Failed to subscribe")
+      throw new Error(data.message || "Failed to subscribe")
     }
 
     return {
@@ -58,6 +67,7 @@ export async function subscribe(
     }
   } catch (error) {
     console.error("Error:", error)
+    Sentry.captureException(error)
     return {
       success: false,
       message:

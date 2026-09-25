@@ -1,7 +1,8 @@
-import { ORGANIZATION_ID } from "./organization"
+import { COMPANY_FACTS } from "@/lib/company-facts"
+import { SITE_URL } from "@/lib/constants"
 
-const SITE_URL = "https://basement.studio"
-const SITE_NAME = "basement.studio"
+import { buildServiceOffer } from "../service-offer"
+import { ORGANIZATION_ID } from "./organization"
 
 const DESCRIPTION =
   "A digital studio & branding powerhouse making cool shit that performs."
@@ -29,14 +30,13 @@ export const generateProfessionalServiceSchema = (
   const services = (data.services ?? []).filter((s) => Boolean(s?.trim()))
 
   return {
-    "@context": "https://schema.org",
     "@type": "ProfessionalService",
     "@id": PROFESSIONAL_SERVICE_ID,
-    name: SITE_NAME,
+    name: COMPANY_FACTS.name,
     url: SITE_URL,
     description: DESCRIPTION,
     image: `${SITE_URL}/images/opengraph-image.gif`,
-    areaServed: "Worldwide",
+    areaServed: COMPANY_FACTS.areaServed,
     parentOrganization: { "@id": ORGANIZATION_ID },
     ...(data.email ? { email: data.email } : {}),
     ...(services.length > 0
@@ -44,15 +44,9 @@ export const generateProfessionalServiceSchema = (
           hasOfferCatalog: {
             "@type": "OfferCatalog",
             name: "Services",
-            itemListElement: services.map((service) => ({
-              "@type": "Offer",
-              itemOffered: {
-                "@type": "Service",
-                name: service,
-                serviceType: service,
-                provider: { "@id": ORGANIZATION_ID }
-              }
-            }))
+            itemListElement: services.map((service) =>
+              buildServiceOffer({ title: service })
+            )
           }
         }
       : {})

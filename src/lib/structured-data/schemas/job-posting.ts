@@ -1,7 +1,7 @@
-import { ORGANIZATION_ID } from "./organization"
+import { COMPANY_FACTS } from "@/lib/company-facts"
+import { SITE_URL } from "@/lib/constants"
 
-const SITE_URL = "https://basement.studio"
-const SITE_NAME = "basement.studio"
+import { ORGANIZATION_ID } from "./organization"
 
 interface JobPostingData {
   title: string
@@ -50,7 +50,6 @@ export const generateJobPostingSchema = (job: JobPostingData) => {
   const isRemote = location ? /remote/i.test(location) : false
 
   return {
-    "@context": "https://schema.org",
     "@type": "JobPosting",
     "@id": `${url}#jobposting`,
     title: job.title,
@@ -61,7 +60,7 @@ export const generateJobPostingSchema = (job: JobPostingData) => {
     hiringOrganization: {
       "@type": "Organization",
       "@id": ORGANIZATION_ID,
-      name: SITE_NAME,
+      name: COMPANY_FACTS.name,
       url: SITE_URL
     },
     ...(location

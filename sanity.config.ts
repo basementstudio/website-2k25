@@ -10,6 +10,7 @@ import {
   HeartIcon,
   HouseIcon,
   LightningIcon,
+  QuestionIcon,
   RocketIcon,
   SquaresFourIcon,
   StackIcon,
@@ -39,6 +40,7 @@ const singletonTypes = new Set([
   "homepage",
   "servicesPage",
   "peoplePage",
+  "faqPage",
   "companyInfo",
   "threeDAssets",
   "showcasePage",
@@ -120,6 +122,13 @@ function structure(S: StructureBuilder) {
                 .icon(UsersIcon)
                 .child(
                   S.document().schemaType("peoplePage").documentId("peoplePage")
+                ),
+              S.listItem()
+                .title("FAQ Page")
+                .id("faqPage")
+                .icon(QuestionIcon)
+                .child(
+                  S.document().schemaType("faqPage").documentId("faqPage")
                 ),
               S.listItem()
                 .title("Company Info")

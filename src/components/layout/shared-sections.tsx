@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import { usePathname } from "next/navigation"
 
 import { Link } from "@/components/primitives/link"
@@ -56,7 +56,7 @@ export const InternalLinks = ({
       )}
     >
       {filteredLinks.map((link, idx) => (
-        <motion.li
+        <m.li
           key={`${link.title}-${idx}`}
           {...animateProps}
           animate={{
@@ -90,10 +90,10 @@ export const InternalLinks = ({
               </sup>
             )}
           </Link>
-        </motion.li>
+        </m.li>
       ))}
 
-      <motion.li
+      <m.li
         {...animateProps}
         animate={{
           ...animateProps.animate,
@@ -123,7 +123,7 @@ export const InternalLinks = ({
         >
           <span className="actionable">Contact Us</span>
         </button>
-      </motion.li>
+      </m.li>
     </ul>
   )
 }
@@ -145,8 +145,16 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
       className
     )}
   >
-    <Link className="h-max text-brand-w1" href={links.twitter} target="_blank">
-      <span className="actionable">X (Twitter)</span>
+    <Link
+      className="h-max text-brand-w1"
+      href={links.twitter}
+      target="_blank"
+      aria-label="X (Twitter)"
+    >
+      {/* U+1D54F — screen readers skip it, hence the aria-label above. */}
+      <span className="actionable" aria-hidden>
+        𝕏
+      </span>
     </Link>
     <span aria-hidden>,</span>
     <Link

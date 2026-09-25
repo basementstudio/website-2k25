@@ -3,7 +3,7 @@
 import throttle from "lodash.throttle"
 import {
   AnimatePresence,
-  motion,
+  m,
   useMotionValue,
   useSpring,
   useTransform,
@@ -279,7 +279,7 @@ const HoverCertificate = memo(
     }, [currentImageId, sortedAwards])
 
     return (
-      <motion.div
+      <m.div
         style={{
           position: "fixed",
           top: 0,
@@ -310,7 +310,7 @@ const HoverCertificate = memo(
                   {isRevealing ? (
                     <>
                       {gridCells.map((cell) => (
-                        <motion.rect
+                        <m.rect
                           key={cell.index}
                           custom={{
                             manhattanDistance: cell.manhattanDistance
@@ -333,7 +333,7 @@ const HoverCertificate = memo(
                           height={certificateDimensions.height / GRID_ROWS + 1}
                         />
                       ))}
-                      <motion.rect
+                      <m.rect
                         key="full-mask"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -372,7 +372,7 @@ const HoverCertificate = memo(
         >
           {renderCurrentCertificateImage}
         </div>
-      </motion.div>
+      </m.div>
     )
   }
 )

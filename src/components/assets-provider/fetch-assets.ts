@@ -167,7 +167,9 @@ export interface AssetsResult {
   // extra textures for things
   mapTextures: {
     rain: string
-    basketballVa: string
+    cityDay: string
+    cityNight: string
+    moon: string
   }
   physicsParams: {
     _title: string

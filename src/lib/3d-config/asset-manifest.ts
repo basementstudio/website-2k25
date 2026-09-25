@@ -7,6 +7,21 @@
 
 import type { AssetsResult } from "@/components/assets-provider/fetch-assets"
 
+export const MAP_MODEL_KEYS = [
+  "office",
+  "officeItems",
+  "officeWireframe",
+  "outdoor",
+  "outdoorCars",
+  "godrays",
+  "routingElements",
+  "basketball",
+  "basketballNet",
+  "contactPhone"
+] as const
+
+export type MapModelKey = (typeof MAP_MODEL_KEYS)[number]
+
 export type AssetsBase = Omit<
   AssetsResult,
   "inspectables" | "scenes" | "physicsParams"
@@ -24,18 +39,20 @@ export const ASSETS_BASE: AssetsBase = {
   officeItems: "/3d/models/officeItems-2c42f42d.glb",
   office: "/3d/models/office-5ab2bcd0.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
-  outdoor: "/3d/models/outdoor-6ead65cf.glb",
+  outdoor: "/3d/models/outdoor-7e5bd72e.glb",
+  outdoorCars: "/3d/models/outdoorCars-d9030620.glb",
   godrays: "/3d/models/godrays-f4cbda2b.glb",
+  routingElements: "/3d/models/routingElements-dbc4fd71.glb",
   basketball: "/3d/models/basketball-4a3976f2.glb",
   basketballNet: "/3d/models/basketballNet-528bd868.glb",
-  contactPhone: "/3d/models/contactPhone-4c98003c.glb",
-  routingElements: "/3d/models/routingElements-dbc4fd71.glb",
-  outdoorCars: "/3d/models/outdoorCars-d9030620.glb",
+  contactPhone: "/3d/models/contactPhone-bee96b6d.glb",
 
   // --- Map textures ---
   mapTextures: {
     rain: "/3d/textures/mapTextures-rain-d1b1ba0b.jpg",
-    basketballVa: "/3d/textures/mapTextures-basketballVa-f77e5faf.exr"
+    cityDay: "/3d/textures/mapTextures-cityDay-e9e54551.png",
+    cityNight: "/3d/textures/mapTextures-cityNight-c8f18e8b.png",
+    moon: "/3d/textures/mapTextures-moon-dfc2b94b.png"
   },
 
   // --- Special events ---
@@ -204,9 +221,9 @@ export const ASSETS_BASE: AssetsBase = {
     idleScreen: "/3d/textures/arcade-idleScreen-7c248ce4.mp4",
     placeholderLab: "/3d/textures/arcade-placeholderLab-501eef8a.png",
     boot: "/3d/textures/arcade-boot-decd8d60.png",
-    shaderLab: "/3d/textures/arcade-shader-lab.png",
-    chronicles: "/3d/textures/arcade-chronicles.png",
-    looper: "/3d/textures/arcade-looper.png",
+    shaderLab: "/3d/textures/arcade-shader-lab-9fdadf93.png",
+    chronicles: "/3d/textures/arcade-chronicles-9ae5add7.png",
+    looper: "/3d/textures/arcade-looper-ce48f4a3.png",
     palm: "/3d/textures/arcade-palm-67ee623c.png",
     skybox: "/3d/textures/arcade-skybox-f8dd9185.webp",
     cityscape: "/3d/textures/arcade-cityscape-bdf3692b.png",

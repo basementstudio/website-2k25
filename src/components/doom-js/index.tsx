@@ -1,6 +1,5 @@
 import { track } from "@vercel/analytics"
 import { CommandInterface, Emulators } from "emulators"
-import posthog from "posthog-js"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { CanvasTexture } from "three"
 
@@ -36,7 +35,6 @@ export const checkDoomCodeSequence = ({
     if (sequence.every((value, index) => value === DOOM_CODE_SEQUENCE[index])) {
       setGameActive(true)
       track("doom_code_unlocked")
-      posthog.capture("doom_code_unlocked")
       sequence = []
     }
   }

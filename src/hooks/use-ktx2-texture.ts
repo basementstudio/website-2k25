@@ -1,7 +1,7 @@
 import { useThree } from "@react-three/fiber"
 import type { Texture } from "three"
 
-import { getKTX2Loader } from "./use-ktx2-gltf"
+import { getKTX2Loader } from "./use-ktx2-loader"
 
 /**
  * Loads a standalone KTX2 texture (not embedded in a glTF) — e.g. a

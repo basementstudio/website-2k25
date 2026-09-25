@@ -1,6 +1,7 @@
 import { render } from "@react-three/offscreen"
 
 import { ContactScene } from "@/components/contact/contact-scene"
+import { postWorkerError } from "@/lib/worker-error"
 
 let windowDimensions = {
   width: 1920,
@@ -31,6 +32,7 @@ self.onmessage = ({ data }) => {
       render(<ContactScene modelUrl={modelUrl} />)
     } catch (error) {
       console.error("[ContactWorker] Error rendering scene:", error)
+      postWorkerError(error)
     }
     return
   }
@@ -58,5 +60,7 @@ self.onmessage = ({ data }) => {
 }
 
 self.onerror = (error) => console.error("[ContactWorker] Worker error:", error)
-self.onmessageerror = (error) =>
+self.onmessageerror = (error) => {
   console.error("[ContactWorker] Message error:", error)
+  postWorkerError(new Error("[ContactWorker] Could not deserialize message"))
+}

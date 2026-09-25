@@ -3,15 +3,14 @@ import { notFound } from "next/navigation"
 
 import {
   fetchAllPostSlugs,
-  fetchPostBySlug,
   fetchPostMeta,
-  fetchRelatedPosts
+  getPostData
 } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
-import { Field, linkClass, Section } from "@/app/ai/components"
+import { Field, linkClass, MachineLink, Section } from "@/app/ai/components"
+import { MachinePortableText } from "@/app/ai/machine-portable-text"
 import { extractPlainText } from "@/lib/structured-data/extract-text"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { truncateDescription } from "@/utils/seo"
-
-import { MachinePortableText } from "./machine-portable-text"
 
 interface MachinePostProps {
   params: Promise<{ slug: string }>
@@ -35,20 +34,6 @@ export const generateMetadata = async ({
   }
 }
 
-async function getPostData(slug: string) {
-  "use cache"
-  const post = await fetchPostBySlug(slug)
-
-  if (!post) return null
-
-  const relatedPosts = await fetchRelatedPosts(
-    post.slug,
-    post.categories?.map((category) => category.title) ?? []
-  )
-
-  return { post, relatedPosts }
-}
-
 const MachinePostPage = async ({ params }: MachinePostProps) => {
   const { slug } = await params
   const data = await getPostData(slug)
@@ -58,24 +43,11 @@ const MachinePostPage = async ({ params }: MachinePostProps) => {
   const { post, relatedPosts } = data
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile text-machine-base lg:text-f-p">
+    <>
+      <PageJsonLd />
       {/* Header/meta stay uppercase like the /ai index; the article body keeps
-          its authored casing for readability. */}
+        its authored casing for readability. */}
       <header className="flex flex-col gap-4 uppercase">
-        <nav
-          aria-label="Machine index"
-          className="flex flex-wrap gap-x-4 gap-y-1"
-        >
-          <a href="/ai" className={linkClass}>
-            /ai
-          </a>
-          <span className="text-machine-dim">::</span>
-          <a href="/ai/blog" className={linkClass}>
-            blog
-          </a>
-          <span className="text-machine-dim">::</span>
-          <span className="text-machine-dim">post/{post.slug}</span>
-        </nav>
         <h1 className="text-machine-bright">{post.title}</h1>
         <dl className="flex flex-col gap-1">
           {post.date ? (
@@ -124,9 +96,9 @@ const MachinePostPage = async ({ params }: MachinePostProps) => {
                     {related.date.split("T")[0]}{" "}
                   </span>
                 ) : null}
-                <a href={`/ai/post/${related.slug}`} className={linkClass}>
+                <MachineLink href={`/ai/post/${related.slug}`}>
                   {related.title}
-                </a>
+                </MachineLink>
               </li>
             ))}
           </ul>
@@ -135,21 +107,15 @@ const MachinePostPage = async ({ params }: MachinePostProps) => {
 
       <footer className="flex flex-col gap-1 uppercase text-machine-dim">
         <p>
-          <a href="/ai" className={linkClass}>
-            back to machine index
-          </a>{" "}
-          ·{" "}
-          <a href="/ai/blog" className={linkClass}>
-            all writing
-          </a>{" "}
-          ·{" "}
+          <MachineLink href="/ai/home">back to machine index</MachineLink> ·{" "}
+          <MachineLink href="/ai/blog">all writing</MachineLink> ·{" "}
           <a href={`/post/${post.slug}`} className={linkClass}>
             read as human
           </a>
         </p>
         <p>/* EOF */</p>
       </footer>
-    </main>
+    </>
   )
 }
 

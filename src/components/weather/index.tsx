@@ -1,8 +1,9 @@
 import { useTexture } from "@react-three/drei"
 import { animate, useMotionValue } from "motion/react"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import {
   Color,
+  Group,
   Matrix3,
   Mesh,
   MeshStandardMaterial,
@@ -10,19 +11,20 @@ import {
   ShaderMaterial,
   Vector3
 } from "three"
-import { create } from "zustand"
 
 import { useAssets } from "@/components/assets-provider"
+import {
+  RAIN_FADE_SECONDS,
+  WEATHER_SMOOTH_SECONDS
+} from "@/components/sky/config"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
-export const useWeather = create<{
-  isRaining: boolean
-}>(() => ({
-  isRaining: Math.random() > 0.5
-}))
+import { toggleRainOverride, useWeather } from "./weather-store"
+
+export { useWeather } from "./weather-store"
 
 export const Weather = () => {
   const {
@@ -65,23 +67,35 @@ export const Weather = () => {
     rain.visible = false
   }
 
+  const rainGroupRef = useRef<Group>(null)
   const isRaining = useWeather((s) => s.isRaining)
-  const rainAlpha = useMotionValue(isRaining ? 1 : 0)
+  const rainIntensity = useWeather((s) => s.rainIntensity)
+  const initiallyRaining = useRef(isRaining)
+  const rainAlpha = useMotionValue(isRaining ? rainIntensity : 0)
 
   useEffect(() => {
-    const animation = animate(rainAlpha, isRaining ? 1 : 0, {
-      duration: 1,
+    const target = isRaining ? rainIntensity : 0
+    if (target > 0 && rainGroupRef.current) rainGroupRef.current.visible = true
+
+    const animation = animate(rainAlpha, target, {
+      duration: RAIN_FADE_SECONDS,
       ease: "easeInOut",
       onUpdate: (v) => {
         rainMaterialClose.uniforms.opacity.value = v
         rainMaterialFar.uniforms.opacity.value = v
+      },
+      onComplete: () => {
+        if (target === 0 && rainGroupRef.current)
+          rainGroupRef.current.visible = false
       }
     })
 
     return () => animation.stop()
-  }, [isRaining, rainMaterialClose, rainMaterialFar, rainAlpha])
+  }, [isRaining, rainIntensity, rainMaterialClose, rainMaterialFar, rainAlpha])
 
   useFrameCallback((_, delta, elapsedTime) => {
+    if (!rainGroupRef.current?.visible) return
+
     const matClose = rainMaterialClose.uniforms.alphaMapTransform
       .value as Matrix3
 
@@ -98,18 +112,22 @@ export const Weather = () => {
 
   return (
     <>
-      <mesh position={[3, 3, -2]} rotation-y={Math.PI} rotation-z={-0.15}>
-        <planeGeometry args={[6, 7]} />
-        <primitive object={rainMaterialClose} attach="material" />
-      </mesh>
-      <mesh position={[0, 5, 2]} rotation-y={Math.PI} rotation-z={-0.15}>
-        <planeGeometry args={[10, 10]} />
-        <primitive object={rainMaterialFar} attach="material" />
-      </mesh>
-      <mesh position={[1, 5, 5]} rotation-y={Math.PI} rotation-z={-0.15}>
-        <planeGeometry args={[10, 10]} />
-        <primitive object={rainMaterialFar} attach="material" />
-      </mesh>
+      {/* Visibility is switched off by the fade's completion, not by React
+          as soon as the selected weather stops raining. */}
+      <group ref={rainGroupRef} visible={initiallyRaining.current}>
+        <mesh position={[3, 3, -2]} rotation-y={Math.PI} rotation-z={-0.15}>
+          <planeGeometry args={[6, 7]} />
+          <primitive object={rainMaterialClose} attach="material" />
+        </mesh>
+        <mesh position={[0, 5, 2]} rotation-y={Math.PI} rotation-z={-0.15}>
+          <planeGeometry args={[10, 10]} />
+          <primitive object={rainMaterialFar} attach="material" />
+        </mesh>
+        <mesh position={[1, 5, 5]} rotation-y={Math.PI} rotation-z={-0.15}>
+          <planeGeometry args={[10, 10]} />
+          <primitive object={rainMaterialFar} attach="material" />
+        </mesh>
+      </group>
       {loboMarino && <LoboMarino loboMarino={loboMarino} />}
     </>
   )
@@ -128,7 +146,10 @@ function LoboMarino({ loboMarino }: { loboMarino: Mesh }) {
   )
 
   useFrameCallback((_, delta) => {
-    currentLoboColor.lerp(isRaining ? rainLoboColor : dayLoboColor, delta)
+    currentLoboColor.lerp(
+      isRaining ? rainLoboColor : dayLoboColor,
+      1 - Math.exp(-delta / WEATHER_SMOOTH_SECONDS)
+    )
   })
 
   const loboMaterial = useMemo(() => {
@@ -146,7 +167,7 @@ function LoboMarino({ loboMarino }: { loboMarino: Mesh }) {
   return (
     <mesh
       onClick={() => {
-        useWeather.setState({ isRaining: !isRaining })
+        toggleRainOverride()
       }}
       onPointerEnter={() => {
         setCursor("pointer")

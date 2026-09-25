@@ -1,5 +1,6 @@
 "use server"
 
+import * as Sentry from "@sentry/nextjs"
 import { headers } from "next/headers"
 
 import {
@@ -8,10 +9,28 @@ import {
   type CareerFormData,
   submitApplication
 } from "@/lib/notion"
+import { isSuspiciousSubmission } from "@/lib/suspicious-submission"
 
-const GENERIC_SUBMISSION_ERROR =
-  "There was a problem submitting your application. Please try again in a moment or contact us."
-const MIN_SUBMISSION_TIME_MS = 3_000
+/** `reason` tells the caller which failures are already in Sentry. */
+export type CareerApplicationResult =
+  | { success: true }
+  | {
+      success: false
+      error: string
+      reason: FailureReason
+    }
+
+type FailureReason = "validation" | "rate_limited" | "upstream"
+
+// Rendered at heading size next to the submit button, so one short sentence.
+const SUBMISSION_ERRORS: Record<FailureReason, string> = {
+  // Retrying won't help: the client accepted input the action then rejected.
+  validation:
+    "Something went wrong on our end. Please email hello@basement.studio.",
+  rate_limited: "Too many attempts. Please wait a few minutes and try again.",
+  upstream: "We couldn't save your application. Please try again in a moment."
+}
+
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1_000
 const MAX_SUBMISSIONS_PER_WINDOW = 5
 
@@ -56,18 +75,6 @@ function isRateLimited(key: string, now: number) {
   return false
 }
 
-function isSuspiciousSubmission(formData: CareerFormData, now: number) {
-  if (formData.companyWebsite.trim()) {
-    return true
-  }
-
-  if (!Number.isFinite(formData.formStartedAt)) {
-    return true
-  }
-
-  return now - formData.formStartedAt < MIN_SUBMISSION_TIME_MS
-}
-
 function validateCareerFormData(formData: CareerFormData) {
   if (!formData.position.trim()) return false
 
@@ -85,7 +92,17 @@ function validateCareerFormData(formData: CareerFormData) {
   return true
 }
 
-export async function submitCareerApplication(formData: CareerFormData) {
+export async function submitCareerApplication(
+  formData: CareerFormData
+): Promise<CareerApplicationResult> {
+  return Sentry.withServerActionInstrumentation("submitCareerApplication", () =>
+    runCareerApplication(formData)
+  )
+}
+
+async function runCareerApplication(
+  formData: CareerFormData
+): Promise<CareerApplicationResult> {
   try {
     const now = Date.now()
 
@@ -108,7 +125,11 @@ export async function submitCareerApplication(formData: CareerFormData) {
         email: formData.email,
         salaryExpectations: formData.salaryExpectations
       })
-      return { success: false, error: GENERIC_SUBMISSION_ERROR }
+      return {
+        success: false,
+        error: SUBMISSION_ERRORS.validation,
+        reason: "validation"
+      }
     }
 
     const headerList = await headers()
@@ -116,7 +137,11 @@ export async function submitCareerApplication(formData: CareerFormData) {
 
     if (isRateLimited(clientIdentifier, now)) {
       console.error("Career application rate limited:", clientIdentifier)
-      return { success: false, error: GENERIC_SUBMISSION_ERROR }
+      return {
+        success: false,
+        error: SUBMISSION_ERRORS.rate_limited,
+        reason: "rate_limited"
+      }
     }
 
     const applicationData = buildApplicationData(formData)
@@ -135,10 +160,16 @@ export async function submitCareerApplication(formData: CareerFormData) {
 
     return {
       success: false,
-      error: GENERIC_SUBMISSION_ERROR
+      error: SUBMISSION_ERRORS.upstream,
+      reason: "upstream"
     }
   } catch (error) {
     console.error("Error submitting career application:", error)
-    return { success: false, error: GENERIC_SUBMISSION_ERROR }
+    Sentry.captureException(error)
+    return {
+      success: false,
+      error: SUBMISSION_ERRORS.upstream,
+      reason: "upstream"
+    }
   }
 }

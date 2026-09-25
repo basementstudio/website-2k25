@@ -1,8 +1,9 @@
+import { useEffect, useRef } from "react"
 import { preload, PreloadOptions } from "react-dom"
 
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
-import { IsChristmasSeason } from "@/utils/special-events"
+import { MAP_MODEL_KEYS } from "@/lib/3d-config/asset-manifest"
 
 // Assets that should not be preloaded
 const ASSET_TO_NOT_PRELOAD = [
@@ -11,6 +12,12 @@ const ASSET_TO_NOT_PRELOAD = [
   "glassMaterials",
   "doubleSideElements",
   "scenes",
+
+  // Models
+  ...MAP_MODEL_KEYS,
+  "characters",
+  "pets",
+  "specialEvents",
 
   // Matcaps - due to being used only in inspectables
   "matcaps",
@@ -35,10 +42,7 @@ const ASSET_TO_NOT_PRELOAD = [
   "skybox",
   "cityscape",
   "introScreen",
-  "palm",
-
-  // Special Events - Preload only if the season is active
-  ...(!IsChristmasSeason() ? ["tree"] : [])
+  "palm"
 ]
 
 // Assets has different keys for the url.
@@ -120,6 +124,9 @@ const getAssetFormat = (
     case "exr":
       result = { as: "fetch", type: "image/x-exr" }
       break
+    case "ktx2":
+      result = { as: "fetch", type: "image/ktx2" }
+      break
     case "glb":
       result = { as: "fetch", type: "model/gltf-binary" }
       break
@@ -135,6 +142,10 @@ const getAssetFormat = (
   return result
 }
 
+const isAssetUrl = (value: unknown): value is string =>
+  typeof value === "string" &&
+  (value.startsWith("https://") || value.startsWith("/"))
+
 // Function to collect all URLs from the assets object
 const collectUrls = (
   obj: any,
@@ -144,7 +155,7 @@ const collectUrls = (
   if (!obj) return urlSet
   if (ASSET_TO_NOT_PRELOAD.includes(currentKey ?? "")) return urlSet
 
-  if (typeof obj === "string" && obj.startsWith("https://")) {
+  if (isAssetUrl(obj)) {
     urlSet.add(obj)
   } else if (Array.isArray(obj)) {
     // Check if we have a specific URL key for this array
@@ -164,9 +175,7 @@ const collectUrls = (
         urlKeys.forEach((key) => {
           if (key in item) {
             const url = item[key]
-            if (typeof url === "string" && url.startsWith("https://")) {
-              urlSet.add(url)
-            }
+            if (isAssetUrl(url)) urlSet.add(url)
           }
         })
       })
@@ -177,8 +186,8 @@ const collectUrls = (
   } else if (typeof obj === "object") {
     // Collect direct URL values
     Object.entries(obj).forEach(([key, value]) => {
-      if (typeof value === "string" && value.startsWith("https://")) {
-        if (!ASSET_TO_NOT_PRELOAD.includes(key ?? "")) urlSet.add(value)
+      if (isAssetUrl(value) && !ASSET_TO_NOT_PRELOAD.includes(key ?? "")) {
+        urlSet.add(value)
       }
     })
 
@@ -206,6 +215,15 @@ const preloadAllAssets = (obj: any) => {
 
 export const usePreloadAssets = (assets: AssetsResult) => {
   const offscreenCanvasReady = useAppLoadingStore((s) => s.offscreenCanvasReady)
+  const hasPreloaded = useRef(false)
 
-  if (offscreenCanvasReady) preloadAllAssets(assets)
+  // In an effect with a once-guard: calling this in the render body re-walked
+  // the whole asset manifest and re-issued every preload() each time AppHooks
+  // re-rendered (player/music/scene changes do that constantly).
+  useEffect(() => {
+    if (!offscreenCanvasReady || hasPreloaded.current) return
+
+    hasPreloaded.current = true
+    preloadAllAssets(assets)
+  }, [offscreenCanvasReady, assets])
 }

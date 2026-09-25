@@ -18,7 +18,10 @@ import { EXRLoader } from "three/examples/jsm/Addons.js"
 import { useAssets } from "@/components/assets-provider"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { cctvConfig } from "@/components/postprocessing/renderer"
+import { useKTX2Textures } from "@/hooks/use-ktx2-loader"
 import { useKTX2Texture } from "@/hooks/use-ktx2-texture"
+import { useMesh } from "@/hooks/use-mesh"
+import { markCanvasBootStage } from "@/lib/canvas-boot"
 
 interface Bake {
   lightmap?: Texture
@@ -196,8 +199,7 @@ const useBakes = (): Record<string, Bake> => {
     [bakes]
   )
 
-  const loadedLightmaps = useLoader(
-    EXRLoader,
+  const loadedLightmaps = useKTX2Textures(
     withLightmap.map((bake) => bake.lightmap)
   )
 
@@ -221,8 +223,9 @@ const useBakes = (): Record<string, Bake> => {
 
     loadedLightmaps.forEach((map, index) => {
       const meshNames = withLightmap[index].meshes
-      map.flipY = true
       map.generateMipmaps = false
+      // linear so baked lighting reads as smooth gradients instead of
+      // texel stair-steps
       map.minFilter = LinearFilter
       map.magFilter = LinearFilter
       map.colorSpace = NoColorSpace
@@ -240,9 +243,12 @@ const useBakes = (): Record<string, Bake> => {
       const meshNames = withAmbientOcclusion[index].meshes
       map.flipY = false
       map.generateMipmaps = false
-      map.minFilter = NearestFilter
-      map.magFilter = NearestFilter
+      // linear like the lightmaps — AO is part of the baked shading and
+      // shows the same texel stair-steps at Nearest
+      map.minFilter = LinearFilter
+      map.magFilter = LinearFilter
       map.colorSpace = NoColorSpace
+      map.needsUpdate = true
 
       for (const meshName of meshNames) {
         if (!maps[meshName]) {
@@ -301,11 +307,7 @@ export const revealOpacityMaterials = new Set<
   ShaderMaterial | RawShaderMaterial
 >()
 
-interface BakesProps {
-  materialsReady: boolean
-}
-
-const Bakes = ({ materialsReady }: BakesProps) => {
+const Bakes = () => {
   const bakes = useBakes()
   const atlas = useLightmapAtlas()
   const atlasAo = useAtlasAmbientOcclusion()
@@ -319,22 +321,21 @@ const Bakes = ({ materialsReady }: BakesProps) => {
   const setCanRunMainApp = useAppLoadingStore((state) => state.setCanRunMainApp)
 
   useEffect(() => {
-    setCanRunMainApp(true)
-    const timeout = setTimeout(() => {
-      setMainAppRunning(true)
-    }, 10)
-    const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
+    markCanvasBootStage("bakes-resolved")
+  }, [])
 
-    return () => {
-      clearTimeout(timeout)
-      clearTimeout(timeout2)
-    }
-  }, [setMainAppRunning, setCanRunMainApp])
+  const mapMaterialsReady = useMesh((state) => state.mapMaterialsReady)
 
   useEffect(() => {
-    if (!materialsReady) return
+    if (!mapMaterialsReady) return
+
+    let skipped = 0
 
     const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
+      if (!mesh.userData.hasGlobalMaterial) {
+        skipped++
+        return
+      }
       if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
       if (AO_ENABLED && maps.aomap) {
         addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
@@ -364,13 +365,11 @@ const Bakes = ({ materialsReady }: BakesProps) => {
     // Merge-by-material pipeline: any mesh self-tagged with the shared atlas
     // via its "Lightmap" custom property, found by traversal instead of a
     // hand-maintained name list.
-    let __applied = 0
-    let __skipped = 0
     scene.traverse((child) => {
       if (!(child instanceof Mesh)) return
       if (child.userData.Lightmap !== ATLAS_LIGHTMAP_VALUE) return
       if (!child.userData.hasGlobalMaterial) {
-        __skipped++
+        skipped++
         return
       }
       addLightmap({ mesh: child, texture: atlas })
@@ -380,26 +379,32 @@ const Bakes = ({ materialsReady }: BakesProps) => {
           ATLAS_AO_INTENSITY
         )
       }
-      __applied++
     })
 
-    console.log(
-      "[bakes-probe] t=" +
-        Math.round(performance.now()) +
-        " applied=" +
-        __applied +
-        " skippedNoGlobalMaterial=" +
-        __skipped
-    )
+    if (skipped > 0) {
+      console.warn(
+        `[bakes] ${skipped} mesh(es) had no global shader material; their bakes were dropped.`
+      )
+    }
+
+    // Not on mount: bakes can resolve before the models exist.
+    setCanRunMainApp(true)
+    const timeout = setTimeout(() => setMainAppRunning(true), 10)
+    const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
+
+    return () => {
+      clearTimeout(timeout)
+      clearTimeout(timeout2)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [atlas, atlasAo, bakes, materialsReady])
+  }, [atlas, atlasAo, mapMaterialsReady, bakes])
 
   return null
 }
 
-const BakesLoaderInner = ({ materialsReady }: BakesProps) => (
+const BakesLoaderInner = () => (
   <Suspense>
-    <Bakes materialsReady={materialsReady} />
+    <Bakes />
   </Suspense>
 )
 

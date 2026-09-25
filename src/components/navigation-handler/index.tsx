@@ -22,14 +22,16 @@ export const NavigationHandler = () => {
 
   const setScenes = useNavigationStore((state) => state.setScenes)
   const isNotFound = useNavigationStore((state) => state.isNotFound)
-  const {
-    isCanvasTabMode,
-    setIsCanvasTabMode,
-    currentScene,
-    setCurrentScene,
-    currentTabIndex,
-    setEnteredByKeyboard
-  } = useNavigationStore()
+  const isCanvasTabMode = useNavigationStore((state) => state.isCanvasTabMode)
+  const setIsCanvasTabMode = useNavigationStore(
+    (state) => state.setIsCanvasTabMode
+  )
+  const currentScene = useNavigationStore((state) => state.currentScene)
+  const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
+  const currentTabIndex = useNavigationStore((state) => state.currentTabIndex)
+  const setEnteredByKeyboard = useNavigationStore(
+    (state) => state.setEnteredByKeyboard
+  )
   const scenes: IScene[] = useAssets().scenes
   const { handleNavigation } = useHandleNavigation()
   const scene = useCurrentScene()

@@ -4,6 +4,14 @@ import { useEffect, useState } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
 
+import {
+  armCanvasBootDeadline,
+  captureCanvasBootRecovery,
+  captureCanvasBootTimeout,
+  startCanvasBootTrace,
+  stopCanvasBootTrace
+} from "@/lib/canvas-boot"
+
 import LoadingCanvas from "./loading-canvas"
 
 export type UpdateCameraCallback = (
@@ -12,6 +20,10 @@ export type UpdateCameraCallback = (
   cameraFov: number
 ) => void
 
+// Readiness is reported from inside the R3F tree (<Bakes/>), so a canvas that
+// never boots would leave the overlay up forever.
+const CANVAS_BOOT_TIMEOUT_MS = 20_000
+
 interface AppLoadingState {
   isCanvasInPage: boolean
   canvasVisible: boolean
@@ -19,9 +31,11 @@ interface AppLoadingState {
   canRunMainApp: boolean
   offscreenCanvasReady: boolean
   worker: Worker | null
-  canvasErrorBoundaryTriggered: boolean
+  canvasUnavailable: boolean
+  canvasBootTimedOut: boolean
   setMainAppRunning: (isAppLoaded: boolean) => void
   setCanRunMainApp: (canRunMainApp: boolean) => void
+  reportCanvasUnavailable: () => void
 }
 
 export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
@@ -48,11 +62,15 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
      */
     worker: null,
     /**
-     * This function will tell the loading canvas that is ok to reveal the main app
+     * Set by the error boundary, the WebGL2 probe, or a failed context creation
      */
-    canvasErrorBoundaryTriggered: false,
+    canvasUnavailable: false,
     /**
-     * Used to check if canvas error boundary is triggered
+     * The scene never reported readiness, so 3D interactions will never work
+     */
+    canvasBootTimedOut: false,
+    /**
+     * This function will tell the loading canvas that is ok to reveal the main app
      */
     setMainAppRunning: (isAppLoaded) => {
       get().worker?.postMessage({
@@ -64,7 +82,17 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
      * This function will tell the loading canvas that the main app can run
      */
     setCanRunMainApp: (canRunMainApp) => {
-      set({ canRunMainApp })
+      if (canRunMainApp && get().canvasBootTimedOut) captureCanvasBootRecovery()
+
+      set({ canRunMainApp, canvasBootTimedOut: false })
+    },
+    /**
+     * Vetoes the canvas; <CanvasLayer/> unmounts the whole subtree from here
+     */
+    reportCanvasUnavailable: () => {
+      if (get().canvasUnavailable) return
+
+      set({ canvasUnavailable: true })
     }
   }
   return store
@@ -74,6 +102,10 @@ export const AppLoadingHandler = () => {
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
   const showLoadingCanvas = useAppLoadingStore(
     (state) => state.showLoadingCanvas
+  )
+  const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
+  const canvasUnavailable = useAppLoadingStore(
+    (state) => state.canvasUnavailable
   )
   const [removeLoadingNode, setRemoveLoadingNode] = useState(false)
 
@@ -85,6 +117,30 @@ export const AppLoadingHandler = () => {
       }, 10)
     }
   }, [showLoadingCanvas])
+
+  useEffect(() => {
+    // <SetCanvasMode> re-arms isCanvasInPage on navigation, so skip when WebGL
+    // is already known dead.
+    if (!isCanvasInPage || canRunMainApp || canvasUnavailable) return
+
+    // Starts the clock on the same tick the budget is armed, so both are
+    // measured against the same t0.
+    startCanvasBootTrace()
+
+    // Counts down only while the tab is visible, so a backgrounded tab is never
+    // charged for a boot it was never given the frames to finish.
+    armCanvasBootDeadline(CANVAS_BOOT_TIMEOUT_MS, () => {
+      // A slow scene may still arrive, so don't mark the canvas unavailable.
+      useAppLoadingStore.setState({
+        showLoadingCanvas: false,
+        canvasBootTimedOut: true
+      })
+
+      captureCanvasBootTimeout(CANVAS_BOOT_TIMEOUT_MS)
+    })
+
+    return () => stopCanvasBootTrace()
+  }, [isCanvasInPage, canRunMainApp, canvasUnavailable])
 
   if (!isCanvasInPage) {
     return null

@@ -1,4 +1,4 @@
-const SITE_URL = "https://basement.studio"
+import { SITE_URL } from "@/lib/constants"
 
 export interface CollectionItem {
   name: string
@@ -30,7 +30,6 @@ export const generateCollectionPageSchema = ({
   const listed = items.filter((item) => Boolean(item.name?.trim() && item.path))
 
   return {
-    "@context": "https://schema.org",
     "@type": "CollectionPage",
     "@id": `${url}#collection`,
     name,

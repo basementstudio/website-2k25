@@ -1,12 +1,10 @@
 precision highp float;
 
-const int SAMPLE_COUNT = 24;
 const vec3 LUMINANCE_FACTORS = vec3(0.2126, 0.7152, 0.0722);
 
 uniform sampler2D uMainTexture;
 uniform sampler2D uDepthTexture;
 uniform vec2 resolution;
-uniform float uPixelRatio;
 uniform float uTolerance;
 
 uniform float uOpacity;
@@ -24,10 +22,8 @@ uniform float uVignetteStrength;
 uniform float uVignetteSoftness;
 
 // Bloom
-uniform float uBloomStrength;
-uniform float uBloomRadius;
-uniform float uBloomThreshold;
-uniform float uActiveBloom;
+uniform sampler2D uBloomTexture;
+uniform vec2 uBloomResolution;
 
 // Color mask (basketball)
 uniform vec2 uEllipseCenter;
@@ -40,13 +36,9 @@ uniform float u404Transition;
 
 uniform float uTime;
 
-const float GOLDEN_ANGLE = 2.399963229728653;
 const float DENSITY = 0.9;
 const float OPACITY_SCANLINE = 0.24;
 const float OPACITY_NOISE = 0.01;
-
-// Additional precalculated constants
-const float PI_2 = 6.28318530718; // 2*PI
 
 varying vec2 vUv;
 
@@ -58,21 +50,6 @@ float getVignetteFactor(vec2 uv) {
   float vignetteFactor =
     1.0 - smoothstep(radius, radius - spread, length(uv - center));
   return vignetteFactor;
-}
-
-float hash(vec2 p) {
-  p = fract(p * vec2(123.34, 456.21));
-  p += dot(p, p + 456.21);
-  return fract(p.x * p.y);
-}
-
-vec2 vogelDiskSample(int sampleIndex, int samplesCount, float phi) {
-  float invSamplesCount = 1.0 / sqrt(float(samplesCount));
-
-  float r = sqrt(float(sampleIndex) + 0.5) * invSamplesCount;
-  float theta = float(sampleIndex) * GOLDEN_ANGLE + phi;
-
-  return vec2(r * cos(theta), r * sin(theta));
 }
 
 vec3 invertedGamma(vec3 color, float gamma) {
@@ -205,19 +182,11 @@ vec3 blend(const vec3 x, const vec3 y, const float opacity) {
 }
 
 void main() {
-  // Precalculate frequently used values
-  float checkerSize = 2.0 * uPixelRatio;
-  vec2 checkerPos = floor(gl_FragCoord.xy / checkerSize);
-  float checkerPattern = mod(checkerPos.x + checkerPos.y, 2.0);
-
   // Precalculate resolution divisions
   vec2 halfResolution = resolution / 2.0;
   vec2 eighthResolution = resolution / 8.0;
-  vec2 invResolution = 1.0 / resolution;
-  vec2 uvOffset = invResolution;
 
   // Calculate pixelated coordinates only once
-  vec2 pixelatedUv = floor(vUv * halfResolution) * 2.0 / resolution;
   vec2 pixelatedUvEighth = floor(vUv * eighthResolution) * 8.0 / resolution;
 
   // Optimized texture reading
@@ -253,46 +222,11 @@ void main() {
     }
   }
 
-  // The bloom calculation remains exactly the same
-  vec3 bloomColor = vec3(0.0);
-
-  if (uBloomStrength > 0.001 && checkerPattern > 0.5 && uActiveBloom > 0.5) {
-    // Apply bloom effect only when bloom strength is significant and on checker pattern
-    vec3 bloom = vec3(0.0);
-    float totalWeight = 0.0;
-    float phi = hash(pixelatedUv) * PI_2; // Random rotation angle, using precalculated constant
-
-    // Precalculate the division of uBloomRadius by resolution
-    vec2 bloomRadiusScaled = uBloomRadius * invResolution;
-
-    for (int i = 1; i < SAMPLE_COUNT; i++) {
-      vec2 sampleOffset =
-        vogelDiskSample(i, SAMPLE_COUNT, phi) * bloomRadiusScaled;
-      float dist = length(sampleOffset);
-
-      // Gaussian-like falloff - avoid division when dist is very small
-      float weight = dist > 0.001 ? 1.0 / dist : 1000.0;
-
-      // Sample color at offset position - use precalculated coordinates
-      vec3 sampleColor = texture2D(
-        uMainTexture,
-        pixelatedUv + sampleOffset + uvOffset
-      ).rgb;
-
-      // Only add to bloom if brightness is above threshold
-      float brightness = dot(sampleColor, LUMINANCE_FACTORS);
-
-      // Avoid conditional branching which can be costly on GPUs
-      // Use a version of step() to simulate the if-statement
-      float shouldAdd = step(uBloomThreshold, brightness);
-      totalWeight += weight;
-      bloom += sampleColor * weight * shouldAdd;
-    }
-
-    // Normalize bloom and apply strength
-    float safeWeight = max(totalWeight, 0.0001);
-    bloomColor = bloom / safeWeight * uBloomStrength;
-  }
+  vec2 bloomCell = floor(vUv * halfResolution);
+  vec3 bloomColor = texture2D(
+    uBloomTexture,
+    (bloomCell + 0.5) / uBloomResolution
+  ).rgb;
 
   // Add bloom to result with strength control
   color += bloomColor;

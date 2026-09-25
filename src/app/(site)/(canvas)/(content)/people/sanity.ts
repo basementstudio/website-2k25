@@ -4,7 +4,7 @@ import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
 // Types
 
-interface SocialNetwork {
+export interface SocialNetwork {
   platform: string
   url: string
 }
@@ -76,12 +76,40 @@ const peopleQuery = /* groq */ `
   }
 `
 
+export interface PersonMarkdownItem {
+  title: string
+  department: { title: string } | null
+  role: string | null
+  socialNetworks: SocialNetwork[]
+}
+
+// Same as peopleQuery, minus `image` — the `.md` route never renders it.
+const peopleForMarkdownQuery = /* groq */ `
+  *[_type == "person"] | order(title asc) {
+    title,
+    department->{ title },
+    role,
+    socialNetworks[]{ platform, url }
+  }
+`
+
 const valuesQuery = /* groq */ `
   *[_type == "value"] | order(_createdAt asc) {
     _key,
     title,
     description,
     image ${imageFragment}
+  }
+`
+
+export type ValueMarkdownItem = Omit<ValueItem, "image">
+
+// Same as valuesQuery, minus `image` — the `.md` route never renders it.
+const valuesForMarkdownQuery = /* groq */ `
+  *[_type == "value"] | order(_createdAt asc) {
+    _key,
+    title,
+    description
   }
 `
 
@@ -106,39 +134,51 @@ const openPositionsQuery = /* groq */ `
 
 // Fetchers
 
-export async function fetchPeoplePage(
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
-): Promise<PeoplePageData | null> {
+export async function fetchPeoplePage(): Promise<PeoplePageData | null> {
   return sanityFetchCached<PeoplePageData | null>({
     query: peoplePageQuery,
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "people.page"
   })
 }
 
-export async function fetchPeople(options?: {
-  published?: boolean
-}): Promise<PersonItem[]> {
+export async function fetchPeople(): Promise<PersonItem[]> {
   const result = await sanityFetchCached<PersonItem[] | null>({
     query: peopleQuery,
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "people.roster"
+  })
+  return result ?? []
+}
+
+export async function fetchPeopleForMarkdown(): Promise<PersonMarkdownItem[]> {
+  const result = await sanityFetchCached<PersonMarkdownItem[] | null>({
+    query: peopleForMarkdownQuery,
+    perspective: "published",
+    tag: "people.roster.markdown"
   })
   return result ?? []
 }
 
 export async function fetchValues(): Promise<ValueItem[]> {
   const result = await sanityFetchCached<ValueItem[] | null>({
-    query: valuesQuery
+    query: valuesQuery,
+    tag: "people.values"
   })
   return result ?? []
 }
 
-export async function fetchOpenPositions(options?: {
-  published?: boolean
-}): Promise<OpenPositionItem[]> {
+export async function fetchValuesForMarkdown(): Promise<ValueMarkdownItem[]> {
+  const result = await sanityFetchCached<ValueMarkdownItem[] | null>({
+    query: valuesForMarkdownQuery,
+    perspective: "published",
+    tag: "people.values.markdown"
+  })
+  return result ?? []
+}
+
+export async function fetchOpenPositions(): Promise<OpenPositionItem[]> {
   const result = await sanityFetchCached<OpenPositionItem[] | null>({
     query: openPositionsQuery,
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "people.open-positions"
   })
   return result ?? []
 }

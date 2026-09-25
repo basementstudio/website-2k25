@@ -1,7 +1,8 @@
 "use client"
 
+import { track } from "@vercel/analytics"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { cn } from "@/utils/cn"
 
@@ -20,6 +21,21 @@ const BOTTOM_THRESHOLD = 120
 // navigations within the human site (it keeps the original external referrer).
 const MACHINE_ENTRY_KEY = "bsmt-machine-entry"
 
+// Every human content page has a 1:1 machine twin under /ai; interactive-only
+// pages (/basketball, /doom), the home page, and unknown paths fall back to
+// the machine index.
+const MIRRORED_PREFIXES = [
+  "/services",
+  "/showcase",
+  "/people",
+  "/careers",
+  "/faq",
+  "/contact",
+  "/lab",
+  "/blog",
+  "/post"
+]
+
 /**
  * Sitewide "Human / Machine" switch fixed to the bottom of the viewport
  * (parallel.ai-style). `mode` is decided by the layout that mounts it — the
@@ -36,17 +52,27 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
   const [atBottom, setAtBottom] = useState(false)
   const pathname = usePathname() ?? ""
 
-  // Blog posts have a per-page machine mirror (/post/<slug> ↔ /ai/post/<slug>)
-  // and the blog index (including category views) mirrors to /ai/blog;
-  // everything else toggles against the /ai index.
-  const machineHref = pathname.startsWith("/post/")
+  // Machine-view navigation is client-side, so this component stays mounted
+  // across hops and `document.referrer` stays frozen at the page the document
+  // loaded from — a human page, even after moving deep into /ai. Track whether
+  // any client-side navigation happened so "Human" only history.back()s from
+  // the page the visitor actually entered on.
+  const entryPathname = useRef(pathname)
+  const navigatedSinceEntry = useRef(false)
+  useEffect(() => {
+    if (pathname !== entryPathname.current) navigatedSinceEntry.current = true
+  }, [pathname])
+
+  const machineHref = MIRRORED_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  )
     ? `/ai${pathname}`
-    : pathname === "/blog" || pathname.startsWith("/blog/")
-      ? "/ai/blog"
-      : "/ai"
-  const humanHref = pathname.startsWith("/ai/")
-    ? pathname.slice("/ai".length)
-    : "/"
+    : "/ai/home"
+  // /ai/home mirrors the human homepage, not a /home route.
+  const humanHref =
+    pathname !== "/ai/home" && pathname.startsWith("/ai/")
+      ? pathname.slice("/ai".length)
+      : "/"
 
   // Machine mode keeps the /ai amber-phosphor border; segment colors follow
   // the navbar convention in both modes — orange marks the active mode,
@@ -82,7 +108,10 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
     }
   }, [fadeEnabled])
 
-  const rememberMachineEntry = () => {
+  const handleEnterMachine = () => {
+    // Human tree only — the machine view mounts no analytics.
+    track("machine_mode_entered", { from: pathname })
+
     try {
       sessionStorage.setItem(MACHINE_ENTRY_KEY, machineHref)
     } catch {
@@ -120,7 +149,11 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
       .navigation
     const canGoBack = nav?.canGoBack ?? window.history.length > 1
 
-    if ((cameFromToggle || sameOriginReferrer) && canGoBack) {
+    if (
+      !navigatedSinceEntry.current &&
+      (cameFromToggle || sameOriginReferrer) &&
+      canGoBack
+    ) {
       // Cross-document back: returns to the human page the visitor came from.
       e.preventDefault()
       window.history.back()
@@ -164,7 +197,7 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
         ) : (
           <a
             href={machineHref}
-            onClick={rememberMachineEntry}
+            onClick={handleEnterMachine}
             className={cn(segmentClass, inactiveClass)}
           >
             Machine

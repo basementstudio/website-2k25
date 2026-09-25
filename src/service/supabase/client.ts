@@ -42,22 +42,21 @@ export const getTopScores = async () => {
   return { data: data || [], error }
 }
 
-const generateTimeWindowHash = async (timestamp: number): Promise<string> => {
-  const TIME_WINDOW = 30000
-  const timeWindow = Math.floor(timestamp / TIME_WINDOW) * TIME_WINDOW
+// Server-signed game session, requested when a game starts. The score POST
+// requires it: the server checks the signature and that at least one full
+// game duration elapsed since it was issued.
+let sessionTokenPromise: Promise<string | null> | null = null
 
-  const encoder = new TextEncoder()
-  const data = encoder.encode(timeWindow.toString())
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
-
-  return hashHex
+export const beginScoreSession = () => {
+  sessionTokenPromise = fetch("/api/scores/session")
+    .then((res) => (res.ok ? res.json() : null))
+    .then((json) => json?.token ?? null)
+    .catch(() => null)
 }
 
 export const submitScore = async (playerName: string, score: number) => {
   const clientId = getClientId()
-  const timestamp = Date.now()
+  const sessionToken = await (sessionTokenPromise ?? Promise.resolve(null))
 
   try {
     const response = await fetch("/api/scores", {
@@ -69,8 +68,7 @@ export const submitScore = async (playerName: string, score: number) => {
         playerName: playerName.toUpperCase(),
         score: Math.floor(score),
         clientId,
-        timestamp,
-        timeWindowHash: await generateTimeWindowHash(timestamp)
+        sessionToken
       })
     })
 

@@ -9,25 +9,17 @@ import { Contact } from "@/components/contact/contact"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { CanvasLayer } from "@/components/layout/canvas-layer"
 import { ModeToggle } from "@/components/layout/mode-toggle"
-import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
-import { PostHogProvider } from "@/components/posthog/posthog-provider"
+import { MotionProvider } from "@/components/primitives/motion-provider"
+import { RealtimeRoot } from "@/components/realtime/realtime-root"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
-import { JsonLd } from "@/lib/structured-data/json-ld"
-import { generateOrganizationSchema } from "@/lib/structured-data/schemas/organization"
-import { fetchOrganizationData } from "@/service/sanity/organization"
 
 const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
-  const [assets, orgData] = await Promise.all([
-    fetchAssets(),
-    fetchOrganizationData()
-  ])
+  const assets = await fetchAssets()
 
   return (
     <>
-      {/* Entity identity for search + answer engines on every page. */}
-      <JsonLd data={generateOrganizationSchema(orgData)} />
       <Analytics />
       <SpeedInsights />
       <Script
@@ -36,19 +28,19 @@ const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
         strategy="afterInteractive"
       />
       <Transitions />
-      <PostHogProvider>
-        <AssetsProvider assets={assets}>
-          <InspectableProvider>
+      <AssetsProvider assets={assets}>
+        <InspectableProvider>
+          <MotionProvider>
             <HtmlTunnelOut />
-            <Navbar />
             <NavigationHandler />
             <CanvasLayer />
+            <RealtimeRoot />
             {children}
             <AppHooks assets={assets} />
             <Contact />
-          </InspectableProvider>
-        </AssetsProvider>
-      </PostHogProvider>
+          </MotionProvider>
+        </InspectableProvider>
+      </AssetsProvider>
       <ModeToggle mode="human" />
     </>
   )

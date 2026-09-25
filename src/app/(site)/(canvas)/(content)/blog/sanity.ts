@@ -1,4 +1,10 @@
-import { sanityFetch, sanityFetchStatic } from "@/service/sanity"
+import { cacheLife } from "next/cache"
+
+import {
+  sanityFetch,
+  sanityFetchCached,
+  sanityFetchStatic
+} from "@/service/sanity"
 import { imageFragment } from "@/service/sanity/queries"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
@@ -50,10 +56,13 @@ export async function fetchPosts(
       "posts": *[_type == "post" && $category in categories[]->slug.current] | order(date desc) ${postFields},
       "total": count(*[_type == "post" && $category in categories[]->slug.current])
     }`
-    return sanityFetch<{ posts: BlogPost[]; total: number }>({
+    const result = await sanityFetch<{ posts: BlogPost[]; total: number }>({
       query,
-      params: { category }
+      params: { category },
+      tag: "blog.posts-by-category"
     })
+    if (!result.total) cacheLife("hours")
+    return result
   }
 
   const query = /* groq */ `{
@@ -61,7 +70,8 @@ export async function fetchPosts(
     "total": count(*[_type == "post"])
   }`
   return sanityFetch<{ posts: BlogPost[]; total: number }>({
-    query
+    query,
+    tag: "blog.posts"
   })
 }
 
@@ -69,7 +79,8 @@ export async function fetchFeaturedPost(): Promise<BlogPost | null> {
   "use cache"
   const query = /* groq */ `*[_type == "post"] | order(date desc)[0] ${postFields}`
   return sanityFetch<BlogPost | null>({
-    query
+    query,
+    tag: "blog.featured-post"
   })
 }
 
@@ -80,7 +91,8 @@ export async function fetchCategories(): Promise<BlogCategory[]> {
     "slug": slug.current
   }`
   return sanityFetch<BlogCategory[]>({
-    query
+    query,
+    tag: "blog.categories"
   })
 }
 
@@ -96,7 +108,8 @@ export async function fetchCategoriesNonEmpty(
   if (opts.forStaticParams) {
     return sanityFetchStatic<BlogCategory[]>({
       query: categoriesNonEmptyQuery,
-      perspective: "published"
+      perspective: "published",
+      tag: "blog.categories-non-empty.static-params"
     })
   }
   return fetchCategoriesNonEmptyCached()
@@ -105,7 +118,8 @@ export async function fetchCategoriesNonEmpty(
 async function fetchCategoriesNonEmptyCached(): Promise<BlogCategory[]> {
   "use cache"
   return sanityFetch<BlogCategory[]>({
-    query: categoriesNonEmptyQuery
+    query: categoriesNonEmptyQuery,
+    tag: "blog.categories-non-empty"
   })
 }
 
@@ -113,8 +127,69 @@ export async function fetchPostCount(): Promise<number> {
   "use cache"
   const query = /* groq */ `count(*[_type == "post"])`
   return sanityFetch<number>({
-    query
+    query,
+    tag: "blog.post-count"
   })
+}
+
+export interface PostArchiveEntry {
+  _id: string
+  title: string
+  slug: string
+  date: string | null
+  categories: Array<{ title: string }> | null
+}
+
+// Light sibling of fetchPosts() — skips intro/heroImage/heroVideo.
+export async function fetchPostsForArchive(): Promise<PostArchiveEntry[]> {
+  "use cache"
+  const query = /* groq */ `*[_type == "post"] | order(date desc)[1..-1]{
+    _id,
+    title,
+    "slug": slug.current,
+    date,
+    categories[]->{ title }
+  }`
+  return sanityFetch<PostArchiveEntry[]>({
+    query,
+    tag: "blog.posts-archive"
+  })
+}
+
+export interface BlogPostMarkdownEntry {
+  title: string
+  slug: string
+  date: string | null
+  categories: Array<{ title: string; slug: string }> | null
+  excerpt: string | null
+}
+
+export interface BlogIndexForMarkdown {
+  posts: BlogPostMarkdownEntry[]
+  categories: BlogCategory[]
+}
+
+// All posts (no featured split, unlike fetchPosts) plus non-empty categories,
+// in one round-trip. No images — the `.md` route never renders them.
+const blogIndexForMarkdownQuery = /* groq */ `{
+  "posts": *[_type == "post" && defined(slug.current)] | order(date desc){
+    title,
+    "slug": slug.current,
+    date,
+    categories[]->{ title, "slug": slug.current },
+    "excerpt": pt::text(intro)
+  },
+  "categories": ${categoriesNonEmptyQuery}
+}`
+
+/** Full post index (title, date, categories, excerpt) for the `/blog.md` markdown page. */
+export async function fetchBlogIndexForMarkdown(): Promise<BlogIndexForMarkdown> {
+  const result = await sanityFetchCached<BlogIndexForMarkdown | null>({
+    query: blogIndexForMarkdownQuery,
+    perspective: "published",
+    tag: "blog.index.markdown"
+  })
+  return result ?? { posts: [], categories: [] }
 }
 
 const postListForSchemaQuery = /* groq */ `
@@ -133,7 +208,8 @@ export async function fetchPostListForSchema(): Promise<
     title: string
     slug: string
   }> | null>({
-    query: postListForSchemaQuery
+    query: postListForSchemaQuery,
+    tag: "blog.post-list-schema"
   })
   return posts ?? []
 }

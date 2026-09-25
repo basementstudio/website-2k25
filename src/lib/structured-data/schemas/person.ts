@@ -1,6 +1,6 @@
-import { ORGANIZATION_ID } from "./organization"
+import { SITE_URL } from "@/lib/constants"
 
-const SITE_URL = "https://basement.studio"
+import { ORGANIZATION_ID } from "./organization"
 
 interface PersonImage {
   url: string
@@ -54,7 +54,6 @@ export const generatePeopleSchema = (people: PersonSchemaData[]) => {
   const members = people.filter((p) => Boolean(p.name?.trim()))
 
   return {
-    "@context": "https://schema.org",
     "@type": "ItemList",
     "@id": `${SITE_URL}/people#team`,
     name: "basement.studio team",
