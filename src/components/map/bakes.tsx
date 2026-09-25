@@ -368,6 +368,10 @@ const Bakes = () => {
     scene.traverse((child) => {
       if (!(child instanceof Mesh)) return
       if (child.userData.Lightmap !== ATLAS_LIGHTMAP_VALUE) return
+      if (!child.userData.hasGlobalMaterial) {
+        skipped++
+        return
+      }
       addLightmap({ mesh: child, texture: atlas })
       if (AO_ENABLED) {
         addAmbientOcclusion(
