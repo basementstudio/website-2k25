@@ -28,6 +28,8 @@ export const createIpodScreenMaterial = (geometry: BufferGeometry) => {
     fragmentShader
   })
   material.userData.updateScreen = screen.update
+  // Player/menu controls for the click wheel (use-ipod-wheel.ts).
+  material.userData.ipod = screen
 
   return material
 }

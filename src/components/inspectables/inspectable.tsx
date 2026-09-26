@@ -41,6 +41,7 @@ import { useAssets } from "../assets-provider"
 import type { ICameraConfig } from "../navigation-handler/navigation.interface"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
+import { useIpodWheel } from "./use-ipod-wheel"
 
 interface InspectableProps {
   id: string
@@ -253,6 +254,11 @@ export const Inspectable = memo(function InspectableInner({
     return () => window.removeEventListener("resize", handleResize)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, firstRender, mesh, position, id])
+
+  // Ipod-body's click wheel (no-op for every other inspectable). Blocks the
+  // dragger's rotation while a press that started on the wheel is held.
+  const dragBlockRef = useRef(false)
+  useIpodWheel({ mesh, active: selected === id, dragBlockRef })
 
   // Ipod-body only — see the inspect-orientation block in the frame loop.
   const ipodLocalCenter = useRef(new Vector3())
@@ -684,6 +690,7 @@ export const Inspectable = memo(function InspectableInner({
       <InspectableDragger
         key={id}
         enabled={selected === id}
+        blockRef={dragBlockRef}
         global={true}
         cursor={selected === id}
         snap={true}
