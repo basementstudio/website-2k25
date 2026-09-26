@@ -90,14 +90,14 @@ function ControlsInner() {
       const isLevaElement = target.closest('[class^="leva-c-"]')
       if (isLevaElement) return
       isPointerDown = true
-      document.body.requestPointerLock()
+      if (!document.pointerLockElement) document.body.requestPointerLock()
     }
     const onContextMenu = (event: MouseEvent) => {
       const target = event.target as HTMLElement
       const isLevaElement = target.closest('[class^="leva-c-"]')
       if (isLevaElement) return
       event.preventDefault()
-      document.body.requestPointerLock()
+      if (!document.pointerLockElement) document.body.requestPointerLock()
       isContextMenu = true
     }
 
