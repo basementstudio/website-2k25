@@ -20,6 +20,9 @@ uniform vec3 uMoonBitangent;
 uniform float uMoonLight;
 uniform sampler2D uMoonMap;
 uniform float uLightning;
+// Inspect fade (use-fade-animation.ts): darkens the sky with the rest of the
+// scene while an inspectable is open — same curve as material-global-shader.
+uniform float fadeFactor;
 
 const float PI = 3.141592653589793;
 
@@ -151,6 +154,8 @@ void main() {
   col *= 1.0 - 0.45 * below;
 
   col += vec3((ign(gl_FragCoord.xy) - 0.5) * (1.0 / 128.0));
+
+  col *= 1.0 - fadeFactor;
 
   gl_FragColor = vec4(col, 1.0);
 }
