@@ -183,13 +183,6 @@ export const extractMeshes = ({
         if (meshName === "SM_Octocat") mesh.rotation.y = Math.PI
       }
 
-      // SM_Plane's export has its "u" shape key left at 1 by accident
-      // (Nico) — rest pose on the desk is all shape keys at 0. Flight drives
-      // them itself on its own clone (airplane-mode/flight.tsx).
-      if (meshName === "SM_Plane" && mesh.morphTargetInfluences) {
-        mesh.morphTargetInfluences.fill(0)
-      }
-
       const pos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z }
       mesh.userData.position = pos
       const rot = { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }
