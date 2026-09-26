@@ -83,6 +83,25 @@ function ControlsInner() {
 
     let isPointerDown = false
     let isContextMenu = false
+    let isPointerLockPending = false
+
+    const requestPointerLockIfNeeded = () => {
+      if (!document.pointerLockElement && !isPointerLockPending) {
+        isPointerLockPending = true
+        document.body.requestPointerLock()
+      }
+    }
+
+    const onPointerLockChange = () => {
+      isPointerLockPending = false
+    }
+
+    document.addEventListener("pointerlockchange", onPointerLockChange, {
+      signal
+    })
+    document.addEventListener("pointerlockerror", onPointerLockChange, {
+      signal
+    })
 
     // Capture clicks
     const onPointerDown = (event: PointerEvent) => {
@@ -90,14 +109,14 @@ function ControlsInner() {
       const isLevaElement = target.closest('[class^="leva-c-"]')
       if (isLevaElement) return
       isPointerDown = true
-      if (!document.pointerLockElement) document.body.requestPointerLock()
+      requestPointerLockIfNeeded()
     }
     const onContextMenu = (event: MouseEvent) => {
       const target = event.target as HTMLElement
       const isLevaElement = target.closest('[class^="leva-c-"]')
       if (isLevaElement) return
       event.preventDefault()
-      if (!document.pointerLockElement) document.body.requestPointerLock()
+      requestPointerLockIfNeeded()
       isContextMenu = true
     }
 
@@ -105,6 +124,7 @@ function ControlsInner() {
     const onPointerUp = () => {
       isPointerDown = false
       isContextMenu = false
+      isPointerLockPending = false
       try {
         document.exitPointerLock()
       } catch (_) {}
