@@ -10,7 +10,8 @@ import {
   createFlightCollider,
   createFlightPath,
   crossesGate,
-  FLIGHT_GATES
+  FLIGHT_GATES,
+  wallDeflection
 } from "./physics"
 
 test("collisions retain world transforms and catch swept crossings", () => {
@@ -53,7 +54,7 @@ test("gate detection handles fast passes and rejects misses", () => {
   )
 })
 test("authored spawn and gate centers clear the actual office collider", async () => {
-  const bytes = readFileSync("public/3d/models/airplane-collider-fd100c38.glb")
+  const bytes = readFileSync("public/3d/models/airplane-collider-5b3ba7a4.glb")
   const gltf = await new GLTFLoader().parseAsync(
     bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
     ""
@@ -77,7 +78,7 @@ const loadGlb = (path: string) => {
 }
 test("autopilot flies full laps of path.glb without hitting walls", async () => {
   const collider = createFlightCollider(
-    (await loadGlb("public/3d/models/airplane-collider-fd100c38.glb")).scene
+    (await loadGlb("public/3d/models/airplane-collider-5b3ba7a4.glb")).scene
   )
   const path = createFlightPath(
     (await loadGlb("public/3d/models/airplane-path-2539e215.glb")).scene
@@ -122,4 +123,25 @@ test("autopilot flies full laps of path.glb without hitting walls", async () => 
   // 60 s at 1.8 m/s ≈ 108 m, the loop is ~50 m: expect at least 1.5 laps.
   const laps = progress / path.points.length
   assert.ok(laps > 1.5, `only ${laps.toFixed(2)} laps`)
+})
+test("wall hits deflect along the wall instead of mirroring", () => {
+  const wall = new Vector3(0, 0, 1) // wall facing +Z, plane flying -Z
+  const headOn = wallDeflection(new Vector3(0, 0, -1), wall, 1)
+  assert.ok(headOn.severity > 0.99)
+  // Turns roughly 110° (never the old ~180°) and ends up leaving the wall.
+  const turned = Math.abs(headOn.yaw!)
+  assert.ok(turned > 1.7 && turned < 2.2, `turned ${turned}`)
+  assert.ok(Math.sign(headOn.yaw!) === 1, "breaks toward the bank side")
+  assert.ok(
+    Math.sign(wallDeflection(new Vector3(0, 0, -1), wall, -1).yaw!) === -1
+  )
+  // A graze keeps nearly the same heading.
+  const graze = wallDeflection(new Vector3(1, 0, -0.1).normalize(), wall)
+  assert.ok(graze.severity < 0.15)
+  assert.ok(Math.abs(graze.yaw! - -Math.PI / 2) < 0.5, `graze yaw ${graze.yaw}`)
+  // Floors don't touch the heading.
+  assert.equal(
+    wallDeflection(new Vector3(0, -1, -1), new Vector3(0, 1, 0)).yaw,
+    null
+  )
 })

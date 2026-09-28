@@ -26,6 +26,7 @@ import {
   crossesGate,
   FLIGHT_GATES,
   PLANE_RADIUS,
+  wallDeflection,
   yawTowards
 } from "./physics"
 import { flightFx, flightKeys, useAirplaneStore } from "./store"
@@ -48,11 +49,16 @@ const ARM_EXTEND_RATE = 3
 // stops it ever ending up past the wall.
 const ARM_RETRACT_RATE = 14
 // Wall bounce feel — see the collision handling in the frame loop.
-const BOUNCE_RESTITUTION = 0.45
-const BOUNCE_DECAY_RATE = 3.5
-const BOUNCE_TURN_RATE = 7
-const BOUNCE_THRUST_RECOVERY = 2.2
-const BOUNCE_SECONDS = 0.45
+// Nico: the bounce felt too abrupt — the heading now eases round over a
+// longer window, and braking/push-off/shake scale with how head-on the hit
+// was (wallDeflection's severity), so grazes barely register.
+const BOUNCE_PUSH = 0.25
+const BOUNCE_RESTITUTION = 0.3
+const BOUNCE_DECAY_RATE = 3
+const BOUNCE_TURN_RATE = 3.2
+const BOUNCE_THRUST_RECOVERY = 1.6
+const BOUNCE_SECONDS = 0.9
+const BOUNCE_MIN_THRUST = 0.35
 // Nico: "como una camara gopro o camara en mano". Handheld: a slow
 // layered-sine sway on the chase cam, plus a "trauma" kick on every wall
 // bounce that decays out (the squared trauma drives the extra shake, so
@@ -422,7 +428,7 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       }
       state.yaw -= horizontal * 1.65 * dt
       // Bounce recovery (see the collision below): ease the heading round
-      // to the reflected one instead of snapping it, let the push-off
+      // to the deflected one instead of snapping it, let the push-off
       // velocity die out, and ramp thrust back up.
       if (state.bounceTimer > 0) {
         state.bounceTimer = Math.max(0, state.bounceTimer - dt)
@@ -469,37 +475,47 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
           state.collisionGrace === 0 &&
           collider.collides(state.previous, state.next)
         ) {
-          // Soft paper-plane bounce: stay at the last clear spot (no
-          // push-out teleport) and hand the reflected motion to a decaying
-          // push-off velocity, while thrust drops and the heading eases
-          // round to the reflected one over the next few frames (above).
-          // Snapping yaw/pitch/position here read as a visible jump.
-          // Already mid-bounce (e.g. grazing a second wall): just hold.
+          const hitNormal = (
+            collider.collisionNormal(state.previous, state.next) ??
+            state.velocity.clone().negate().normalize()
+          ).clone()
+          // Soft paper-plane bounce: no push-out teleport and no snapping
+          // yaw/pitch (both read as a visible jump). A decaying push-off
+          // velocity leaves the surface, thrust dips by how head-on the hit
+          // was, and the heading eases round to one that runs along the
+          // wall (above) instead of mirroring off it.
+          // Already mid-bounce (e.g. grazing a second wall): just slide.
           if (state.bounceTimer === 0) {
-            const hitNormal =
-              collider.collisionNormal(state.previous, state.next) ??
-              state.velocity.clone().negate().normalize()
-            const reflected = state.velocity.clone().reflect(hitNormal)
+            const { severity, yaw } = wallDeflection(
+              state.velocity,
+              hitNormal,
+              state.bank
+            )
+            const impact = state.velocity.length() * severity
             state.bounceVelocity
-              .copy(reflected)
-              .multiplyScalar(BOUNCE_RESTITUTION)
-            // Make sure it actually leaves the surface, even on a graze.
-            state.bounceVelocity.addScaledVector(hitNormal, 0.35)
-            if (Math.abs(hitNormal.y) < 0.7) {
-              state.bounceYaw = Math.atan2(-reflected.x, -reflected.z)
-            } else {
-              state.bounceYaw = state.yaw
-            }
+              .copy(hitNormal)
+              .multiplyScalar(BOUNCE_PUSH + impact * BOUNCE_RESTITUTION)
+            state.bounceYaw = yaw ?? state.yaw
             state.bounceTimer = BOUNCE_SECONDS
             state.trauma = Math.min(
               1,
-              state.trauma + 0.35 + state.velocity.length() * 0.12
+              state.trauma + 0.1 + severity * (0.2 + impact * 0.08)
             )
-            state.thrust = 0.15
-            state.verticalVelocity *= -0.4
+            state.thrust = Math.min(
+              state.thrust,
+              MathUtils.lerp(0.9, BOUNCE_MIN_THRUST, severity)
+            )
+            // Floors/ceilings flip the vertical motion; walls just soak
+            // some of it up.
+            state.verticalVelocity *= yaw === null ? -0.4 : 0.6
           }
-          speed *= 0.5
-          break
+          // Slide: keep whatever part of this step runs along the surface,
+          // rather than stopping dead at the last clear spot.
+          const step = state.next.sub(state.previous)
+          const into = step.dot(hitNormal)
+          if (into < 0) step.addScaledVector(hitNormal, -into)
+          state.next.add(state.previous)
+          if (collider.collides(state.previous, state.next)) break
         }
         state.position.copy(state.next)
         if (

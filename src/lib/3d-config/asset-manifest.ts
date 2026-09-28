@@ -30,7 +30,7 @@ export type AssetsBase = Omit<
 export const ASSETS_BASE: AssetsBase = {
   airplane: {
     plane: "/3d/models/airplane-plane-0542b052.glb",
-    collider: "/3d/models/airplane-collider-fd100c38.glb",
+    collider: "/3d/models/airplane-collider-5b3ba7a4.glb",
     // Nico's autopilot tour: a closed line loop drawn in Blender
     // (path.glb), followed by free flight's idle autopilot.
     path: "/3d/models/airplane-path-2539e215.glb"
