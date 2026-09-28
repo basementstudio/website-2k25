@@ -125,6 +125,35 @@ export function yawTowards(from: Vector3, to: Vector3) {
   return Math.atan2(from.x - to.x, from.z - to.z)
 }
 
+// Wall hit response (flight.tsx): instead of mirroring the heading off the
+// wall — a head-on hit then spun the plane (and the rigidly mounted GoPro)
+// ~180° — steer it along the wall, angled slightly away from it. A graze
+// barely changes course; a head-on hit turns ~110° toward `turnBias`'s side
+// (the player's current bank, so it breaks the way they were already
+// leaning). `severity` is 0 for a graze and 1 for head-on, and scales how
+// hard the hit brakes and shakes. `yaw` is null for floors/ceilings, where
+// the heading shouldn't change at all.
+const DEFLECT_AWAY = 0.35
+export function wallDeflection(
+  velocity: Vector3,
+  normal: Vector3,
+  turnBias = 0
+) {
+  const speed = velocity.length()
+  const severity = speed > 0 ? Math.max(0, -velocity.dot(normal) / speed) : 1
+  if (Math.abs(normal.y) >= 0.7) return { severity, yaw: null }
+  const wall = new Vector3(normal.x, 0, normal.z).normalize()
+  const along = new Vector3(velocity.x, 0, velocity.z)
+  along.addScaledVector(wall, -along.dot(wall))
+  if (along.lengthSq() < 1e-4 * speed * speed) {
+    // Dead-on: no "along" to follow, pick a side of the wall.
+    along.set(-wall.z, 0, wall.x)
+    if (turnBias < 0) along.negate()
+  }
+  along.normalize().addScaledVector(wall, DEFLECT_AWAY)
+  return { severity, yaw: Math.atan2(-along.x, -along.z) }
+}
+
 // Keep Blender world transforms: this collider is authored against the office.
 // Do not center or normalize it as we do for the plane's display geometry.
 export function createFlightCollider(root: Object3D) {
