@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useState } from "react"
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useState
+} from "react"
 
 import { useKeyPress } from "@/hooks/use-key-press"
 import { submitScore } from "@/service/supabase/client"
@@ -17,21 +23,56 @@ interface ArcadeNameInputProps {
 export const ArcadeNameInput = ({
   className,
   isMobile
-}: ArcadeNameInputProps) =>
-  isMobile ? <MobileInput /> : <DesktopInput className={className} />
+}: ArcadeNameInputProps) => {
+  const playerName = useMinigameStore((s) => s.playerName)
+  // Keep the unfinished name above the responsive view switch. Only a
+  // successful submission should update the saved player name in the store.
+  const [draftName, setDraftName] = useState(
+    () => playerName || (isMobile ? "" : "AAA")
+  )
+
+  return isMobile ? (
+    <MobileInput draftName={draftName} setDraftName={setDraftName} />
+  ) : (
+    <DesktopInput
+      className={className}
+      draftName={draftName}
+      setDraftName={setDraftName}
+    />
+  )
+}
+
+interface NameDraftProps {
+  draftName: string
+  setDraftName: Dispatch<SetStateAction<string>>
+}
 
 const DesktopInput = ({
-  className
-}: Pick<ArcadeNameInputProps, "className">) => {
-  const playerName = useMinigameStore((s) => s.playerName)
+  className,
+  draftName,
+  setDraftName
+}: Pick<ArcadeNameInputProps, "className"> & NameDraftProps) => {
   const setPlayerName = useMinigameStore((s) => s.setPlayerName)
   const score = useMinigameStore((s) => s.score)
   const setReadyToPlay = useMinigameStore((s) => s.setReadyToPlay)
   const setHasPlayed = useMinigameStore((s) => s.setHasPlayed)
 
   const [selectedSlot, setSelectedSlot] = useState(0)
-  const [letters, setLetters] = useState(
-    playerName ? playerName.split("") : ["A", "A", "A"]
+  const letters = draftName.toUpperCase().padEnd(3, "A").slice(0, 3).split("")
+  const setLetters = useCallback(
+    (update: SetStateAction<string[]>) => {
+      setDraftName((previous) => {
+        const previousLetters = previous
+          .toUpperCase()
+          .padEnd(3, "A")
+          .slice(0, 3)
+          .split("")
+        return (
+          typeof update === "function" ? update(previousLetters) : update
+        ).join("")
+      })
+    },
+    [setDraftName]
   )
   const [nextLetters, setNextLetters] = useState<(string | null)[]>([
     null,
@@ -53,7 +94,7 @@ const DesktopInput = ({
       }, 100)
       return () => clearTimeout(timer)
     }
-  }, [slideDirections, nextLetters])
+  }, [slideDirections, nextLetters, setLetters])
 
   const handleArrowUp = useCallback(() => {
     setSubmitError(null)
@@ -136,7 +177,7 @@ const DesktopInput = ({
         }
       }
     },
-    [letters, selectedSlot]
+    [letters, selectedSlot, setLetters]
   )
 
   useKeyPress("ArrowDown", handleArrowUp)
@@ -192,14 +233,15 @@ const DesktopInput = ({
   )
 }
 
-const MobileInput = () => {
-  const playerName = useMinigameStore((s) => s.playerName)
+const MobileInput = ({
+  draftName: inputValue,
+  setDraftName
+}: NameDraftProps) => {
   const setPlayerName = useMinigameStore((s) => s.setPlayerName)
   const score = useMinigameStore((s) => s.score)
   const setReadyToPlay = useMinigameStore((s) => s.setReadyToPlay)
   const setHasPlayed = useMinigameStore((s) => s.setHasPlayed)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [inputValue, setInputValue] = useState(playerName || "")
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const handleSubmit = async () => {
@@ -231,7 +273,7 @@ const MobileInput = () => {
             type="text"
             value={inputValue.toUpperCase()}
             onChange={(e) => {
-              setInputValue(e.target.value)
+              setDraftName(e.target.value)
               setSubmitError(null)
             }}
             maxLength={3}
