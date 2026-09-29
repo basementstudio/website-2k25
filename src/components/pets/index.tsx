@@ -13,6 +13,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { lightFlickerUniform } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
@@ -118,7 +119,9 @@ export function Pets() {
   const { fadeFactor } = useFadeAnimation()
 
   useFrameCallback(() => {
-    const f = 1 - fadeFactor.current.get()
+    // Unlit, so dim by hand with the office lights (Halloween power cuts).
+    const f =
+      (1 - fadeFactor.current.get()) * (0.2 + 0.8 * lightFlickerUniform.value)
     if (bostonSkinned && bostonSkinned.material) {
       const m = bostonSkinned.material as THREE.MeshBasicMaterial
       m.color.set(new Color(f, f, f))

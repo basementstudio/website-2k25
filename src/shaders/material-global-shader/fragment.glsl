@@ -21,6 +21,9 @@ uniform float uTime;
 // Lightmap
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
+// Power cut / lightning (Halloween storm) — 1 and 0 when idle.
+uniform float uLightFlicker;
+uniform float uLightning;
 
 // Lights
 #ifdef LIGHT
@@ -273,10 +276,14 @@ void main() {
 
     if (metalnessValue > 0.0) {
       float shininess = mix(96.0, 8.0, roughnessValue);
-      float keySpec =
-        pow(max(dot(normalizedNormal, normalizedViewDir), 0.0), shininess);
-      float rimSpec =
-        pow(max(dot(normalizedNormal, rimLightDir), 0.0), shininess * 0.5);
+      float keySpec = pow(
+        max(dot(normalizedNormal, normalizedViewDir), 0.0),
+        shininess
+      );
+      float rimSpec = pow(
+        max(dot(normalizedNormal, rimLightDir), 0.0),
+        shininess * 0.5
+      );
       lf += vec3(keySpec * 1.5 + rimSpec * 2.0) * metalnessValue;
     }
     #endif
@@ -295,7 +302,17 @@ void main() {
 
   #ifndef VIDEO
   if (lightMapIntensity > 0.0) {
-    irradiance *= lightMapSample * lightMapIntensity;
+    irradiance *= lightMapSample * lightMapIntensity * uLightFlicker;
+  }
+  if (uLightning > 0.0) {
+    // Lightning comes in through the front windows (z ≈ -6): strongest
+    // there, falling off toward the back of the office.
+    float windowFactor = mix(
+      0.35,
+      1.0,
+      smoothstep(-20.0, -6.0, vWorldPosition.z)
+    );
+    irradiance += color * vec3(0.6, 0.7, 1.0) * uLightning * windowFactor;
   }
   #endif
 

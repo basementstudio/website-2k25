@@ -8,6 +8,8 @@ varying vec4 vPointLightPosition;
 varying vec4 vPointLightColor;
 varying vec3 vWorldPosition;
 uniform float fadeFactor;
+uniform float uLightFlicker;
+uniform float uLightning;
 
 #ifdef USE_MULTI_MAP
 struct MapConfig {
@@ -88,6 +90,10 @@ void main() {
 
 
   if(alpha < 0.8) discard;
+
+  // Characters aren't lightmapped; follow the office lights by hand.
+  color *= mix(0.2, 1.0, uLightFlicker);
+  color += baseColor * vec3(0.6, 0.7, 1.0) * uLightning * 0.5;
 
   color *= 1.0 - fadeFactor;
 
