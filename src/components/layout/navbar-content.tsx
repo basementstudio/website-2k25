@@ -227,6 +227,7 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
   const { handleNavigation } = useHandleNavigation()
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const handleContactButton = useHandleContactButton()
+  const primeContact = useContactStore((state) => state.prime)
 
   const pathname = usePathname()
 
@@ -266,6 +267,10 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
         <button
           id="nav-contact"
           onClick={handleContactButton}
+          onPointerEnter={(e) => {
+            if (e.pointerType === "mouse") primeContact()
+          }}
+          onFocus={primeContact}
           className={cn(
             "text-[0.75rem] font-semibold leading-4 text-brand-w1 transition-colors duration-0 hover:text-brand-o",
             isContactOpen && "text-brand-g1"
