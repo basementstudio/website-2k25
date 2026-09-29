@@ -17,7 +17,12 @@ interface ArcadeNameInputProps {
 export const ArcadeNameInput = ({
   className,
   isMobile
-}: ArcadeNameInputProps) => {
+}: ArcadeNameInputProps) =>
+  isMobile ? <MobileInput /> : <DesktopInput className={className} />
+
+const DesktopInput = ({
+  className
+}: Pick<ArcadeNameInputProps, "className">) => {
   const playerName = useMinigameStore((s) => s.playerName)
   const setPlayerName = useMinigameStore((s) => s.setPlayerName)
   const score = useMinigameStore((s) => s.score)
@@ -37,6 +42,7 @@ export const ArcadeNameInput = ({
     ("up" | "down" | null)[]
   >([null, null, null])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   useEffect(() => {
     if (slideDirections.some((dir) => dir !== null)) {
@@ -50,6 +56,7 @@ export const ArcadeNameInput = ({
   }, [slideDirections, nextLetters])
 
   const handleArrowUp = useCallback(() => {
+    setSubmitError(null)
     const currentIndex = LETTERS.indexOf(letters[selectedSlot])
     const nextIndex = (currentIndex + 1) % LETTERS.length
     const newNextLetters = [...nextLetters]
@@ -62,6 +69,7 @@ export const ArcadeNameInput = ({
   }, [selectedSlot, letters, nextLetters, slideDirections])
 
   const handleArrowDown = useCallback(() => {
+    setSubmitError(null)
     const currentIndex = LETTERS.indexOf(letters[selectedSlot])
     const nextIndex = (currentIndex - 1 + LETTERS.length) % LETTERS.length
     const newNextLetters = [...nextLetters]
@@ -84,6 +92,7 @@ export const ArcadeNameInput = ({
   const handleEnter = useCallback(async () => {
     if (isSubmitting) return
     setIsSubmitting(true)
+    setSubmitError(null)
 
     const playerName = letters.join("")
 
@@ -95,6 +104,9 @@ export const ArcadeNameInput = ({
       setLetters(["A", "A", "A"])
       setSelectedSlot(0)
     } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Failed to submit score."
+      )
       console.error("Failed to submit score:", error)
     } finally {
       setIsSubmitting(false)
@@ -114,6 +126,7 @@ export const ArcadeNameInput = ({
     (event: KeyboardEvent) => {
       const pressedKey = event.key.toUpperCase()
       if (LETTERS.includes(pressedKey)) {
+        setSubmitError(null)
         const newLetters = [...letters]
         newLetters[selectedSlot] = pressedKey
         setLetters(newLetters)
@@ -142,8 +155,8 @@ export const ArcadeNameInput = ({
     setSelectedSlot(index)
   }, [])
 
-  return !isMobile ? (
-    <div className={cn("flex gap-4", className)}>
+  return (
+    <div className={cn("flex flex-wrap gap-4", className)}>
       <div className="corner-borders text-subheading flex gap-2 font-bold">
         {letters.map((letter, index) => (
           <div
@@ -170,9 +183,12 @@ export const ArcadeNameInput = ({
       >
         {"Save Score ->"}
       </button>
+      {submitError && (
+        <p role="alert" className="w-full text-f-p-mobile text-brand-w1">
+          {submitError}
+        </p>
+      )}
     </div>
-  ) : (
-    <MobileInput />
   )
 }
 
@@ -184,10 +200,12 @@ const MobileInput = () => {
   const setHasPlayed = useMinigameStore((s) => s.setHasPlayed)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [inputValue, setInputValue] = useState(playerName || "")
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const handleSubmit = async () => {
     if (isSubmitting || !inputValue || inputValue.length !== 3) return
     setIsSubmitting(true)
+    setSubmitError(null)
 
     try {
       await submitScore(inputValue.toUpperCase(), score)
@@ -195,6 +213,9 @@ const MobileInput = () => {
       setReadyToPlay(true)
       setHasPlayed(false)
     } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Failed to submit score."
+      )
       console.error("Failed to submit score:", error)
     } finally {
       setIsSubmitting(false)
@@ -209,7 +230,10 @@ const MobileInput = () => {
             placeholder="AAA"
             type="text"
             value={inputValue.toUpperCase()}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              setInputValue(e.target.value)
+              setSubmitError(null)
+            }}
             maxLength={3}
             className="no-focus-styles w-16 bg-transparent text-center text-[1rem] font-semibold tracking-widest text-brand-w1 placeholder:text-brand-g1"
           />
@@ -222,6 +246,11 @@ const MobileInput = () => {
           {"Save Score ->"}
         </button>
       </div>
+      {submitError && (
+        <p role="alert" className="mt-2 text-f-p-mobile text-brand-w1">
+          {submitError}
+        </p>
+      )}
     </div>
   )
 }

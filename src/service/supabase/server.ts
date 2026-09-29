@@ -3,6 +3,8 @@ import {
   type QueryData
 } from "@supabase/supabase-js"
 
+import { isBlockedScoreName } from "../score-name"
+
 const LEADERBOARD_LIMIT = 25
 const SCORE_BATCH_SIZE = 100
 const MAX_SCORE_BATCHES = 10
@@ -41,6 +43,10 @@ export const getTopScoresFromServer = async () => {
     }
 
     for (const entry of data ?? []) {
+      // Filter before deduplication so an eligible name from the same
+      // browser can still place, and excluded names do not consume slots.
+      if (isBlockedScoreName(entry.player_name)) continue
+
       // Ranked order makes the first entry each browser's best. Keep
       // legacy rows without a client ID separate, even if names match.
       const playerKey = entry.client_id
