@@ -337,6 +337,7 @@ export const Sky = () => {
     skyState.sunElevationDeg = elevationDeg
     skyState.sunAzimuthDeg = azimuthDeg
     skyState.daylightFactor = daylightFactor
+    skyState.lightning = flash
 
     outdoorTintForElevation(elevationDeg, tintScratch)
     const weatherDim = 1 - 0.4 * Math.min(1, cloud * 0.5 + rain * 0.3)
