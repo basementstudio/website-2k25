@@ -29,8 +29,8 @@ const Scene = dynamic(
 // route-group layouts set (via <SetCanvasMode>) — no `usePathname` needed.
 export const CanvasLayer = () => {
   useCanvasAvailability()
-
   const airplaneActive = useAirplaneStore((s) => s.phase !== "off")
+
   // `isCanvasInPage` (sticky) keeps the Scene mounted across navigations;
   // `canvasVisible` toggles whether it's shown for the current route.
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)

@@ -21,11 +21,11 @@ const DebugInner = () => {
 
   return (
     <>
-    <div className="w-128 absolute bottom-4 right-4 z-50">
-      <Suspense fallback={null}>
-        <OnlyDebug />
-      </Suspense>
-    </div>
+      <div className="w-128 absolute bottom-4 right-4 z-50">
+        <Suspense fallback={null}>
+          <OnlyDebug />
+        </Suspense>
+      </div>
       <PerfStatsPanel />
       <LightmapFormatPanel />
     </>

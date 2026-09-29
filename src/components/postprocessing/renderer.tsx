@@ -19,9 +19,9 @@ import {
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { usePerfStats } from "@/hooks/use-perf-stats"
 import { createBloomMaterial } from "@/shaders/material-bloom"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
-import { usePerfStats } from "@/hooks/use-perf-stats"
 import { doubleFbo } from "@/utils/double-fbo"
 
 import { BloomPass } from "./bloom-pass"

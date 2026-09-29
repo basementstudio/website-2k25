@@ -6,7 +6,7 @@ import { MeshLineGeometry, MeshLineMaterial } from "meshline"
 import { animate } from "motion"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
-import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js"
+import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
 import { useInspectable } from "@/components/inspectables/context"

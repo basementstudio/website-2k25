@@ -13,7 +13,7 @@ type GLTFResult = GLTF & {
 // decoder is only invoked if a mesh actually carries the extension). Without
 // an explicit path, drei's useGLTF still enables Draco by default, but
 // fetches the decoder from Google's CDN (gstatic.com) — self-hosting it here
-// matches the existing self-hosted basis-transcoder (KTX2) pattern below and
+// matches the existing self-hosted basis-transcoder (KTX2) pattern and
 // drops an unnecessary third-party runtime dependency.
 const DRACO_DECODER_PATH = "/draco/"
 
@@ -36,15 +36,18 @@ export const useLoader = () => {
     outdoorCars,
     basketballNet,
     routingElements
-  ] = useKTX2GLTF<GLTFResult>([
-    officeUrl,
-    officeItemsUrl,
-    outdoorUrl,
-    godraysUrl,
-    outdoorCarsUrl,
-    basketballNetUrl,
-    routingElementsUrl
-  ], DRACO_DECODER_PATH)
+  ] = useKTX2GLTF<GLTFResult>(
+    [
+      officeUrl,
+      officeItemsUrl,
+      outdoorUrl,
+      godraysUrl,
+      outdoorCarsUrl,
+      basketballNetUrl,
+      routingElementsUrl
+    ],
+    DRACO_DECODER_PATH
+  )
 
   return {
     office: office.scene,

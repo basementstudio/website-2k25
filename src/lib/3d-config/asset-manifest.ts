@@ -37,7 +37,7 @@ export const ASSETS_BASE: AssetsBase = {
   },
   // --- Map models ---
   officeItems: "/3d/models/officeItems-c443f764.glb",
-  office: "/3d/models/office-5ab2bcd0.glb",
+  office: "/3d/models/office-43fdb686.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-7e5bd72e.glb",
   outdoorCars: "/3d/models/outdoorCars-d9030620.glb",

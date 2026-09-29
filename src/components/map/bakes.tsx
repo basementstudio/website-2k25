@@ -13,15 +13,15 @@ import {
   Texture,
   TextureLoader
 } from "three"
-import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js"
+import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { useKTX2Textures } from "@/hooks/use-ktx2-loader"
+import { useKTX2Texture } from "@/hooks/use-ktx2-texture"
 import { useMesh } from "@/hooks/use-mesh"
 import { markCanvasBootStage } from "@/lib/canvas-boot"
-import { useKTX2Texture } from "@/hooks/use-ktx2-texture"
 
 interface Bake {
   lightmap?: Texture
@@ -380,6 +380,7 @@ const Bakes = () => {
         )
       }
     })
+
     if (skipped > 0) {
       console.warn(
         `[bakes] ${skipped} mesh(es) had no global shader material; their bakes were dropped.`
@@ -396,7 +397,7 @@ const Bakes = () => {
       clearTimeout(timeout2)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapMaterialsReady, bakes, atlas, atlasAo])
+  }, [atlas, atlasAo, mapMaterialsReady, bakes])
 
   return null
 }

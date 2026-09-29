@@ -185,6 +185,19 @@ export const Map = memo(() => {
             currentMaterial.emissiveMap.minFilter = THREE.NearestFilter
           }
 
+          // Newer exports drop the dead per-zone lightmap UV set, which moves
+          // the atlas placement from TEXCOORD_2 down to TEXCOORD_1. Alias it
+          // (same BufferAttribute, no copy) so both layouts take the
+          // LIGHTMAP_ATLAS path instead of the shader's uv1-or-uv guess.
+          const { attributes } = meshChild.geometry
+          if (
+            meshChild.userData.Lightmap === "Map00" &&
+            !("uv2" in attributes) &&
+            "uv1" in attributes
+          ) {
+            meshChild.geometry.setAttribute("uv2", attributes.uv1)
+          }
+
           const CONFIG = {
             GLASS: isGlass,
             LIGHT: false,

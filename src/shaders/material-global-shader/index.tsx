@@ -122,6 +122,10 @@ export const createGlobalShaderMaterial = (
     uniforms["glassMatcap"] = { value: false }
   }
 
+  if (defines?.METAL) {
+    uniforms["metalRoughnessMap"] = { value: metalnessMap ?? roughnessMap }
+  }
+
   if (defines?.OUTDOOR) {
     uniforms["uOutdoorTint"] = outdoorTintUniform
     uniforms["uOutdoorEmissive"] = outdoorEmissiveUniform
@@ -143,10 +147,6 @@ export const createGlobalShaderMaterial = (
     emissiveMap === null &&
     baseMaterial.emissiveIntensity !== 0 &&
     emissiveSum > 0
-
-  if (defines?.METAL) {
-    uniforms["metalRoughnessMap"] = { value: metalnessMap ?? roughnessMap }
-  }
 
   if (defines?.DAYLIGHT) {
     uniforms["daylight"] = { value: true }

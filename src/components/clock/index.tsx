@@ -32,6 +32,8 @@ interface ClockElements {
 
 export const Clock = () => {
   const clock = useMesh((s) => s.services.clock)
+  const clockBody = useMesh((s) => s.services.clockBody)
+  const clockMorphIndex = useMesh((s) => s.services.clockMorphIndex)
   const timePreset = useSceneTime((s) => s.preset)
   const canvasVisible = useAppLoadingStore(
     (s) => s.canvasVisible && s.canRunMainApp
@@ -47,8 +49,6 @@ export const Clock = () => {
     isDesktop &&
     !contactOpen &&
     !transitioning
-  const clockBody = useMesh((s) => s.services.clockBody)
-  const clockMorphIndex = useMesh((s) => s.services.clockMorphIndex)
   const [hovered, setHovered] = useState(false)
   const elements = useRef<ClockElements | null>(null)
   const trigger = useRef<HTMLButtonElement>(null)
@@ -147,7 +147,12 @@ export const Clock = () => {
   useFrameCallback(({ camera }, _, elapsedTime) => {
     const influences = clockBody?.morphTargetInfluences
     if (influences && clockMorphIndex !== null) {
-      influences[clockMorphIndex] = Math.sin(elapsedTime * Math.PI)
+      // Eyes + tail swing together via one shape key ("Time") now, instead of
+      // rotating 3 separate meshes. Same phase as before; -1..1 assumes the
+      // shape key was sculpted as a symmetric swing around rest (influence 0).
+      // If it only swings one way in-engine, remap: (Math.sin(progress) + 1) / 2
+      const progress = elapsedTime * Math.PI
+      influences[clockMorphIndex] = Math.sin(progress)
     }
 
     const button = trigger.current

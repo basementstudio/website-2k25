@@ -64,6 +64,7 @@ const PhysicsWorld = dynamic(
 )
 
 export const Scene = () => {
+  const airplaneActive = useAirplaneStore((s) => s.phase !== "off")
   // Per-field selectors: destructuring the whole store re-rendered the entire
   // <Canvas> subtree on every unrelated navigation-store write.
   const setIsCanvasTabMode = useNavigationStore(
@@ -79,7 +80,6 @@ export const Scene = () => {
     const name = state.currentScene?.name
     return name === "basketball" || name === "lab" || name === "404"
   })
-  const airplaneActive = useAirplaneStore((s) => s.phase !== "off")
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
   const userHasLeftWindow = useRef(false)
