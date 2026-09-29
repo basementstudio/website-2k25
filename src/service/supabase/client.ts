@@ -55,6 +55,15 @@ export const beginScoreSession = () => {
 }
 
 export const submitScore = async (playerName: string, score: number) => {
+  // Both name-entry forms share this check; load the dictionary only when
+  // saving a score, before sending a request or using the game session.
+  const { isBlockedScoreName, BLOCKED_SCORE_NAME_MESSAGE } = await import(
+    "../score-name"
+  )
+  if (isBlockedScoreName(playerName)) {
+    throw new Error(BLOCKED_SCORE_NAME_MESSAGE)
+  }
+
   const clientId = getClientId()
   const sessionToken = await (sessionTokenPromise ?? Promise.resolve(null))
 

@@ -91,6 +91,43 @@ test("breaks equal-score ties by earliest creation, then row ID", async (t) => {
   assert.deepEqual((await getTopScoresFromServer()).data, [first])
 })
 
+test("excludes blocked names before picking each browser's best eligible score", async (t) => {
+  const eligible = { ...row(3, "same-browser"), score: 172 }
+  const other = row(4)
+  mockScores(t, [
+    { ...row(1, "same-browser"), player_name: "GaY" },
+    { ...row(2), player_name: "DIK" },
+    { ...row(5), player_name: "ASS" },
+    eligible,
+    other
+  ])
+
+  assert.deepEqual(await getTopScoresFromServer(), {
+    data: [other, eligible],
+    error: null
+  })
+})
+
+test("fills leaderboard places across batches of excluded names", async (t) => {
+  const blocked = Array.from({ length: 205 }, (_, i) => ({
+    ...row(i),
+    player_name: i % 2 ? "gay" : "dik"
+  }))
+  const eligible = Array.from({ length: 30 }, (_, i) => row(205 + i))
+  const offsets = mockScores(t, [...blocked, ...eligible])
+
+  assert.deepEqual(await getTopScoresFromServer(), {
+    data: eligible.slice(0, 25),
+    error: null
+  })
+  assert.deepEqual(offsets, [0, 100, 200])
+})
+
+test("returns an empty leaderboard when all names are excluded", async (t) => {
+  mockScores(t, [{ ...row(1), player_name: "DIK" }])
+  assert.deepEqual(await getTopScoresFromServer(), { data: [], error: null })
+})
+
 test("preserves separate legacy rows without client IDs", async (t) => {
   const rows = [row(1, null), row(2, ""), row(3, null), row(4, "1")]
   mockScores(t, rows)

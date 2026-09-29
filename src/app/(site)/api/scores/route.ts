@@ -2,6 +2,10 @@ import * as Sentry from "@sentry/nextjs"
 import { geolocation } from "@vercel/functions"
 import { NextResponse } from "next/server"
 
+import {
+  BLOCKED_SCORE_NAME_MESSAGE,
+  isBlockedScoreName
+} from "@/service/score-name"
 import { verifySessionToken } from "@/service/score-session"
 import { createClient } from "@/service/supabase/server"
 import { getTopScoresFromServer } from "@/service/supabase/server"
@@ -131,6 +135,13 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { error: "Invalid player name" },
+        { status: 400 }
+      )
+    }
+
+    if (isBlockedScoreName(playerName)) {
+      return NextResponse.json(
+        { error: BLOCKED_SCORE_NAME_MESSAGE },
         { status: 400 }
       )
     }
