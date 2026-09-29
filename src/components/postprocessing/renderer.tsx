@@ -1,6 +1,7 @@
 import { createPortal, useThree } from "@react-three/fiber"
 import { memo, useEffect, useMemo, useRef } from "react"
 import {
+  Color,
   DepthTexture,
   HalfFloatType,
   LinearSRGBColorSpace,
@@ -56,6 +57,13 @@ cctvConfig.camera.lookAt(new Vector3(6.8, 3.2, -8.51))
 cctvConfig.camera.fov = 100
 cctvConfig.camera.aspect = 16 / 9
 cctvConfig.camera.updateProjectionMatrix()
+
+// Ground fog in the post pass. Seasonal code (src/components/halloween)
+// writes it; amount 0 skips the fog entirely.
+export const fogConfig = {
+  amount: 0,
+  color: new Color()
+}
 
 export const Renderer = memo(RendererInner)
 
@@ -164,6 +172,18 @@ function RendererInner({ sceneChildren }: RendererProps) {
       gl.render(mainScene, cctvConfig.camera)
       cctvConfig.renderTarget.swap()
       cctvConfig.shouldBakeCCTV = false
+    }
+
+    // Fog reconstructs world positions from the depth this pass just wrote,
+    // so it needs this frame's camera.
+    const fogUniforms = postProcessingMaterial.uniforms
+    fogUniforms.uFogAmount.value = fogConfig.amount
+    if (fogConfig.amount > 0) {
+      fogUniforms.uFogColor.value.copy(fogConfig.color)
+      fogUniforms.uCameraProjectionInverse.value.copy(
+        mainCamera.projectionMatrixInverse
+      )
+      fogUniforms.uCameraWorld.value.copy(mainCamera.matrixWorld)
     }
 
     // bloom — skipped where the post shader won't read it (uActiveBloom is 0

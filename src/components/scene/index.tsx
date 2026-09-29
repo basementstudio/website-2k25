@@ -14,6 +14,7 @@ import { CharacterInstanceConfig } from "@/components/characters/character-insta
 import { CharactersSpawn } from "@/components/characters/characters-spawn"
 import { UpdateCanvasCursor } from "@/components/custom-cursor"
 import { Debug } from "@/components/debug"
+import { Halloween } from "@/components/halloween"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Lamp } from "@/components/lamp"
 import { Map } from "@/components/map"
@@ -248,6 +249,7 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Pets />
                   </Suspense>
+                  <Halloween />
                 </>
               }
             />
