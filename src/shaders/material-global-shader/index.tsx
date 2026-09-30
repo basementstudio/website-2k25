@@ -1,6 +1,7 @@
 import { Matrix3, MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
+import { LIGHTMAP_TINT } from "@/constants/halloween"
 
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
@@ -16,6 +17,8 @@ export const cityActivityUniform = { value: 1 }
 // Seasonal code (src/components/halloween/storm.tsx) drives them.
 export const lightFlickerUniform = { value: 1 }
 export const lightningUniform = { value: 0 }
+// Halloween red cast on the baked lightmaps (see LIGHTMAP_TINT).
+export const lightmapTintUniform = { value: new Vector3(...LIGHTMAP_TINT) }
 
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
@@ -88,6 +91,7 @@ export const createGlobalShaderMaterial = (
     noiseFactor: { value: 0.5 },
     uTime: { value: 0.0 },
     uLightFlicker: lightFlickerUniform,
+    uLightmapTint: lightmapTintUniform,
     uLightning: lightningUniform,
     alphaMap: { value: alphaMap },
     alphaMapTransform: { value: new Matrix3().identity() },

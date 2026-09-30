@@ -23,6 +23,7 @@ uniform sampler2D lightMap;
 uniform float lightMapIntensity;
 // Power cut / lightning (Halloween storm) — 1 and 0 when idle.
 uniform float uLightFlicker;
+uniform vec3 uLightmapTint;
 uniform float uLightning;
 
 // Lights
@@ -302,7 +303,7 @@ void main() {
 
   #ifndef VIDEO
   if (lightMapIntensity > 0.0) {
-    irradiance *= lightMapSample * lightMapIntensity * uLightFlicker;
+    irradiance *= lightMapSample * uLightmapTint * lightMapIntensity * uLightFlicker;
   }
   if (uLightning > 0.0) {
     // Lightning comes in through the front windows (z ≈ -6): strongest
