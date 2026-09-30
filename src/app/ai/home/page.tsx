@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { toPlainText } from "next-sanity"
 
 import { fetchHomepage } from "@/app/(site)/(canvas)/(content)/(home)/sanity"
 import { fetchOpenPositions } from "@/app/(site)/(canvas)/(content)/people/sanity"
@@ -12,9 +11,9 @@ import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { getImageUrl } from "@/service/sanity/helpers"
 import { fetchOrganizationData } from "@/service/sanity/organization"
-import type { PortableTextBlock } from "@/service/sanity/types"
 
 import { Field, linkClass, MachineLink, Section } from "../components"
+import { MachinePortableText } from "../machine-portable-text"
 
 export const metadata: Metadata = {
   title: "Machine view",
@@ -36,9 +35,6 @@ const AGENT_RESOURCES = [
   { href: "/faq.md", label: "faq.md" },
   { href: "/contact.md", label: "contact.md" }
 ]
-
-const plainText = (blocks: PortableTextBlock[] | null) =>
-  blocks?.length ? toPlainText(blocks) : ""
 
 const AiPage = async () => {
   const [
@@ -161,9 +157,7 @@ const AiPage = async () => {
             <ul className="flex flex-col gap-3">
               <li key={venture._key} className="flex flex-col gap-1">
                 <h3 className="text-machine-bright">* {venture.title}</h3>
-                {plainText(venture.content) ? (
-                  <p>{plainText(venture.content)}</p>
-                ) : null}
+                <MachinePortableText blocks={venture.content} />
               </li>
             </ul>
           </Section>
