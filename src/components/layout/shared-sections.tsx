@@ -83,6 +83,9 @@ export const InternalLinks = ({
             href={link.href}
             target={link.external ? "_blank" : undefined}
             rel={link.external ? "noopener noreferrer" : undefined}
+            aria-label={
+              link.external ? `${link.title} (opens in a new tab)` : undefined
+            }
             onClick={onClick}
             fromMobileNav={onNav}
           >
