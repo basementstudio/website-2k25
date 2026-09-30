@@ -84,9 +84,8 @@ export const MachineHeader = () => (
         {ASCII_LOGO}
       </pre>
     </Link>
-    {/* Short "/section" labels (hrefs keep the full /ai path) so all eight
-      links fit one row in the 640px column; flex-wrap stays as the fallback
-      for narrow phones. */}
+    {/* Short "/section" labels keep navigation compact; flex-wrap makes
+      room for the external Ventures link and narrow phone screens. */}
     <nav aria-label="Site index" className="flex flex-wrap gap-x-4 gap-y-1">
       {/* Under Cache Components, usePathname suspends on fallback params (a
         slug published after the build), and an unwrapped suspension here
@@ -95,6 +94,15 @@ export const MachineHeader = () => (
       <Suspense fallback={<NavLinks />}>
         <CurrentNavLinks />
       </Suspense>
+      <a
+        href="https://basement.ventures/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Ventures (opens in a new tab)"
+        className={linkClass}
+      >
+        ventures <span aria-hidden="true">↗</span>
+      </a>
     </nav>
   </>
 )

@@ -3,6 +3,7 @@
 import { m } from "motion/react"
 import { usePathname } from "next/navigation"
 
+import { ExternalLinkIcon } from "@/components/icons/icons"
 import { Link } from "@/components/primitives/link"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
@@ -11,7 +12,7 @@ import { isInPath } from "@/utils/is-in-path"
 
 interface InternalLinksProps {
   className?: string
-  links: { title: string; href: string; count?: number }[]
+  links: { title: string; href: string; count?: number; external?: boolean }[]
   onClick?: () => void
   onNav?: boolean
   animated?: boolean
@@ -80,10 +81,21 @@ export const InternalLinks = ({
               onNav && isInPath(link.href, pathname) && "!text-brand-o"
             )}
             href={link.href}
+            target={link.external ? "_blank" : undefined}
+            rel={link.external ? "noopener noreferrer" : undefined}
+            aria-label={
+              link.external ? `${link.title} (opens in a new tab)` : undefined
+            }
             onClick={onClick}
             fromMobileNav={onNav}
           >
             <span className="actionable">{link.title}</span>
+            {link.external && (
+              <ExternalLinkIcon
+                aria-hidden="true"
+                className="ml-1 size-[0.65em] self-center"
+              />
+            )}
             {link.count && (
               <sup className="translate-y-1.25 text-f-p-mobile !font-medium text-brand-g1 lg:text-f-p">
                 <span className="tabular-nums">({link.count})</span>

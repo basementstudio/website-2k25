@@ -81,6 +81,11 @@ export const FooterContent = ({
     {
       title: "Lab",
       href: "/lab"
+    },
+    {
+      title: "Ventures",
+      href: "https://basement.ventures/",
+      external: true
     }
   ]
 

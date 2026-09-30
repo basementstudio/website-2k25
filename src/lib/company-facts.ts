@@ -41,6 +41,7 @@ export const COMPANY_FACTS = {
   // Follows the homepage logo grid's curated order (Sanity homepage.clients).
   notableClients: [
     "SpaceX AI",
+    "X",
     "Vercel",
     "Next.js",
     "Linear",
