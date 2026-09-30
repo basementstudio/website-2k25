@@ -111,6 +111,7 @@ export async function buildIndexMarkdown(): Promise<MarkdownResult> {
     `- [Blog](${SITE_URL}/blog.md)`,
     `- [People](${SITE_URL}/people.md)`,
     `- [Lab](${SITE_URL}/lab.md)`,
+    "- [Ventures](https://basement.ventures/)",
     `- [FAQ](${SITE_URL}/faq.md)`,
     "",
     "---",

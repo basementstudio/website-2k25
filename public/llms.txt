@@ -1,6 +1,6 @@
 # basement.studio
 
-> basement.studio is an Argentina-based digital design and engineering studio specializing in high-performance websites, branding, 3D interactive experiences, and marketing execution for technology companies, primarily in the San Francisco Bay Area — "we make cool shit that performs." Founded in 2020, the studio has partnered with startups and enterprise brands including SpaceX AI, Vercel, Next.js, Linear, Cursor, Scale AI, World Labs, ElevenLabs, Harvey AI, Profound, and MrBeast, and is the team behind the Geist typeface, designed in partnership with Vercel and used across the Next.js ecosystem.
+> basement.studio is an Argentina-based digital design and engineering studio specializing in high-performance websites, branding, 3D interactive experiences, and marketing execution for technology companies, primarily in the San Francisco Bay Area — "we make cool shit that performs." Founded in 2020, the studio has partnered with startups and enterprise brands including SpaceX AI, X, Vercel, Next.js, Linear, Cursor, Scale AI, World Labs, ElevenLabs, Harvey AI, Profound, and MrBeast, and is the team behind the Geist typeface, designed in partnership with Vercel and used across the Next.js ecosystem.
 
 ## Key pages
 
@@ -12,6 +12,7 @@
 - [People](https://basement.studio/people): The team behind basement.studio and open positions.
 - [FAQ](https://basement.studio/faq): Answers to common questions — services, WebGL/3D interactive experiences, clients, technologies, and how to start a project.
 - [Contact](https://basement.studio/contact): Get in touch to start a project.
+- [Ventures](https://basement.ventures/)
 
 ## Lab & experiments
 
