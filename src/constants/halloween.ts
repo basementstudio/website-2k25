@@ -163,3 +163,103 @@ export const STORM = {
   // Light level while the power is out (0 would be pitch black).
   blackout: 0.12
 }
+
+// Multiplies the baked lightmaps (linear RGB) to push the office toward red.
+// Values above 1 on red compensate for the green/blue being pulled down, so
+// the room doesn't just get darker. [1, 1, 1] disables it.
+export const LIGHTMAP_TINT: [r: number, g: number, b: number] = [
+  1.25, 0.55, 0.5
+]
+
+// Bats circling the office on looping swoops around `center` (`radius` is
+// the [x, y, z] reach). `scale` is half the wingspan in world units, `speed`
+// the loop rate and `flap` the wingbeat rate in radians/s.
+export const BATS = [
+  // Home: circling over the floor and the TVs.
+  {
+    center: [6.2, 3.1, -11],
+    radius: [2.6, 0.5, 1.8],
+    scale: 0.22,
+    speed: 0.55,
+    flap: 22,
+    seed: 0.21
+  },
+  {
+    center: [5.4, 3.6, -11.5],
+    radius: [2.2, 0.6, 2],
+    scale: 0.18,
+    speed: 0.7,
+    flap: 26,
+    seed: 0.47
+  },
+  // Upstairs, between People and the Blog corner.
+  {
+    center: [10.4, 6.6, -22],
+    radius: [1.4, 0.4, 3.2],
+    scale: 0.2,
+    speed: 0.5,
+    flap: 24,
+    seed: 0.73
+  },
+  {
+    center: [9.6, 6.9, -23],
+    radius: [1.8, 0.5, 2.6],
+    scale: 0.16,
+    speed: 0.65,
+    flap: 28,
+    seed: 0.95
+  }
+] as const satisfies readonly {
+  center: [number, number, number]
+  radius: [number, number, number]
+  scale: number
+  speed: number
+  flap: number
+  seed: number
+}[]
+
+// Jack-o'-lanterns on the floors, in world space. `position` is where the
+// base touches the floor, `scale` the pumpkin's radius and `yaw` turns the
+// carved face (0 faces +z, toward the section cameras).
+export const PUMPKINS = [
+  { position: [3.9, 0, -13], scale: 0.32, yaw: 0.35, seed: 0.12 },
+  { position: [8.5, 0, -9], scale: 0.26, yaw: -0.3, seed: 0.44 },
+  { position: [5.4, 3.73, -27.2], scale: 0.34, yaw: 0.2, seed: 0.68 },
+  { position: [12, 3.73, -17.5], scale: 0.28, yaw: -0.5, seed: 0.9 }
+] as const satisfies readonly {
+  position: [number, number, number]
+  scale: number
+  yaw: number
+  seed: number
+}[]
+
+// Cobwebs stretched across room corners. `corner` is the anchor, `u` and `v`
+// the two edges the web fans out along (its quarter disc lives between
+// them), `normal` points off the wall into the room, `size` is the web's
+// radius in world units.
+export const COBWEBS = [
+  // People: where the back wall meets the poster wall, up by the ceiling.
+  {
+    corner: [13.05, 6.7, -22.4],
+    u: [-1, 0, 0],
+    v: [0, -1, 0],
+    normal: [0, 0, 1],
+    size: 1.3,
+    seed: 0.31
+  },
+  {
+    corner: [13.05, 6.7, -22.4],
+    u: [0, 0, 1],
+    v: [0, -1, 0],
+    normal: [-1, 0, 0],
+    size: 1.1,
+    seed: 0.77
+  }
+] as const satisfies readonly {
+  corner: [number, number, number]
+  u: [number, number, number]
+  v: [number, number, number]
+  normal: [number, number, number]
+  size: number
+  seed: number
+}[]
