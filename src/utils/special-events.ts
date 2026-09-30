@@ -46,3 +46,9 @@ const isBetweenYearlyDates = (startMMDD: string, endMMDD: string): boolean => {
 
 export const IsChristmasSeason = (): boolean =>
   isBetweenYearlyDates("12-07", "01-06")
+
+// `?halloween` forces it on outside the window, to QA the season on preview.
+export const IsHalloweenSeason = (): boolean =>
+  isBetweenYearlyDates("10-20", "11-02") ||
+  (typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).has("halloween"))
