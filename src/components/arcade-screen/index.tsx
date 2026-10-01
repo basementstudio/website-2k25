@@ -59,7 +59,10 @@ export const ArcadeScreen = () => {
   const bootTexture = useTexture(arcade.boot, (texture) => {
     texture.flipY = false
   })
-  const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
+  const videoTexture = useVideoTexture(arcade.idleScreen, {
+    loop: true,
+    muted: true
+  })
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
