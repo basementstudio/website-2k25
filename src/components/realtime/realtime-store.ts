@@ -110,6 +110,24 @@ export const NAME_MAX_LENGTH = 20
 const NAME_HARD_CAP = 64
 const NAME_STORAGE_KEY = "rt-cursor-name"
 
+// localStorage can be null or throw (storage disabled, sandboxed contexts,
+// privacy modes), so never let it break module evaluation or state updates.
+const readStorage = (key: string): string | null => {
+  if (typeof window === "undefined") return null
+  try {
+    return window.localStorage?.getItem(key) ?? null
+  } catch {
+    return null
+  }
+}
+
+const writeStorage = (key: string, value: string) => {
+  if (typeof window === "undefined") return
+  try {
+    window.localStorage?.setItem(key, value)
+  } catch {}
+}
+
 /** Display form of a cursor name: capped at NAME_MAX_LENGTH with an ellipsis. */
 export const formatName = (name: string) => {
   const trimmed = name.trim()
@@ -138,10 +156,7 @@ export const useRealtimeStore = create<RealtimeStore>((set) => ({
   cursors: {},
   chatMessage: "",
   country: null,
-  displayName:
-    typeof window === "undefined"
-      ? ""
-      : (localStorage.getItem(NAME_STORAGE_KEY) ?? ""),
+  displayName: readStorage(NAME_STORAGE_KEY) ?? "",
   setOnlineCount: (count) => set({ onlineCount: count }),
   upsertCursor: (cursor) =>
     set((state) => ({ cursors: { ...state.cursors, [cursor.id]: cursor } })),
@@ -156,7 +171,7 @@ export const useRealtimeStore = create<RealtimeStore>((set) => ({
   setCountry: (country) => set({ country }),
   setDisplayName: (name) => {
     const trimmed = name.trim().slice(0, NAME_HARD_CAP)
-    localStorage.setItem(NAME_STORAGE_KEY, trimmed)
+    writeStorage(NAME_STORAGE_KEY, trimmed)
     set({ displayName: trimmed })
   }
 }))
