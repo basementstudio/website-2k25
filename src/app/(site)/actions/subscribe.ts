@@ -2,12 +2,20 @@
 
 import * as Sentry from "@sentry/nextjs"
 
+import { isValidEmail } from "@/utils/email"
+
 // The "General" audience segment in the Resend dashboard.
 const NEWSLETTER_SEGMENT_ID = "67cdd754-44a1-492e-8ed3-47dbdac70398"
 
 type State = {
   success: boolean
   message: string
+}
+
+// The client maps any message containing "email" to its "Invalid Email" state.
+const INVALID_EMAIL_STATE: State = {
+  success: false,
+  message: "Invalid email"
 }
 
 export async function subscribe(
@@ -21,10 +29,18 @@ export async function subscribe(
 
 async function runSubscribe(formData: FormData): Promise<State> {
   try {
-    const email = formData.get("email")
+    const rawEmail = formData.get("email")
 
-    if (!email) {
+    if (!rawEmail) {
       throw new Error("Email is Required")
+    }
+
+    const email = typeof rawEmail === "string" ? rawEmail.trim() : ""
+
+    // Invalid input is an expected user error: report it back to the form
+    // instead of calling Resend and capturing an exception.
+    if (!isValidEmail(email)) {
+      return INVALID_EMAIL_STATE
     }
 
     const resendApiKey = process.env.RESEND_API_KEY
@@ -57,6 +73,9 @@ async function runSubscribe(formData: FormData): Promise<State> {
           success: false,
           message: "already registered"
         }
+      }
+      if (response.status === 422) {
+        return INVALID_EMAIL_STATE
       }
       throw new Error(data.message || "Failed to subscribe")
     }
