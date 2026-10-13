@@ -6,9 +6,11 @@ import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
+import { useMinigameStore } from "@/store/minigame-store"
 
 import { useAssets } from "../assets-provider"
 import { BALL_GROUP } from "./collision"
+import { getLiveBody } from "./rapier-body"
 
 interface BasketballProps {
   ballRef: RefObject<any>
@@ -80,8 +82,8 @@ export const Basketball = ({
 
         if (bounceCount.current >= 1) {
           bounceCount.current = 0
-          if (ballRef.current && !isTimerLow && !isTimerEnding) {
-            const ball = ballRef.current
+          const ball = getLiveBody(ballRef)
+          if (ball && !isTimerLow && !isTimerEnding) {
             const translation = ball.translation()
             const currentPos = {
               x: translation.x,
@@ -102,6 +104,17 @@ export const Basketball = ({
       resetBallToInitialPosition()
     }
   }
+
+  // When the ball RigidBody unmounts (e.g. readyToPlay flips at game end) its
+  // rapier handle is freed. Stop any in-flight drag/reset animation so frame
+  // callbacks don't keep driving a dead body, which would panic the WASM.
+  useEffect(() => {
+    return () => {
+      const { setIsDragging, setIsResetting } = useMinigameStore.getState()
+      setIsDragging(false)
+      setIsResetting(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (isDragging) {
