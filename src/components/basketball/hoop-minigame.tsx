@@ -30,6 +30,11 @@ import {
 } from "./curveball"
 import { GhostBalls } from "./ghost-balls"
 import { NetPhysics } from "./net-physics"
+import {
+  isPhysicsPoisoned,
+  markPhysicsPoisoned,
+  safeRapier
+} from "./rapier-guard"
 import { RigidBodies } from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
@@ -184,9 +189,16 @@ const HoopMinigameInner = () => {
   useEffect(() => {
     if (isBasketball && readyToPlay) {
       resetState()
-      if (ballRef.current) {
-        ballRef.current.setTranslation(initialPosition, true)
-        ballRef.current.setBodyType(2, true)
+      const ball = ballRef.current
+      if (ball) {
+        safeRapier(
+          "hoop-minigame.ready",
+          () => {
+            ball.setTranslation(initialPosition, true)
+            ball.setBodyType(2, true)
+          },
+          undefined
+        )
         isThrowable.current = true
       }
     }
@@ -285,7 +297,12 @@ const HoopMinigameInner = () => {
             // If the user is currently dragging the ball, release it
             if (isDragging && ballRef.current) {
               setIsDragging(false)
-              ballRef.current.setBodyType(0, true)
+              const ball = ballRef.current
+              safeRapier(
+                "hoop-minigame.timer",
+                () => ball.setBodyType(0, true),
+                undefined
+              )
             }
           }
 
@@ -302,7 +319,12 @@ const HoopMinigameInner = () => {
               // release ball if held after game timeout
               if (isDragging && ballRef.current) {
                 setIsDragging(false)
-                ballRef.current.setBodyType(0, true)
+                const ball = ballRef.current
+                safeRapier(
+                  "hoop-minigame.timer",
+                  () => ball.setBodyType(0, true),
+                  undefined
+                )
               }
 
               // If the ball is currently resetting, cancel the reset
@@ -311,7 +333,12 @@ const HoopMinigameInner = () => {
 
                 // If we have a ball reference, make sure it's a dynamic body
                 if (ballRef.current) {
-                  ballRef.current.setBodyType(0, true)
+                  const ball = ballRef.current
+                  safeRapier(
+                    "hoop-minigame.timer",
+                    () => ball.setBodyType(0, true),
+                    undefined
+                  )
                 }
               }
 
@@ -323,7 +350,11 @@ const HoopMinigameInner = () => {
 
                 // if the ball is still in play, we add it to played balls
                 // only if it doesn't already exist there
-                if (ballRef.current && !isUnmounting.current) {
+                if (
+                  ballRef.current &&
+                  !isUnmounting.current &&
+                  !isPhysicsPoisoned()
+                ) {
                   try {
                     // Create a completely separate copy of all ball data first
                     // to avoid any aliasing issues with the ball object
@@ -375,6 +406,7 @@ const HoopMinigameInner = () => {
                       })
                     }
                   } catch (error) {
+                    markPhysicsPoisoned(error, "hoop-minigame.finalBall")
                     console.warn("Final ball check failed:", error)
                   }
                 }
@@ -409,20 +441,32 @@ const HoopMinigameInner = () => {
   ])
 
   const handlePointerUp = useCallback(() => {
-    const threw = utilsHandlePointerUp({
-      ballRef,
-      dragStartPos: positionVectors.dragStartPos,
-      hasMovedSignificantly,
-      isThrowable,
-      hoopPosition,
-      setIsDragging,
-      isGameActive,
-      startGame,
-      upStrength,
-      forwardStrength,
-      playSoundFX,
-      throwVelocity: throwVelocity.current
-    })
+    // Poisoned physics: every rapier call would throw again, so just drop
+    // the drag state without touching the ball.
+    if (isPhysicsPoisoned()) {
+      setIsDragging(false)
+      resetSpinTracking()
+      return
+    }
+    const threw = safeRapier(
+      "hoop-minigame.pointerUp",
+      () =>
+        utilsHandlePointerUp({
+          ballRef,
+          dragStartPos: positionVectors.dragStartPos,
+          hasMovedSignificantly,
+          isThrowable,
+          hoopPosition,
+          setIsDragging,
+          isGameActive,
+          startGame,
+          upStrength,
+          forwardStrength,
+          playSoundFX,
+          throwVelocity: throwVelocity.current
+        }),
+      false
+    )
 
     // only a release that actually launched a throw may charge the
     // curveball — a dropped ball must not receive spin/curve forces
@@ -459,6 +503,9 @@ const HoopMinigameInner = () => {
 
   useFrameCallback(({ pointer }, delta) => {
     if (!isBasketball) return
+    // A previous rapier failure leaves its wasm objects permanently
+    // borrowed; any further call would throw, so leave the ball alone.
+    if (isPhysicsPoisoned()) return
 
     if (isDragging && ballRef.current) {
       try {
@@ -528,7 +575,8 @@ const HoopMinigameInner = () => {
           setIsDragging(false)
           resetBallToInitialPosition()
         }
-      } catch (_) {
+      } catch (error) {
+        markPhysicsPoisoned(error, "hoop-minigame.drag")
         console.warn("Failed to update ball position, physics might be paused")
         setIsDragging(false)
       }
@@ -590,7 +638,8 @@ const HoopMinigameInner = () => {
           const ball = ballRef.current
           ball.setBodyType(2, true)
         }
-      } catch (_) {
+      } catch (error) {
+        markPhysicsPoisoned(error, "hoop-minigame.reset")
         console.warn("Failed to reset ball animation, physics might be paused")
         setIsResetting(false)
         resetProgress.current = 0
@@ -621,21 +670,28 @@ const HoopMinigameInner = () => {
     (event: any) => {
       // Don't allow grabbing the ball when timer is low
       if (isTimerLow.current) return
+      // Don't grab the ball once rapier has failed — its objects are stuck
+      if (isPhysicsPoisoned()) return
 
       resetSpinTracking()
-      utilsHandlePointerDown({
-        event,
-        ballRef,
-        mousePos,
-        lastMousePos,
-        dragStartPos: positionVectors.dragStartPos,
-        initialGrabPos,
-        hasMovedSignificantly,
-        isThrowable,
-        hoopPosition,
-        setIsDragging,
-        setShotMetrics
-      })
+      safeRapier(
+        "hoop-minigame.pointerDown",
+        () =>
+          utilsHandlePointerDown({
+            event,
+            ballRef,
+            mousePos,
+            lastMousePos,
+            dragStartPos: positionVectors.dragStartPos,
+            initialGrabPos,
+            hasMovedSignificantly,
+            isThrowable,
+            hoopPosition,
+            setIsDragging,
+            setShotMetrics
+          }),
+        undefined
+      )
     },
     [hoopPosition, setIsDragging, setShotMetrics, positionVectors.dragStartPos]
   )
@@ -643,21 +699,27 @@ const HoopMinigameInner = () => {
   const handlePointerMove = useCallback(
     (event: any) => {
       if (!isDragging) return
+      if (isPhysicsPoisoned()) return
 
       trackSpin(event.clientX, event.clientY)
-      utilsHandlePointerMove({
-        event,
-        ballRef,
-        mousePos,
-        lastMousePos,
-        dragStartPos: positionVectors.dragStartPos,
-        initialGrabPos,
-        hasMovedSignificantly,
-        isThrowable,
-        hoopPosition,
-        setIsDragging,
-        setShotMetrics
-      })
+      safeRapier(
+        "hoop-minigame.pointerMove",
+        () =>
+          utilsHandlePointerMove({
+            event,
+            ballRef,
+            mousePos,
+            lastMousePos,
+            dragStartPos: positionVectors.dragStartPos,
+            initialGrabPos,
+            hasMovedSignificantly,
+            isThrowable,
+            hoopPosition,
+            setIsDragging,
+            setShotMetrics
+          }),
+        undefined
+      )
     },
     [
       isDragging,
