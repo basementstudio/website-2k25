@@ -1,6 +1,8 @@
 import { RapierRigidBody, useAfterPhysicsStep } from "@react-three/rapier"
 import { RefObject, useRef } from "react"
 
+import { isPhysicsPoisoned, safeRapier } from "./rapier-guard"
+
 // Pokémon-GO-style curveball: spin the ball in circles while holding it,
 // then release — the shot curves sideways (Magnus force perpendicular to
 // the flight path) and, as it descends, bends back toward the rim. More
@@ -87,6 +89,14 @@ export const CurveballForce = ({ ballRef }: CurveballForceProps) => {
   const spun = useRef(false)
 
   useAfterPhysicsStep(() => {
+    if (isPhysicsPoisoned()) {
+      spinCharge.current = 0
+      return
+    }
+    safeRapier("curveball.afterStep", applyCurve, undefined)
+  })
+
+  function applyCurve() {
     if (spinCharge.current === 0) {
       age.current = 0
       spun.current = false
@@ -144,7 +154,7 @@ export const CurveballForce = ({ ballRef }: CurveballForceProps) => {
         ball.applyImpulse({ x: dx * g, y: 0, z: dz * g }, true)
       }
     }
-  })
+  }
 
   return null
 }

@@ -30,6 +30,11 @@ import {
 } from "./curveball"
 import { GhostBalls } from "./ghost-balls"
 import { NetPhysics } from "./net-physics"
+import {
+  isPhysicsPoisoned,
+  markPhysicsPoisoned,
+  safeRapier
+} from "./rapier-guard"
 import { RigidBodies } from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
@@ -285,7 +290,12 @@ const HoopMinigameInner = () => {
             // If the user is currently dragging the ball, release it
             if (isDragging && ballRef.current) {
               setIsDragging(false)
-              ballRef.current.setBodyType(0, true)
+              const ball = ballRef.current
+              safeRapier(
+                "hoop-minigame.timer",
+                () => ball.setBodyType(0, true),
+                undefined
+              )
             }
           }
 
@@ -302,7 +312,12 @@ const HoopMinigameInner = () => {
               // release ball if held after game timeout
               if (isDragging && ballRef.current) {
                 setIsDragging(false)
-                ballRef.current.setBodyType(0, true)
+                const ball = ballRef.current
+                safeRapier(
+                  "hoop-minigame.timer",
+                  () => ball.setBodyType(0, true),
+                  undefined
+                )
               }
 
               // If the ball is currently resetting, cancel the reset
@@ -311,7 +326,12 @@ const HoopMinigameInner = () => {
 
                 // If we have a ball reference, make sure it's a dynamic body
                 if (ballRef.current) {
-                  ballRef.current.setBodyType(0, true)
+                  const ball = ballRef.current
+                  safeRapier(
+                    "hoop-minigame.timer",
+                    () => ball.setBodyType(0, true),
+                    undefined
+                  )
                 }
               }
 
@@ -459,6 +479,9 @@ const HoopMinigameInner = () => {
 
   useFrameCallback(({ pointer }, delta) => {
     if (!isBasketball) return
+    // A previous rapier failure leaves its wasm objects permanently
+    // borrowed; any further call would throw, so leave the ball alone.
+    if (isPhysicsPoisoned()) return
 
     if (isDragging && ballRef.current) {
       try {
@@ -528,7 +551,8 @@ const HoopMinigameInner = () => {
           setIsDragging(false)
           resetBallToInitialPosition()
         }
-      } catch (_) {
+      } catch (error) {
+        markPhysicsPoisoned(error, "hoop-minigame.drag")
         console.warn("Failed to update ball position, physics might be paused")
         setIsDragging(false)
       }
@@ -590,7 +614,8 @@ const HoopMinigameInner = () => {
           const ball = ballRef.current
           ball.setBodyType(2, true)
         }
-      } catch (_) {
+      } catch (error) {
+        markPhysicsPoisoned(error, "hoop-minigame.reset")
         console.warn("Failed to reset ball animation, physics might be paused")
         setIsResetting(false)
         resetProgress.current = 0

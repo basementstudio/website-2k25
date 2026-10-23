@@ -13,6 +13,7 @@ import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { NET_NODE_GROUP, STATIC_GROUP } from "./collision"
+import { isPhysicsPoisoned, safeRapier } from "./rapier-guard"
 
 // True while the local ball is passing down through the hoop. Drives the
 // containment tube so a ball hitting the net from outside meets pure soft
@@ -417,6 +418,11 @@ const NetPhysicsInner = ({ net, ballRef }: NetPhysicsProps & { net: Mesh }) => {
   // rim passage (and the floor-bounce reset) can happen between two frames.
   // Per-step sampling caps ball travel per sample at ~7cm.
   useAfterPhysicsStep(() => {
+    if (isPhysicsPoisoned()) return
+    safeRapier("net-physics.afterStep", trackBall, undefined)
+  })
+
+  function trackBall() {
     const ball = ballRef.current
     if (ball && ball.isValid() && ball.bodyType() === 0) {
       const p = ball.translation()
@@ -486,26 +492,36 @@ const NetPhysicsInner = ({ net, ballRef }: NetPhysicsProps & { net: Mesh }) => {
         tubeRef.current?.setEnabled(false)
       }
     }
-  })
+  }
 
   useFrameCallback((_, delta) => {
+    // Once any rapier call has thrown, the world's wasm objects stay
+    // borrowed and even isValid() throws — stop reading the lattice.
+    if (isPhysicsPoisoned()) return
     let allAsleep = true
-    for (let d = 0; d < nodeRefs.length; d++) {
-      const body = nodeRefs[d].current
-      // Rapier handles can outlive React refs by a frame around unmount;
-      // reading a freed handle panics the WASM (see basketball PR #487).
-      if (!body || !body.isValid()) return
-      if (!body.isSleeping()) allAsleep = false
-    }
+    const read = safeRapier(
+      "net-physics.frame",
+      () => {
+        for (let d = 0; d < nodeRefs.length; d++) {
+          const body = nodeRefs[d].current
+          // Rapier handles can outlive React refs by a frame around unmount
+          if (!body || !body.isValid()) return false
+          if (!body.isSleeping()) allAsleep = false
+        }
 
-    for (let d = 0; d < nodeRefs.length; d++) {
-      const t = nodeRefs[d].current!.translation()
-      tmp.set(t.x, t.y, t.z).applyMatrix4(binding.inverseMatrixWorld)
-      const j = (NET_COLS + d) * 3
-      nodeCurrent[j] = tmp.x
-      nodeCurrent[j + 1] = tmp.y
-      nodeCurrent[j + 2] = tmp.z
-    }
+        for (let d = 0; d < nodeRefs.length; d++) {
+          const t = nodeRefs[d].current!.translation()
+          tmp.set(t.x, t.y, t.z).applyMatrix4(binding.inverseMatrixWorld)
+          const j = (NET_COLS + d) * 3
+          nodeCurrent[j] = tmp.x
+          nodeCurrent[j + 1] = tmp.y
+          nodeCurrent[j + 2] = tmp.z
+        }
+        return true
+      },
+      false
+    )
+    if (!read) return
 
     // The joints have slack, so the lattice sags a touch below the analytic
     // rest pose right after spawning. Hold the authored mesh until that

@@ -20,6 +20,7 @@ import {
 import { useMinigameStore } from "@/store/minigame-store"
 
 import { useAssets } from "../assets-provider"
+import { isPhysicsPoisoned, safeRapier } from "./rapier-guard"
 
 const GHOST_BROADCAST_MS = 100
 const MAX_GHOSTS = 5
@@ -229,38 +230,43 @@ const GhostBallsImpl = ({ ballRef }: GhostBallsProps) => {
     if (
       subscribedRef.current &&
       ball &&
-      ball.isValid() &&
+      !isPhysicsPoisoned() &&
       peerCountRef.current > 1
     ) {
-      const t = ball.translation()
-      if (
-        Number.isFinite(t.x) &&
-        Number.isFinite(t.y) &&
-        Number.isFinite(t.z)
-      ) {
-        const { isDragging, isResetting, initialPosition } =
-          useMinigameStore.getState()
-        const dx = t.x - initialPosition.x
-        const dy = t.y - initialPosition.y
-        const dz = t.z - initialPosition.z
-        const moving =
-          isDragging ||
-          isResetting ||
-          dx * dx + dy * dy + dz * dz > IDLE_DIST * IDLE_DIST
-        // One trailing packet when the ball settles, then silence; receivers
-        // hide the ghost via the stale timeout
-        if (moving || wasMovingRef.current) {
-          const r = ball.rotation()
-          sendRef.current?.(
-            [round3(t.x), round3(t.y), round3(t.z)],
-            [round3(r.x), round3(r.y), round3(r.z), round3(r.w)]
-          )
-        }
-        wasMovingRef.current = moving
-      }
+      safeRapier("ghost-balls.send", () => sendLocalBall(ball), undefined)
     }
 
     // Receive: chase the latest network target for each ghost
+    receiveGhosts(delta)
+  })
+
+  function sendLocalBall(ball: RapierRigidBody) {
+    if (!ball.isValid()) return
+    const t = ball.translation()
+    if (Number.isFinite(t.x) && Number.isFinite(t.y) && Number.isFinite(t.z)) {
+      const { isDragging, isResetting, initialPosition } =
+        useMinigameStore.getState()
+      const dx = t.x - initialPosition.x
+      const dy = t.y - initialPosition.y
+      const dz = t.z - initialPosition.z
+      const moving =
+        isDragging ||
+        isResetting ||
+        dx * dx + dy * dy + dz * dz > IDLE_DIST * IDLE_DIST
+      // One trailing packet when the ball settles, then silence; receivers
+      // hide the ghost via the stale timeout
+      if (moving || wasMovingRef.current) {
+        const r = ball.rotation()
+        sendRef.current?.(
+          [round3(t.x), round3(t.y), round3(t.z)],
+          [round3(r.x), round3(r.y), round3(r.z), round3(r.w)]
+        )
+      }
+      wasMovingRef.current = moving
+    }
+  }
+
+  function receiveGhosts(delta: number) {
     const now = performance.now()
     for (const [id, target] of targetsRef.current) {
       const group = poolRefs.current[target.slot]
@@ -285,7 +291,7 @@ const GhostBallsImpl = ({ ballRef }: GhostBallsProps) => {
       }
       group.visible = true
     }
-  })
+  }
 
   return (
     <>
