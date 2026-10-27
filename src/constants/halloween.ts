@@ -447,20 +447,20 @@ export const CANDLE_CLUSTERS = [
   },
   {
     name: "stairs-low",
-    // Keep the stair groups along the outer edge, leaving the middle open.
-    position: [3.35, 1.031, -11],
+    // Keep the bases inside the left tread edge, clear of the walking area.
+    position: [2.42, 1.031, -11],
     scale: 0.85,
     rotation: 0
   },
   {
     name: "stairs-middle",
-    position: [3.35, 1.993, -12.4],
+    position: [2.42, 1.993, -12.4],
     scale: 0.9,
     rotation: 0
   },
   {
     name: "stairs-high",
-    position: [3.35, 2.763, -13.42],
+    position: [2.42, 2.763, -13.42],
     scale: 0.8,
     rotation: 0
   },
