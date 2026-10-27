@@ -149,7 +149,9 @@ export interface AssetsResult {
   characters: {
     model: string
     textureBody: string
+    textureBodyHalloween: string
     textureFaces: string
+    textureFacesHalloween: string
     textureArms: string
     textureComic: string
   }

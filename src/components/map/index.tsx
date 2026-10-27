@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Object3D } from "three"
 import * as THREE from "three"
 
@@ -27,6 +27,7 @@ import { RoutingElement } from "@/components/routing-element/routing-element"
 import { Sky } from "@/components/sky"
 import { SpeakerHover } from "@/components/speaker-hover"
 import { Weather } from "@/components/weather"
+import { isHiddenOfficeItem } from "@/constants/hidden-office-items"
 import { useMesh } from "@/hooks/use-mesh"
 import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
 import { markCanvasBootStage } from "@/lib/canvas-boot"
@@ -58,6 +59,18 @@ export const Map = memo(() => {
     basketballNet,
     routingElements
   } = useLoader()
+
+  useLayoutEffect(() => {
+    const hide = (object: Object3D) => {
+      if (!isHiddenOfficeItem(object)) return
+      object.visible = false
+      object.raycast = () => null
+    }
+    officeItems.traverse(hide)
+    // Also cover objects already reparented into inspection groups on HMR.
+    useMesh.getState().inspectables.forEach((mesh) => mesh.traverse(hide))
+    if (useMesh.getState().ipodScreen) useMesh.setState({ ipodScreen: null })
+  }, [officeItems])
 
   useFrameLoop()
 
@@ -91,6 +104,7 @@ export const Map = memo(() => {
         child: Object3D,
         overrides?: { FOG?: boolean; GODRAY?: boolean; OUTDOOR?: boolean }
       ) => {
+        if (isHiddenOfficeItem(child)) return
         if (legacySkyNodes.includes(child.name)) {
           child.visible = false
           return

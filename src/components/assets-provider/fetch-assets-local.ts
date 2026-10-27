@@ -1,3 +1,4 @@
+import { HIDDEN_OFFICE_ITEMS } from "@/constants/hidden-office-items"
 import { ASSETS_BASE, INSPECTABLES_META } from "@/lib/3d-config/asset-manifest"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
@@ -171,7 +172,10 @@ export async function fetchAssetsLocal(): Promise<AssetsResult> {
     (config.inspectables ?? []).map((c) => [c.inspectableId ?? "", c])
   )
 
-  const inspectables = INSPECTABLES_META.map((meta) => {
+  const visibleInspectableMeta = INSPECTABLES_META.filter(
+    ({ mesh }) => !HIDDEN_OFFICE_ITEMS.has(mesh)
+  )
+  const inspectables = visibleInspectableMeta.map((meta) => {
     const sanityContent = inspectableContentById.get(meta.id)
     const placeholder =
       !sanityContent && process.env.NODE_ENV !== "production"

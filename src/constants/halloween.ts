@@ -16,19 +16,21 @@ export interface SpiderSurface {
 export const SPIDER_SURFACES: SpiderSurface[] = [
   {
     name: "home-floor",
-    center: [6.2, 0, -10.9],
+    // The left strip rises into the Services platform and stairs.
+    center: [6.65, 0, -10.9],
     normal: [0, 1, 0],
     tangent: [1, 0, 0],
-    size: [5, 4.6],
+    size: [4, 4.6],
     count: 7
   },
   {
     // Above the TVs, around the neon logo.
     name: "home-back-wall",
-    center: [8.1, 2.7, -14.58],
+    // Stay between the corridor opening and the wall's right edge.
+    center: [8.3, 2.75, -14.58],
     normal: [0, 0, 1],
     tangent: [1, 0, 0],
-    size: [3.6, 1.6],
+    size: [1.8, 1.2],
     count: 3
   },
   {
@@ -50,10 +52,11 @@ export const SPIDER_SURFACES: SpiderSurface[] = [
   {
     // The wall the People camera looks straight at.
     name: "people-wall",
-    center: [8.45, 5.4, -22.4],
+    // The right half of the old rectangle was an open passage.
+    center: [7.5, 5.4, -22.4],
     normal: [0, 0, -1],
     tangent: [-1, 0, 0],
-    size: [3, 2],
+    size: [1, 1.5],
     count: 3
   },
   {
@@ -69,11 +72,12 @@ export const SPIDER_SURFACES: SpiderSurface[] = [
   {
     // Poster wall behind the Blog sofa.
     name: "blog-posters",
-    center: [8.35, 5.9, -19.2],
+    // Solid panel beside the Blog doorway, below the roof opening.
+    center: [8.35, 5.65, -18.2],
     normal: [1, 0, 0],
     tangent: [0, 0, -1],
-    size: [3.4, 1.8],
-    count: 4
+    size: [1, 1.05],
+    count: 3
   },
   {
     name: "blog-floor",
@@ -87,7 +91,7 @@ export const SPIDER_SURFACES: SpiderSurface[] = [
 
 // Body length in world units — oversized on purpose so they read from the
 // camera (a real house spider would be a couple of pixels).
-export const SPIDER_SCALE: [min: number, max: number] = [0.09, 0.15]
+export const SPIDER_SCALE: [min: number, max: number] = [0.075, 0.11]
 // World units per second while walking, before the per-spider size factor.
 export const SPIDER_SPEED: [min: number, max: number] = [0.35, 0.8]
 export const SPIDER_FLEE_SPEED = 1.6
@@ -98,20 +102,13 @@ export const SPIDER_FLEE_RADIUS = 0.55
 // Floating ghosts: each drifts along a Lissajous loop around `center`,
 // `radius` being its [x, z] reach. `scale` is the ghost's height.
 export const GHOSTS = [
-  // Home: one low over the floor, one up by the shelves and stairs.
+  // One in Home and one upstairs; keep each room's silhouette uncluttered.
   {
     center: [6.2, 1.5, -11],
     radius: [1.8, 1.4],
     scale: 0.6,
     speed: 0.22,
     seed: 0.13
-  },
-  {
-    center: [4.2, 3.1, -10.5],
-    radius: [1.2, 1.6],
-    scale: 0.5,
-    speed: 0.17,
-    seed: 0.58
   },
   // Upstairs, roaming between People and the Blog corner.
   {
@@ -135,9 +132,7 @@ export const GHOSTS = [
 // glass from across the room. The street runs along x at z 4–9; the sidewalk sits
 // between it and the building front (z ≈ -5.7).
 export const STREET_GHOSTS = [
-  { x: [-25, 35], y: 1.2, z: 1.5, scale: 2.2, speed: 2.2, wait: 6, seed: 0.27 },
-  { x: [35, -25], y: 1.6, z: 6.5, scale: 2.8, speed: 1.6, wait: 9, seed: 0.64 },
-  { x: [-25, 35], y: 2.2, z: 11, scale: 2.6, speed: 1.9, wait: 12, seed: 0.83 }
+  { x: [-25, 35], y: 1.2, z: 1.5, scale: 2.2, speed: 2.2, wait: 6, seed: 0.27 }
 ] as const satisfies readonly {
   x: [number, number]
   y: number
@@ -153,6 +148,11 @@ export const FOG_AMOUNT = 1.3
 // Linear, pre-tonemap — so it reads brighter on screen than the hex suggests.
 export const FOG_COLOR = "#7a64aa"
 
+// Multiplies the baked office lightmaps to add a red cast.
+export const LIGHTMAP_TINT: [r: number, g: number, b: number] = [
+  1.25, 0.55, 0.5
+]
+
 export const STORM = {
   // How strongly a sky strike lights the office.
   lightningIndoor: 2,
@@ -164,102 +164,428 @@ export const STORM = {
   blackout: 0.12
 }
 
-// Multiplies the baked lightmaps (linear RGB) to push the office toward red.
-// Values above 1 on red compensate for the green/blue being pulled down, so
-// the room doesn't just get darker. [1, 1, 1] disables it.
-export const LIGHTMAP_TINT: [r: number, g: number, b: number] = [
-  1.25, 0.55, 0.5
+// Spider webs strung across corners: the frame threads run anchor to anchor
+// in order (a closed loop), radials run from the hub out to the frame, and the
+// capture spiral winds `turns` times between them. Anchors are world-space
+// points glued to walls/ceilings, ~1 cm off the surface. Corner webs read
+// best with anchors on both walls so the web cuts across the corner.
+export interface SpiderWeb {
+  name: string
+  anchors: [number, number, number][]
+  // Defaults to the anchors' middle.
+  hub?: [number, number, number]
+  spokes: number
+  turns: number
+  // Seeds the jitter, broken spiral threads and loose strands.
+  seed: number
+  // Fraction of spiral threads missing.
+  torn?: number
+  // Loose threads hanging off the frame.
+  strands?: number
+  // Relative silk opacity; close-up webs need less contrast.
+  opacity?: number
+  // Relative motion; webs on narrow trim must stay close to their anchors.
+  motion?: number
+}
+
+export const SPIDER_WEBS: SpiderWeb[] = [
+  {
+    // On the tilted bezel, outside the screen's octagonal cutout.
+    name: "lab-bezel-top-left",
+    anchors: [
+      [2.535, 1.69, -14.1844],
+      [2.625, 1.69, -14.1844],
+      [2.535, 1.59, -14.1437]
+    ],
+    spokes: 8,
+    turns: 4,
+    seed: 0.27,
+    torn: 0.3,
+    opacity: 0.35,
+    motion: 0.15
+  },
+  {
+    name: "lab-bezel-top-right",
+    anchors: [
+      [3.393, 1.69, -14.1844],
+      [3.303, 1.69, -14.1844],
+      [3.393, 1.59, -14.1437]
+    ],
+    spokes: 7,
+    turns: 4,
+    seed: 0.76,
+    torn: 0.35,
+    opacity: 0.3,
+    motion: 0.15
+  },
+  {
+    name: "home-tv-corner",
+    anchors: [
+      [9.45, 3.3, -14.57],
+      [10.05, 3.3, -14.57],
+      [10.05, 2.73, -14.57]
+    ],
+    spokes: 11,
+    turns: 6,
+    seed: 0.82,
+    torn: 0.16,
+    strands: 1
+  },
+  {
+    name: "home-lower-cubby",
+    anchors: [
+      [2.06, 4.08, -11.35],
+      [2.06, 4.08, -11.85],
+      [2.06, 3.51, -11.85]
+    ],
+    spokes: 10,
+    turns: 6,
+    seed: 0.48,
+    torn: 0.2
+  },
+  {
+    name: "services-window-bottom",
+    anchors: [
+      [3.05, 1.05, -5.92],
+      [3.52, 1.05, -5.92],
+      [3.05, 1.5, -5.92]
+    ],
+    spokes: 10,
+    turns: 5,
+    seed: 0.93,
+    torn: 0.18
+  },
+  {
+    name: "people-wall-corner",
+    anchors: [
+      [12.45, 6.3, -22.41],
+      [13.08, 6.3, -22.41],
+      [13.08, 5.73, -22.41]
+    ],
+    spokes: 12,
+    turns: 7,
+    seed: 0.64,
+    strands: 1
+  },
+  {
+    name: "blog-poster-corner",
+    anchors: [
+      [8.34, 6.2, -17.15],
+      [8.34, 6.2, -17.75],
+      [8.34, 5.65, -17.15]
+    ],
+    spokes: 11,
+    turns: 6,
+    seed: 0.54,
+    torn: 0.15,
+    strands: 1
+  },
+  {
+    // Top right corner of the corridor opening, left of the TVs.
+    name: "home-corridor",
+    anchors: [
+      [6.45, 3.32, -14.7],
+      [7.08, 3.32, -14.95],
+      [7.08, 2.55, -14.7]
+    ],
+    spokes: 13,
+    turns: 8,
+    seed: 0.21,
+    strands: 2
+  },
+  {
+    // Top left corner of the glass door.
+    name: "home-glass-door",
+    anchors: [
+      [3.61, 3.13, -14.57],
+      [4.15, 3.13, -14.57],
+      [3.61, 2.6, -14.57]
+    ],
+    spokes: 11,
+    turns: 6,
+    seed: 0.12,
+    torn: 0.08,
+    strands: 1
+  },
+  {
+    // Relocated from the Daylight bay to the now-empty Starship shelf.
+    name: "showcase-starship-shelf",
+    anchors: [
+      [1.925, 4.4, -13.49],
+      [1.925, 4.4, -14.18],
+      [1.925, 3.84, -14.18],
+      [1.925, 3.84, -13.49]
+    ],
+    // Behind the candles, with room for sway in front of the wood back.
+    hub: [1.925, 4.21, -13.73],
+    spokes: 14,
+    turns: 8,
+    seed: 0.89,
+    torn: 0.2,
+    strands: 2
+  },
+  {
+    // Between the brick pillar and the shelves, above the clock.
+    name: "services-corner",
+    anchors: [
+      [2.12, 3.98, -6.01],
+      [2.8, 3.75, -6.01],
+      [2.12, 3.28, -6.01],
+      [2.12, 3.7, -6.7]
+    ],
+    spokes: 15,
+    turns: 8,
+    seed: 0.73,
+    strands: 1
+  },
+  {
+    // Top corners of the window panes, in front of the glass.
+    name: "services-window-left",
+    anchors: [
+      [5.21, 3.21, -5.92],
+      [4.72, 3.21, -5.92],
+      [5.21, 2.68, -5.92]
+    ],
+    spokes: 11,
+    turns: 7,
+    seed: 0.44,
+    strands: 1
+  },
+  {
+    name: "services-window-right",
+    anchors: [
+      [3.05, 3.21, -5.92],
+      [3.5, 3.21, -5.92],
+      [3.05, 2.75, -5.92]
+    ],
+    spokes: 10,
+    turns: 6,
+    seed: 0.67,
+    torn: 0.12
+  },
+  {
+    // Where the poster wall meets the sloped roof.
+    name: "people-roof",
+    anchors: [
+      [13.11, 6.65, -26.9],
+      [13.11, 7.29, -27.4],
+      [12.2, 7.66, -27.0]
+    ],
+    spokes: 14,
+    turns: 8,
+    seed: 0.58,
+    torn: 0.12,
+    strands: 2
+  },
+  {
+    // Top corner of the Blog door frame.
+    name: "blog-door",
+    anchors: [
+      [8.3, 6.05, -19.6],
+      [8.3, 5.4, -20.21],
+      [8.3, 6.05, -20.21]
+    ],
+    spokes: 11,
+    turns: 6,
+    seed: 0.36,
+    torn: 0.1,
+    strands: 1
+  },
+  {
+    // Top left corner of the kitchen nook.
+    name: "blog-kitchen",
+    anchors: [
+      [8.5, 6.18, -20.92],
+      [8.5, 6.18, -21.5],
+      [8.5, 5.6, -20.92]
+    ],
+    spokes: 11,
+    turns: 7,
+    seed: 0.15,
+    strands: 1
+  },
+  {
+    // The dusty gap between the wall and the sofa's arm.
+    name: "blog-sofa",
+    anchors: [
+      [8.34, 4.5, -16.55],
+      [9.3, 4.42, -16.68],
+      [8.95, 3.74, -16.62],
+      [8.34, 3.8, -16.5]
+    ],
+    spokes: 15,
+    turns: 8,
+    seed: 0.31,
+    torn: 0.15,
+    strands: 2
+  }
 ]
 
-// Bats circling the office on looping swoops around `center` (`radius` is
-// the [x, y, z] reach). `scale` is half the wingspan in world units, `speed`
-// the loop rate and `flap` the wingbeat rate in radians/s.
-export const BATS = [
-  // Home: circling over the floor and the TVs.
-  {
-    center: [6.2, 3.1, -11],
-    radius: [2.6, 0.5, 1.8],
-    scale: 0.22,
-    speed: 0.55,
-    flap: 22,
-    seed: 0.21
-  },
-  {
-    center: [5.4, 3.6, -11.5],
-    radius: [2.2, 0.6, 2],
-    scale: 0.18,
-    speed: 0.7,
-    flap: 26,
-    seed: 0.47
-  },
-  // Upstairs, between People and the Blog corner.
-  {
-    center: [10.4, 6.6, -22],
-    radius: [1.4, 0.4, 3.2],
-    scale: 0.2,
-    speed: 0.5,
-    flap: 24,
-    seed: 0.73
-  },
-  {
-    center: [9.6, 6.9, -23],
-    radius: [1.8, 0.5, 2.6],
-    scale: 0.16,
-    speed: 0.65,
-    flap: 28,
-    seed: 0.95
-  }
-] as const satisfies readonly {
-  center: [number, number, number]
-  radius: [number, number, number]
-  scale: number
-  speed: number
-  flap: number
-  seed: number
-}[]
+// How close (world units) the cursor has to pass a web's hub to pluck it.
+export const WEB_PLUCK_RADIUS = 0.4
 
-// Jack-o'-lanterns on the floors, in world space. `position` is where the
-// base touches the floor, `scale` the pumpkin's radius and `yaw` turns the
-// carved face (0 faces +z, toward the section cameras).
-export const PUMPKINS = [
-  { position: [3.9, 0, -13], scale: 0.32, yaw: 0.35, seed: 0.12 },
-  { position: [8.5, 0, -9], scale: 0.26, yaw: -0.3, seed: 0.44 },
-  { position: [5.4, 3.73, -27.2], scale: 0.34, yaw: 0.2, seed: 0.68 },
-  { position: [12, 3.73, -17.5], scale: 0.28, yaw: -0.5, seed: 0.9 }
-] as const satisfies readonly {
+// Bases sit on the exported office's horizontal surfaces (Y-up).
+// Rotation spreads the shelf groups along Z, inside the shallow cubbies.
+export const CANDLE_CLUSTERS = [
+  {
+    name: "services-floor-left",
+    position: [2.65, 0.653, -7.35],
+    scale: 1.05,
+    rotation: 0.3
+  },
+  {
+    name: "services-floor-window",
+    position: [5.5, 0.653, -7.25],
+    scale: 0.9,
+    rotation: 0.2
+  },
+  {
+    name: "services-shelf",
+    position: [1.99, 3.48, -7.3],
+    scale: 0.7,
+    rotation: Math.PI / 2
+  },
+  {
+    name: "stairs-low",
+    // Keep the stair groups along the outer edge, leaving the middle open.
+    position: [3.35, 1.031, -11],
+    scale: 0.85,
+    rotation: 0
+  },
+  {
+    name: "stairs-middle",
+    position: [3.35, 1.993, -12.4],
+    scale: 0.9,
+    rotation: 0
+  },
+  {
+    name: "stairs-high",
+    position: [3.35, 2.763, -13.42],
+    scale: 0.8,
+    rotation: 0
+  },
+  {
+    name: "floor-stairs",
+    position: [3.85, 0, -12.1],
+    scale: 1.2,
+    rotation: 0.4
+  },
+  { name: "floor-tv", position: [9.3, 0, -13.25], scale: 1.1, rotation: 1.1 },
+  {
+    name: "shelf-low",
+    position: [1.99, 1.957, -11.6],
+    scale: 0.7,
+    rotation: Math.PI / 2
+  },
+  {
+    name: "showcase-starship-shelf",
+    position: [1.99, 3.825, -13.84],
+    scale: 0.75,
+    rotation: Math.PI / 2
+  },
+  {
+    name: "desk-left",
+    position: [4.6, 4.495, -24.4],
+    scale: 0.8,
+    rotation: 0.3
+  },
+  {
+    name: "desk-middle",
+    position: [7.2, 4.495, -25.5],
+    scale: 0.8,
+    rotation: 0.6
+  },
+  {
+    name: "desk-right",
+    position: [10.8, 4.493, -26.5],
+    scale: 0.85,
+    rotation: 1.2
+  },
+  {
+    name: "floor-upstairs",
+    position: [9.5, 3.726, -24.4],
+    scale: 1.05,
+    rotation: 0.8
+  }
+] as const
+
+export interface HalloweenPumpkin {
   position: [number, number, number]
-  scale: number
-  yaw: number
-  seed: number
-}[]
+  // Body height; the stem extends a little above it.
+  height: number
+  rotation: number
+  variety: "round" | "squat" | "tall"
+  face: "classic" | "angry" | "crooked" | "whole"
+  // Fixed orientation toward a section's resting camera, not a billboard.
+  faceCamera?: "home"
+}
 
-// Cobwebs stretched across room corners. `corner` is the anchor, `u` and `v`
-// the two edges the web fans out along (its quarter disc lives between
-// them), `normal` points off the wall into the room, `size` is the web's
-// radius in world units.
-export const COBWEBS = [
-  // People: where the back wall meets the poster wall, up by the ceiling.
+export const PUMPKINS: readonly HalloweenPumpkin[] = [
   {
-    corner: [13.05, 6.7, -22.4],
-    u: [-1, 0, 0],
-    v: [0, -1, 0],
-    normal: [0, 0, 1],
-    size: 1.3,
-    seed: 0.31
+    position: [4.45, 0, -11.65],
+    height: 0.48,
+    rotation: 0.6,
+    variety: "round",
+    face: "classic",
+    faceCamera: "home"
   },
   {
-    corner: [13.05, 6.7, -22.4],
-    u: [0, 0, 1],
-    v: [0, -1, 0],
-    normal: [-1, 0, 0],
-    size: 1.1,
-    seed: 0.77
+    position: [4.2, 0, -12.55],
+    height: 0.3,
+    rotation: -0.35,
+    variety: "squat",
+    face: "whole"
+  },
+  // Three pumpkins in front of the TVs, clear of the wall and candle group.
+  {
+    position: [7.75, 0, -12.65],
+    height: 0.42,
+    rotation: -0.65,
+    variety: "round",
+    face: "classic",
+    faceCamera: "home"
+  },
+  {
+    position: [7.22, 0, -12.58],
+    height: 0.24,
+    rotation: -0.85,
+    variety: "squat",
+    face: "angry",
+    faceCamera: "home"
+  },
+  {
+    position: [7.87, 0, -12.16],
+    height: 0.25,
+    rotation: 0.3,
+    variety: "tall",
+    face: "whole"
+  },
+  {
+    position: [2.7, 0.653, -6.95],
+    height: 0.38,
+    rotation: 2.5,
+    variety: "round",
+    face: "angry"
+  },
+  {
+    position: [1.99, 3.824, -9.5],
+    height: 0.23,
+    rotation: 1.2,
+    variety: "tall",
+    face: "whole"
+  },
+  {
+    position: [9.65, 3.726, -24.05],
+    height: 0.4,
+    rotation: -0.5,
+    variety: "squat",
+    face: "angry"
+  },
+  {
+    position: [4.15, 4.495, -24.35],
+    height: 0.24,
+    rotation: 1.1,
+    variety: "round",
+    face: "classic"
   }
-] as const satisfies readonly {
-  corner: [number, number, number]
-  u: [number, number, number]
-  v: [number, number, number]
-  normal: [number, number, number]
-  size: number
-  seed: number
-}[]
+]

@@ -1,6 +1,7 @@
 import { Matrix3, MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
+
 import { LIGHTMAP_TINT } from "@/constants/halloween"
 
 import fragmentShader from "./fragment.glsl"

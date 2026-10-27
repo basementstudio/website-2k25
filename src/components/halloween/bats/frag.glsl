@@ -1,7 +1,4 @@
-uniform vec3 uColor;
-uniform float uOpacity;
-
+uniform float fadeFactor;
 void main() {
-  if (uOpacity < 0.01) discard;
-  gl_FragColor = vec4(uColor, uOpacity);
+  gl_FragColor = vec4(vec3(0.018, 0.016, 0.024) * (1.0 - fadeFactor), 1.0);
 }

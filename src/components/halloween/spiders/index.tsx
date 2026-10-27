@@ -230,15 +230,18 @@ export const HalloweenSpiders = () => {
         delta
       )
       const step = spider.speed * delta
+      // Keep the whole leg span on the solid patch, including while fleeing.
+      const limitU = Math.max(0, hu - spider.scale * 1.3)
+      const limitV = Math.max(0, hv - spider.scale * 1.3)
       spider.u = MathUtils.clamp(
         spider.u + Math.cos(spider.heading) * step,
-        -hu,
-        hu
+        -limitU,
+        limitU
       )
       spider.v = MathUtils.clamp(
         spider.v + Math.sin(spider.heading) * step,
-        -hv,
-        hv
+        -limitV,
+        limitV
       )
       spider.phase += (step / spider.scale) * STEPS_PER_LENGTH * Math.PI * 2
       phases.setX(i, spider.phase)
