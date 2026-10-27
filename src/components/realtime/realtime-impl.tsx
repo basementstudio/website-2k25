@@ -1,11 +1,9 @@
 "use client"
 
-import type { RealtimeChannel } from "@supabase/supabase-js"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useRef } from "react"
 
 import { useDeviceDetect } from "@/hooks/use-device-detect"
-import { createClient } from "@/service/supabase/client"
 
 import { censor } from "./censor"
 import {
@@ -14,6 +12,7 @@ import {
   REALTIME_ENV,
   useRealtimeStore
 } from "./realtime-store"
+import { createRealtimeClient, type RealtimeChannelLike } from "./transport"
 
 const CURSOR_BROADCAST_MS = 250
 const BUSY_ROOM_PEERS = 6
@@ -31,8 +30,8 @@ const HIDDEN_UNTRACK_MS = 10_000
 export const RealtimeImpl = () => {
   const pathname = usePathname()
   const { isMobile } = useDeviceDetect()
-  const supabase = useMemo(() => createClient(), [])
-  const cursorChannelRef = useRef<RealtimeChannel | null>(null)
+  const supabase = useMemo(() => createRealtimeClient(), [])
+  const cursorChannelRef = useRef<RealtimeChannelLike | null>(null)
   const cursorSubscribedRef = useRef(false)
   const lastPosRef = useRef<{ xn: number; yd: number } | null>(null)
   const sendCursorRef = useRef<((xn: number, yd: number) => void) | null>(null)
