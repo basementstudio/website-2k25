@@ -47,6 +47,21 @@ const nextConfig: NextConfig = {
             value: "public, max-age=31536000, immutable"
           }
         ]
+      },
+      {
+        // KTX2/Draco decoder binaries are NOT content-hashed (fixed URLs), so
+        // they must never be treated as immutable. Force revalidation on every
+        // load instead of trusting a locally-cached copy — Safari in particular
+        // has had bugs serving stale/corrupted cached .wasm bodies on repeat
+        // loads (works on a cold/incognito load, breaks on reload once the
+        // browser has a cached entry to reuse).
+        source: "/(basis-transcoder|draco)/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, must-revalidate"
+          }
+        ]
       }
     ]
   },

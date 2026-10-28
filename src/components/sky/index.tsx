@@ -18,6 +18,7 @@ import {
 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
+import { useFadeAnimation } from "@/components/inspectables/use-fade-animation"
 import { useWeather } from "@/components/weather/weather-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
@@ -109,6 +110,7 @@ const EVENING_HORIZON = new Vector3(1.25, 0.55, 0.28)
 const EVENING_ZENITH = new Vector3(0.75, 0.65, 1.1)
 
 export const Sky = () => {
+  const { fadeFactor } = useFadeAnimation()
   const { lutTarget, lutScene, lutCamera, lutMaterial, skyMaterial } =
     useMemo(() => {
       const lutTarget = new WebGLRenderTarget(SKY_LUT_WIDTH, SKY_LUT_HEIGHT, {
@@ -199,6 +201,7 @@ export const Sky = () => {
   useFrameCallback((state, delta, elapsedTime) => {
     const { gl } = state
     const debug = skyDebug.current
+    skyMaterial.uniforms.fadeFactor.value = fadeFactor.current.get()
 
     if (process.env.NODE_ENV !== "production") {
       const handle = (window as unknown as Record<string, any>).__sky

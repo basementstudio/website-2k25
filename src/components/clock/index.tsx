@@ -25,8 +25,6 @@ import {
 } from "./overlay-position"
 
 interface ClockElements {
-  tail: Mesh
-  eyes: Mesh[]
   hour: Mesh
   minute: Mesh
   second: Mesh
@@ -34,6 +32,8 @@ interface ClockElements {
 
 export const Clock = () => {
   const clock = useMesh((s) => s.services.clock)
+  const clockBody = useMesh((s) => s.services.clockBody)
+  const clockMorphIndex = useMesh((s) => s.services.clockMorphIndex)
   const timePreset = useSceneTime((s) => s.preset)
   const canvasVisible = useAppLoadingStore(
     (s) => s.canvasVisible && s.canRunMainApp
@@ -91,15 +91,16 @@ export const Clock = () => {
 
   useEffect(() => {
     if (!clock) return
-    elements.current = {
-      tail: clock.getObjectByName("SM_CatTail") as Mesh,
-      eyes: [
-        clock.getObjectByName("SM_EyeR") as Mesh,
-        clock.getObjectByName("SM_EyeL") as Mesh
-      ],
-      hour: clock.getObjectByName("SM_HourHand") as Mesh,
-      minute: clock.getObjectByName("SM_MinuterHand") as Mesh,
-      second: clock.getObjectByName("SM_Second") as Mesh
+
+    const hour = clock.getObjectByName("SM_HourHand") as Mesh | null
+    const minute = clock.getObjectByName("SM_MinuterHand") as Mesh | null
+    const second = clock.getObjectByName("SM_Second") as Mesh | null
+
+    if (hour && minute && second) {
+      elements.current = { hour, minute, second }
+    } else {
+      // Old glb, or a clock without the hand children -> hands disabled.
+      console.warn("[clock] hand meshes not found — clock hands disabled")
     }
     return () => {
       elements.current = null
@@ -144,11 +145,14 @@ export const Clock = () => {
   }, [hovered, controlsVisible, timePreset, setCursor])
 
   useFrameCallback(({ camera }, _, elapsedTime) => {
-    if (elements.current) {
-      const { tail, eyes } = elements.current
+    const influences = clockBody?.morphTargetInfluences
+    if (influences && clockMorphIndex !== null) {
+      // Eyes + tail swing together via one shape key ("Time") now, instead of
+      // rotating 3 separate meshes. Same phase as before; -1..1 assumes the
+      // shape key was sculpted as a symmetric swing around rest (influence 0).
+      // If it only swings one way in-engine, remap: (Math.sin(progress) + 1) / 2
       const progress = elapsedTime * Math.PI
-      tail.rotation.y = Math.sin(progress) * 0.18
-      eyes.forEach((eye) => (eye.rotation.y = Math.sin(progress) * 0.32))
+      influences[clockMorphIndex] = Math.sin(progress)
     }
 
     const button = trigger.current

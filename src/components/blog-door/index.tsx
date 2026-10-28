@@ -1,8 +1,8 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
 import { track } from "@vercel/analytics"
 import { animate } from "motion"
-import { useRef } from "react"
-import { Mesh } from "three"
+import { useMemo, useRef } from "react"
+import { Mesh, Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -12,9 +12,39 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { DOOR_ANIMATION_CLOSE, DOOR_ANIMATION_OPEN } from "./constants"
 
+// The click/hover hitbox is a static box, not the real (morph-driven) door
+// mesh — so instead of parking it at the closed position (blocking whatever
+// swings into view behind it: Coffee, the people-scene hover target) or
+// toggling it on/off (which made the door unclickable once open, since
+// nothing was left to click to close it), it's rotated around the door's
+// own hinge in lockstep with the swing value. Guess at the hinge axis
+// (Y, vertical) and swing angle — Nico: flip the sign or tune the angle if
+// it doesn't track the visual door.
+const DOOR_HITBOX_SWING_ANGLE = Math.PI / 2
+
+// Hand-placed fallback, confirmed working before the "PartID" vertex-color
+// bounds existed — used only if doorHitboxBounds isn't available (older
+// glb, or the paint's missing/mismatched).
+const DEFAULT_HITBOX_POSITION: [number, number, number] = [0, 0, 0.345]
+const DEFAULT_HITBOX_SIZE: [number, number, number] = [0.02, 1.1, 0.65]
+
 export const BlogDoor = () => {
   const { blog } = useMesh()
-  const { door } = blog
+  const { door, doorMorphIndex, doorHitboxBounds } = blog
+
+  const [hitboxPosition, hitboxSize] = useMemo((): [
+    [number, number, number],
+    [number, number, number]
+  ] => {
+    if (!doorHitboxBounds) {
+      return [DEFAULT_HITBOX_POSITION, DEFAULT_HITBOX_SIZE]
+    }
+    const center = new Vector3()
+    const size = new Vector3()
+    doorHitboxBounds.getCenter(center)
+    doorHitboxBounds.getSize(size)
+    return [center.toArray(), size.toArray()]
+  }, [doorHitboxBounds])
 
   const scene = useCurrentScene()
   const setCursor = useCursor()
@@ -26,27 +56,30 @@ export const BlogDoor = () => {
 
   const isOpen = useRef(false)
   const doorHoverRef = useRef<Mesh>(null)
+  // motion mutates this object in place; onUpdate copies it into the morph
+  const swing = useRef({ v: 0 })
 
   const handleClick = () => {
     if (scene !== "blog") return
-
-    const target = {
-      x: door?.userData.originalRotation.x,
-      y: door?.userData.originalRotation.y,
-      z:
-        door?.userData.originalRotation.z + (!isOpen.current ? -Math.PI / 2 : 0)
-    }
-
-    const hoverTarget = {
-      x: 0,
-      y: !isOpen.current ? Math.PI / 2 : 0,
-      z: 0
-    }
+    const influences = door?.morphTargetInfluences
+    if (!influences || doorMorphIndex === null) return
 
     const config = !isOpen.current ? DOOR_ANIMATION_OPEN : DOOR_ANIMATION_CLOSE
 
-    animate(door?.rotation, target, config)
-    animate(doorHoverRef.current?.rotation, hoverTarget, config)
+    animate(
+      swing.current,
+      { v: !isOpen.current ? 1 : 0 },
+      {
+        ...config,
+        onUpdate: () => {
+          influences[doorMorphIndex] = swing.current.v
+          if (doorHoverRef.current) {
+            doorHoverRef.current.rotation.y =
+              swing.current.v * DOOR_HITBOX_SWING_ANGLE
+          }
+        }
+      }
+    )
 
     if (!isOpen.current) {
       track("blog_door_open")
@@ -90,8 +123,11 @@ export const BlogDoor = () => {
             }
           }}
         >
-          <mesh position={[0, 0, 0.345]}>
-            <boxGeometry args={[0.02, 1.1, 0.65, 32]} />
+          {/* Position/size come from doorHitboxBounds (the "Puerta"-colored
+          PartID verts on SM_00_010) when available — see extract-meshes.ts
+          — falling back to the hand-placed defaults above otherwise. */}
+          <mesh position={hitboxPosition}>
+            <boxGeometry args={hitboxSize} />
             <MeshDiscardMaterial />
           </mesh>
         </group>

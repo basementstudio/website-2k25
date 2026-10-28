@@ -26,6 +26,27 @@ export const createGlobalShaderMaterial = (
     CITY?: boolean
     DAYLIGHT?: boolean
     IS_LOBO_MARINO?: boolean
+    /**
+     * True when the mesh's geometry carries a 3rd UV set (TEXCOORD_2) — the
+     * merge-by-material pipeline's shared lightmap atlas placement. False
+     * (default) samples the lightmap off the 2nd UV set (TEXCOORD_1), same
+     * as the old per-zone bakes and the lamp's dedicated on/off sheets.
+     */
+    LIGHTMAP_ATLAS?: boolean
+    /**
+     * True when the mesh has a baked metallicRoughnessTexture — gives it a
+     * cheap specular highlight while being inspected (see fragment.glsl's
+     * isInspectionMode block). No effect at rest (lightmap-lit, no specular).
+     */
+    METAL?: boolean
+    /**
+     * Double-sided paper whose texture packs one image per side of the sheet
+     * side by side: front faces sample the UVs as authored (left half),
+     * back faces the same UVs shifted +0.5 in U (right half). Nico set this
+     * up on SM_Plane's "papier" material so the plane's top and underside
+     * read differently.
+     */
+    TWO_SIDED_ATLAS?: boolean
   }
 ) => {
   const {
@@ -34,6 +55,8 @@ export const createGlobalShaderMaterial = (
     opacity: baseOpacity = 1.0,
     metalness,
     roughness,
+    metalnessMap,
+    roughnessMap,
     alphaMap,
     emissiveMap,
     userData = {}
@@ -73,6 +96,7 @@ export const createGlobalShaderMaterial = (
     inspectingEnabled: { value: false },
     inspectingFactor: { value: 0 },
     fadeFactor: { value: 0 },
+    hintFactor: { value: 0 },
 
     // Lamp
     lampLightmap: { value: null },
@@ -96,6 +120,10 @@ export const createGlobalShaderMaterial = (
   if (defines?.MATCAP) {
     uniforms["matcap"] = { value: null }
     uniforms["glassMatcap"] = { value: false }
+  }
+
+  if (defines?.METAL) {
+    uniforms["metalRoughnessMap"] = { value: metalnessMap ?? roughnessMap }
   }
 
   if (defines?.OUTDOOR) {
@@ -152,7 +180,10 @@ export const createGlobalShaderMaterial = (
           ? Boolean(defines?.IS_LOBO_MARINO)
           : false,
       DAYLIGHT:
-        defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false
+        defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false,
+      LIGHTMAP_ATLAS: Boolean(defines?.LIGHTMAP_ATLAS),
+      METAL: Boolean(defines?.METAL),
+      TWO_SIDED_ATLAS: Boolean(defines?.TWO_SIDED_ATLAS)
     },
     uniforms,
     transparent:
