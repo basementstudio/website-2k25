@@ -33,6 +33,7 @@ export const useGhostGrab = (
       pointerId: -1,
       camera: null as Camera | null,
       weight: 0,
+      returnTime: 0,
       offset: new Vector3(),
       target: new Vector3(),
       localTarget: new Vector3(),
@@ -54,6 +55,7 @@ export const useGhostGrab = (
   const release = useCallback(
     (keepClick: boolean | "pending" = false) => {
       const pointerId = state.pointerId
+      if (state.active) state.returnTime = 0
       state.active = false
       state.pointerId = -1
       state.clickPointerId = keepClick === "pending" ? pointerId : -1
@@ -219,11 +221,15 @@ export const useGhostGrab = (
         target.position.add(state.step)
         state.offset.subVectors(target.position, path)
       } else {
+        state.returnTime += delta
         const length = state.offset.length()
         if (length > 1e-5) {
+          // Ease into the return before settling onto the moving route.
+          // Both acceleration and top speed stay gentle after a long drag.
+          const ease = MathUtils.smoothstep(state.returnTime, 0, 0.8)
           const recovery = Math.min(
-            1 - Math.exp(-2.8 * delta),
-            (scale * 4 * delta) / length
+            1 - Math.exp(-1.1 * ease * delta),
+            (scale * 0.85 * ease * delta) / length
           )
           state.offset.multiplyScalar(1 - recovery)
         } else state.offset.set(0, 0, 0)
