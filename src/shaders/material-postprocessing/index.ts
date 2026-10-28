@@ -1,4 +1,4 @@
-import { ShaderMaterial, Vector2 } from "three"
+import { Color, Matrix4, ShaderMaterial, Vector2 } from "three"
 
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
@@ -30,7 +30,13 @@ export const createPostProcessingMaterial = () =>
       uBloomResolution: { value: new Vector2(1, 1) },
       uBloomStrength: { value: 1 },
       uBloomRadius: { value: 1 },
-      uBloomThreshold: { value: 1 }
+      uBloomThreshold: { value: 1 },
+
+      // Ground fog (Halloween), driven by fogConfig in the renderer
+      uFogAmount: { value: 0 },
+      uFogColor: { value: new Color() },
+      uCameraProjectionInverse: { value: new Matrix4() },
+      uCameraWorld: { value: new Matrix4() }
     },
     vertexShader,
     fragmentShader

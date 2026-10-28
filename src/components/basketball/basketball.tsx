@@ -1,14 +1,11 @@
-import { RigidBody } from "@react-three/rapier"
-import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh, MeshStandardMaterial, Vector3 } from "three"
+import { BallCollider, RigidBody } from "@react-three/rapier"
+import { RefObject, useEffect, useRef } from "react"
 
-import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
-import { useAssets } from "../assets-provider"
 import { BALL_GROUP } from "./collision"
+import { useBallAppearance } from "./use-ball-appearance"
 
 interface BasketballProps {
   ballRef: RefObject<any>
@@ -40,29 +37,8 @@ export const Basketball = ({
 }: BasketballProps) => {
   const { playSoundFX } = useSiteAudio()
   const setCursor = useCursor()
-  const { basketball } = useAssets()
-  const basketballModel = useKTX2GLTF(basketball)
+  const { geometry, material, radius, rotation } = useBallAppearance()
   const bounceCount = useRef(0)
-
-  const geometry = useMemo(() => {
-    const geo = (basketballModel.scene.children[0] as Mesh).geometry
-    return geo
-  }, [basketballModel])
-
-  const originalMaterial = useMemo(() => {
-    return (basketballModel.scene.children[0] as Mesh)
-      .material as MeshStandardMaterial
-  }, [basketballModel])
-
-  const material = useMemo(() => {
-    const mat = createGlobalShaderMaterial(originalMaterial.clone(), {
-      LIGHT: true,
-      BASKETBALL: true
-    })
-    mat.uniforms.lightDirection.value = new Vector3(0, 1, -1)
-    mat.uniforms.backLightDirection.value = new Vector3(0, 0, 1)
-    return mat
-  }, [originalMaterial])
 
   const handleCollision = (other: any) => {
     const randomVolume = 0.05 + Math.random() * 0.05
@@ -118,7 +94,7 @@ export const Basketball = ({
   return (
     <RigidBody
       restitution={0.85}
-      colliders="ball"
+      colliders={false}
       ref={ballRef}
       type="fixed"
       position={[initialPosition.x, initialPosition.y, initialPosition.z]}
@@ -132,11 +108,13 @@ export const Basketball = ({
       ccd
       collisionGroups={BALL_GROUP}
     >
+      {/* Preserve the ball's collider: the decorative stem adds no collision. */}
+      <BallCollider args={[radius * 1.25]} />
       <mesh
         scale={1.25}
         geometry={geometry}
         material={material}
-        rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
+        rotation={rotation}
         onPointerDown={isTimerLow ? undefined : handlePointerDown}
         onPointerMove={isTimerLow ? undefined : handlePointerMove}
         onPointerUp={isTimerLow ? undefined : handlePointerUp}

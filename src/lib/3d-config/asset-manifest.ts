@@ -362,7 +362,10 @@ export const ASSETS_BASE: AssetsBase = {
   characters: {
     model: "/3d/models/character-model-daed86d4.glb",
     textureBody: "/3d/textures/character-body-a791b664.webp",
+    textureBodyHalloween: "/3d/textures/character-body-halloween-0e87e8ac.png",
     textureFaces: "/3d/textures/character-faces-3f09fa28.webp",
+    textureFacesHalloween:
+      "/3d/textures/character-faces-halloween-b669e416.png",
     textureArms: "/3d/textures/character-arms-de19ba86.png",
     textureComic: "/3d/textures/character-comic-5b7b0e61.jpg"
   },
