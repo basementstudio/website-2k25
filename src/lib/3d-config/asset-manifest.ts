@@ -57,6 +57,9 @@ export const ASSETS_BASE: AssetsBase = {
 
   // --- Special events ---
   specialEvents: {
+    halloween: {
+      ghost: "/3d/models/halloween-ghost-cf419ad7.glb"
+    },
     christmas: {
       tree: "/3d/models/christmas-tree-50bcb465.glb",
       song: "/3d/audio/christmas-song-9ecee706.mp3"

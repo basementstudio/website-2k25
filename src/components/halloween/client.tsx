@@ -2,7 +2,6 @@ import { useState } from "react"
 
 import { useDeviceDetect } from "@/hooks/use-device-detect"
 
-import { HalloweenBats } from "./bats"
 import { HalloweenCandles } from "./candles"
 import { HalloweenFog } from "./fog"
 import { HalloweenGhosts } from "./ghosts"
@@ -27,8 +26,7 @@ export const ClientHalloween = () => {
       <HalloweenCandles />
       <HalloweenPumpkins reducedMotion={reducedMotion} />
       <HalloweenPortraits reducedMotion={reducedMotion} />
-      <HalloweenGhosts />
-      {!reducedMotion && <HalloweenBats />}
+      <HalloweenGhosts reducedMotion={reducedMotion} />
       {!reducedMotion && <HalloweenStorm />}
       {/* Raymarched per pixel in the post pass — desktop only, like Sparkles. */}
       {!isMobile && <HalloweenFog />}

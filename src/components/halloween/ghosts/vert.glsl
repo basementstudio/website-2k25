@@ -1,43 +1,58 @@
 uniform float uTime;
 uniform float uSeed;
+uniform vec2 uPointer;
+uniform float uHover;
+uniform vec2 uDrag;
+uniform float uTouchMotion;
+uniform float uGrab;
 
 #include <common>
 #include <skinning_pars_vertex>
 
 varying vec3 vLocal;
+varying vec2 vClothUv;
 varying vec3 vWorldPosition;
 varying vec3 vViewDir;
+varying vec3 vViewNormal;
+varying float vContact;
 
 void main() {
   vec3 p = position;
-  // 0 at the top of the head, 1 at the hem: how loose the robe is there.
-  float loose = pow(clamp(1.0 - p.y, 0.0, 1.0), 1.5);
-  float angle = atan(p.z, p.x);
-  float t = uTime + uSeed * 10.0;
+  // Preserve the folds, eye openings and hem authored in the GLB.
+  // A broad, delayed breath of air flexes the hanging sheet between the
+  // joints. The face stays still; the lower folds don't freeze in place.
+  float loose = pow(1.0 - smoothstep(0.05, 0.82, position.y), 1.4);
+  float breeze = uTime * 1.6 + uSeed * 10.0 - (1.0 - position.y) * 3.2;
+  float billow = loose * uTouchMotion * (0.035 + uGrab * 0.02);
+  p.x += sin(breeze) * billow;
+  p.z += sin(breeze * 0.83 + position.x * 4.0 + 0.7) * billow * 0.7;
+  p.y += sin(breeze + position.x * 3.0) * billow * 0.18;
 
-  // Folds belong to the sheet. The spring-driven skeleton moves them as
-  // one surface rather than sending unrelated waves through the body.
-  float folds = sin(angle * 9.0 + p.y * 1.6);
-  float fineFold = sin(angle * 15.0 - p.y * 2.5);
-  float radial =
-    (folds * 0.045 + fineFold * 0.012) * (1.0 - smoothstep(0.55, 0.96, p.y));
-  p.xz += vec2(cos(angle), sin(angle)) * radial;
-
-  // A small breeze at the hem; the head and body have no idle distortion.
-  float hem = 1.0 - smoothstep(0.0, 0.32, p.y);
-  float tatters = pow(0.5 + 0.5 * cos(angle * 7.0), 2.0);
-  p.y -= tatters * hem * 0.065;
-  p.y += sin(angle * 5.0 - t * 1.2) * 0.008 * hem;
-  // The tail lags behind the sway of the head.
-  p.z -= loose * 0.1;
+  // A hand presses into an oval patch of fabric and drags it along the
+  // stroke. The soft ridge around it is displaced cloth, not a travelling
+  // wave. The head stays anchored and the rear layer remains undisturbed.
+  vec2 contact = position.xy - uPointer;
+  vec2 footprint = contact / vec2(0.2, 0.24);
+  float cloth = 1.0 - smoothstep(0.65, 0.82, position.y);
+  float front = smoothstep(-0.02, 0.12, position.z);
+  float strength = cloth * front * uHover;
+  float pressure = exp(-dot(footprint, footprint) * 1.6) * strength;
+  float crease = exp(-pow((length(contact) - 0.23) / 0.085, 2.0)) * strength;
+  p.z -= (pressure * mix(0.095, 0.035, uGrab) - crease * 0.012) * uTouchMotion;
+  p.xy += uDrag * pressure * uTouchMotion;
+  vContact = pressure;
 
   vec3 transformed = p;
+  vec3 objectNormal = normal;
   #include <skinbase_vertex>
+  #include <skinnormal_vertex>
   #include <skinning_vertex>
   vec4 world = modelMatrix * vec4(transformed, 1.0);
   // Features and weave stay attached to the fabric as it bends.
   vLocal = position;
+  vClothUv = uv;
   vWorldPosition = world.xyz;
   vViewDir = normalize(cameraPosition - world.xyz);
+  vViewNormal = normalize(normalMatrix * objectNormal);
   gl_Position = projectionMatrix * viewMatrix * world;
 }

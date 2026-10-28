@@ -13,6 +13,7 @@ export interface AssetsResult {
   basketballNet: string
   contactPhone: string
   specialEvents: {
+    halloween: { ghost: string }
     christmas: {
       tree: string
       song: string
