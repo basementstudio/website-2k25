@@ -1,6 +1,8 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
+import { LIGHTMAP_TINT } from "@/constants/halloween"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
+import { lightmapTintUniform } from "@/shaders/material-global-shader"
 
 import { HalloweenBats } from "./bats"
 import { HalloweenCandles } from "./candles"
@@ -19,6 +21,15 @@ export const ClientHalloween = () => {
   const [reducedMotion] = useState(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
   )
+
+  // Only tint the lightmaps while the season is mounted, so the office goes
+  // back to its normal bakes once Halloween is over.
+  useEffect(() => {
+    lightmapTintUniform.value.set(...LIGHTMAP_TINT)
+    return () => {
+      lightmapTintUniform.value.set(1, 1, 1)
+    }
+  }, [])
 
   return (
     <>
