@@ -65,7 +65,8 @@ export const useAirplaneStore = create<FlightState>((set) => ({
       run: s.run + 1,
       gate: 0,
       seconds: 0,
-      speed: 0
+      speed: 0,
+      autoLaunchMode: null
     }))
   },
   enterMode: (mode) => {
@@ -81,7 +82,7 @@ export const useAirplaneStore = create<FlightState>((set) => ({
   },
   exit: () => {
     flightKeys.clear()
-    set({ phase: "off" })
+    set({ phase: "off", autoLaunchMode: null })
   },
   restart: () => {
     flightKeys.clear()
@@ -90,7 +91,8 @@ export const useAirplaneStore = create<FlightState>((set) => ({
       run: s.run + 1,
       gate: 0,
       seconds: 0,
-      speed: 0
+      speed: 0,
+      autoLaunchMode: null
     }))
   },
   launch: (mode) => {

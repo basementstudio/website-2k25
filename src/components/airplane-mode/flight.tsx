@@ -267,7 +267,18 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       impulseCooldown: 0,
       impulseWasDown: false,
       collisionGrace: 1.25,
-      gates: FLIGHT_GATES.map((p) => new Vector3(...p))
+      gates: FLIGHT_GATES.map((position, i) => {
+        const previous = i === 0 ? spawn.toArray() : FLIGHT_GATES[i - 1]
+        const yaw = Math.atan2(
+          position[0] - previous[0],
+          position[2] - previous[2]
+        )
+        return {
+          center: new Vector3(...position),
+          normal: new Vector3(Math.sin(yaw), 0, Math.cos(yaw)),
+          yaw
+        }
+      })
     }),
     [spawn, deskYaw]
   )
@@ -521,7 +532,12 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
         if (
           flightMode === "trial" &&
           state.gate < state.gates.length &&
-          crossesGate(state.previous, state.position, state.gates[state.gate])
+          crossesGate(
+            state.previous,
+            state.position,
+            state.gates[state.gate].center,
+            state.gates[state.gate].normal
+          )
         ) {
           state.gate++
           useAirplaneStore.setState({ gate: state.gate })
@@ -771,20 +787,12 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
         </>
       )}
       {mode === "trial" &&
-        FLIGHT_GATES.map((position, i) => {
-          const previous = i === 0 ? spawn.toArray() : FLIGHT_GATES[i - 1]
+        state.gates.map(({ center, yaw }, i) => {
           return (
             <mesh
               key={i}
-              position={position}
-              rotation={[
-                0,
-                Math.atan2(
-                  position[0] - previous[0],
-                  position[2] - previous[2]
-                ),
-                0
-              ]}
+              position={center}
+              rotation={[0, yaw, 0]}
               visible={i >= gate}
             >
               <torusGeometry args={[0.72, i === gate ? 0.025 : 0.009, 8, 48]} />

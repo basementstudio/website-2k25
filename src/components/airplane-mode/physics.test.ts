@@ -43,13 +43,73 @@ test("spring-arm sweep stops short of walls and passes when clear", () => {
   assert.equal(clear, 2)
   mesh.geometry.dispose()
 })
-test("gate detection handles fast passes and rejects misses", () => {
+test("gate detection handles fast passes in both directions and rejects misses", () => {
+  const center = new Vector3()
+  const normal = new Vector3(0, 0, 1)
   assert.equal(
-    crossesGate(new Vector3(0, 0, 2), new Vector3(0, 0, -2), new Vector3()),
+    crossesGate(new Vector3(0, 0, 2), new Vector3(0, 0, -2), center, normal),
     true
   )
   assert.equal(
-    crossesGate(new Vector3(2, 0, 2), new Vector3(2, 0, -2), new Vector3()),
+    crossesGate(new Vector3(0, 0, -2), new Vector3(0, 0, 2), center, normal),
+    true
+  )
+  assert.equal(
+    crossesGate(new Vector3(2, 0, 2), new Vector3(2, 0, -2), center, normal),
+    false
+  )
+})
+test("gate detection rejects nearby skims, approaches, and stationary motion", () => {
+  const center = new Vector3()
+  const normal = new Vector3(0, 0, 1)
+  for (const [from, to] of [
+    [new Vector3(-1, 0, 0.1), new Vector3(1, 0, 0.1)],
+    [new Vector3(0, 0, 1), new Vector3(0, 0, 0.1)],
+    [new Vector3(-1, 0, 0), new Vector3(1, 0, 0)],
+    [new Vector3(), new Vector3()]
+  ]) {
+    assert.equal(crossesGate(from, to, center, normal), false)
+  }
+})
+test("gate detection uses the ring orientation and radius at the plane intersection", () => {
+  const center = new Vector3(5, 3, -10)
+  const normal = new Vector3(1, 0, 0)
+  assert.equal(
+    crossesGate(
+      new Vector3(7, 3.4, -10),
+      new Vector3(3, 3.4, -10),
+      center,
+      normal
+    ),
+    true
+  )
+  assert.equal(
+    crossesGate(
+      new Vector3(5.1, 3, -12),
+      new Vector3(5.1, 3, -8),
+      center,
+      normal
+    ),
+    false
+  )
+  // The segment starts inside the old spherical trigger but crosses the
+  // actual plane outside the opening.
+  assert.equal(
+    crossesGate(
+      new Vector3(5.1, 3, -10),
+      new Vector3(4.9, 5, -10),
+      center,
+      normal
+    ),
+    false
+  )
+})
+test("gate detection counts arrival at the plane without counting departure again", () => {
+  const center = new Vector3()
+  const normal = new Vector3(0, 0, 1)
+  assert.equal(crossesGate(new Vector3(0, 0, 1), center, center, normal), true)
+  assert.equal(
+    crossesGate(center, new Vector3(0, 0, -1), center, normal),
     false
   )
 })

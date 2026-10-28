@@ -300,30 +300,27 @@ export function crossesGate(
   from: Vector3,
   to: Vector3,
   center: Vector3,
+  normal: Vector3,
   radius = 0.65
 ) {
-  const dx = to.x - from.x,
-    dy = to.y - from.y,
-    dz = to.z - from.z
-  const length = dx * dx + dy * dy + dz * dz
-  const t =
-    length === 0
-      ? 0
-      : Math.max(
-          0,
-          Math.min(
-            1,
-            ((center.x - from.x) * dx +
-              (center.y - from.y) * dy +
-              (center.z - from.z) * dz) /
-              length
-          )
-        )
+  const fromDistance =
+    (from.x - center.x) * normal.x +
+    (from.y - center.y) * normal.y +
+    (from.z - center.z) * normal.z
+  const toDistance =
+    (to.x - center.x) * normal.x +
+    (to.y - center.y) * normal.y +
+    (to.z - center.z) * normal.z
+
+  // Count arrival at the ring plane once, but not motion along it or a
+  // nearby pass that stays on the same side.
+  if (fromDistance === 0 || fromDistance * toDistance > 0) return false
+  const t = fromDistance / (fromDistance - toDistance)
   return (
     Math.hypot(
-      from.x + dx * t - center.x,
-      from.y + dy * t - center.y,
-      from.z + dz * t - center.z
+      from.x + (to.x - from.x) * t - center.x,
+      from.y + (to.y - from.y) * t - center.y,
+      from.z + (to.z - from.z) * t - center.z
     ) < radius
   )
 }
