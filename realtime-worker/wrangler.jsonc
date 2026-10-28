@@ -1,6 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "basement-realtime",
+  // basement studio
+  "account_id": "cb18c9b36b7fb78e00162649cc1984ff",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
   "durable_objects": {
@@ -9,7 +11,7 @@
   // The Workers Free plan only allows SQLite-backed Durable Objects
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
   "vars": {
-    "ALLOWED_ORIGINS": "https://basement.studio,.vercel.app,http://localhost:3000"
+    "ALLOWED_ORIGINS": "https://basement.studio,https://website-2k25-git-test-cloudflare-realtime-basement.vercel.app,https://website-2k25-25l9ltv44-basement.vercel.app,http://localhost:3000"
   },
   "observability": { "enabled": true }
 }

@@ -72,8 +72,21 @@ class CloudflareChannel implements RealtimeChannelLike {
     socket.addEventListener("message", (event) => {
       if (typeof event.data === "string") this.receive(event.data)
     })
+    // A page entering the back/forward cache keeps its sockets open, and
+    // nothing times them out server-side, so its presence would linger until
+    // the browser evicts it. Drop the socket while cached; rejoin on restore.
+    window.addEventListener("pagehide", this.onPageHide)
+    window.addEventListener("pageshow", this.onPageShow)
     this.socket = socket
     return this
+  }
+
+  private onPageHide = (event: PageTransitionEvent) => {
+    if (event.persisted) this.socket?.close()
+  }
+
+  private onPageShow = (event: PageTransitionEvent) => {
+    if (event.persisted) this.socket?.reconnect()
   }
 
   send(message: { type: "broadcast"; event: string; payload: unknown }) {
@@ -100,6 +113,8 @@ class CloudflareChannel implements RealtimeChannelLike {
 
   close() {
     this.state = "closed"
+    window.removeEventListener("pagehide", this.onPageHide)
+    window.removeEventListener("pageshow", this.onPageShow)
     this.socket?.close()
     this.socket = null
     this.broadcastListeners.clear()
