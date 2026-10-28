@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Object3D } from "three"
 import * as THREE from "three"
 
@@ -27,10 +27,12 @@ import { RoutingElement } from "@/components/routing-element/routing-element"
 import { Sky } from "@/components/sky"
 import { SpeakerHover } from "@/components/speaker-hover"
 import { Weather } from "@/components/weather"
+import { isHiddenOfficeItem } from "@/constants/hidden-office-items"
 import { useMesh } from "@/hooks/use-mesh"
 import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
 import { markCanvasBootStage } from "@/lib/canvas-boot"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
+import { createIpodScreenMaterial } from "@/shaders/material-ipod-screen"
 import { createNotFoundMaterial } from "@/shaders/material-not-found"
 
 import { extractMeshes } from "./extract-meshes"
@@ -38,6 +40,11 @@ import { useFrameLoop } from "./use-frame-loop"
 import { useLoader } from "./use-loader"
 
 const legacySkyNodes = ["TX_Sky001", "TX_Sky002", "cloudy_01", "cloudy_02"]
+
+// Meshes whose texture packs a second image for the back of the sheet at
+// U + 0.5 — see TWO_SIDED_ATLAS in material-global-shader. Must also be in
+// doubleSideElements or the back faces never render at all.
+const twoSidedAtlasElements = ["SM_Plane"]
 
 export const Map = memo(() => {
   const { inspectables, videos, matcaps, glassMaterials, doubleSideElements } =
@@ -52,6 +59,18 @@ export const Map = memo(() => {
     basketballNet,
     routingElements
   } = useLoader()
+
+  useLayoutEffect(() => {
+    const hide = (object: Object3D) => {
+      if (!isHiddenOfficeItem(object)) return
+      object.visible = false
+      object.raycast = () => null
+    }
+    officeItems.traverse(hide)
+    // Also cover objects already reparented into inspection groups on HMR.
+    useMesh.getState().inspectables.forEach((mesh) => mesh.traverse(hide))
+    if (useMesh.getState().ipodScreen) useMesh.setState({ ipodScreen: null })
+  }, [officeItems])
 
   useFrameLoop()
 
@@ -85,6 +104,7 @@ export const Map = memo(() => {
         child: Object3D,
         overrides?: { FOG?: boolean; GODRAY?: boolean; OUTDOOR?: boolean }
       ) => {
+        if (isHiddenOfficeItem(child)) return
         if (legacySkyNodes.includes(child.name)) {
           child.visible = false
           return
@@ -103,6 +123,18 @@ export const Map = memo(() => {
 
           meshChild.material = createNotFoundMaterial(diffuseUniform)
 
+          return
+        }
+
+        // Nico: "algun efecto para que se sienta como una pantalla de ipod
+        // antigua" — swapped for a bespoke unlit material instead of the
+        // shared/baked one (no lightmap on this mesh worth keeping; the
+        // point is to look self-lit like a real LCD). See
+        // material-ipod-screen/fragment.glsl for the look itself.
+        if (child.name === "Ipod-screen" && "isMesh" in child) {
+          const meshChild = child as Mesh
+          useMesh.setState({ ipodScreen: meshChild })
+          meshChild.material = createIpodScreenMaterial(meshChild.geometry)
           return
         }
 
@@ -157,6 +189,29 @@ export const Map = memo(() => {
             currentMaterial.map.minFilter = THREE.NearestFilter
           }
 
+          // Video already aliases emissiveMap to the same texture as map
+          // (handled above). Anything else with an emissiveMap is a baked,
+          // hard-edged swatch atlas (e.g. MTL_Atlas_Emissive) — mipmaps/
+          // linear filtering bleed the color blocks into gray at a distance.
+          if (currentMaterial.emissiveMap && !withVideo) {
+            currentMaterial.emissiveMap.generateMipmaps = false
+            currentMaterial.emissiveMap.magFilter = THREE.NearestFilter
+            currentMaterial.emissiveMap.minFilter = THREE.NearestFilter
+          }
+
+          // Newer exports drop the dead per-zone lightmap UV set, which moves
+          // the atlas placement from TEXCOORD_2 down to TEXCOORD_1. Alias it
+          // (same BufferAttribute, no copy) so both layouts take the
+          // LIGHTMAP_ATLAS path instead of the shader's uv1-or-uv guess.
+          const { attributes } = meshChild.geometry
+          if (
+            meshChild.userData.Lightmap === "Map00" &&
+            !("uv2" in attributes) &&
+            "uv1" in attributes
+          ) {
+            meshChild.geometry.setAttribute("uv2", attributes.uv1)
+          }
+
           const CONFIG = {
             GLASS: isGlass,
             LIGHT: false,
@@ -166,7 +221,16 @@ export const Map = memo(() => {
             VIDEO: withVideo !== undefined,
             OUTDOOR: overrides?.OUTDOOR,
             CITY: isCity,
-            DAYLIGHT: isDaylight
+            DAYLIGHT: isDaylight,
+            // Merge-by-material meshes carry a 3rd UV set (TEXCOORD_2) with
+            // their placement in the shared lightmap atlas — see bakes.tsx.
+            LIGHTMAP_ATLAS: "uv2" in meshChild.geometry.attributes,
+            // Baked metallicRoughnessTexture → cheap specular highlight
+            // while inspecting (see material-global-shader/fragment.glsl).
+            METAL: Boolean(
+              currentMaterial.metalnessMap || currentMaterial.roughnessMap
+            ),
+            TWO_SIDED_ATLAS: twoSidedAtlasElements.includes(meshChild.name)
           }
 
           const newMaterials = Array.isArray(currentMaterial)

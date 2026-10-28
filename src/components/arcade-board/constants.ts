@@ -4,6 +4,13 @@ export const MIN_OFFSET = 0.02
 export const MAX_TILT = 0.15
 export const BOARD_ANGLE = 69
 
+/**
+ * Joystick tilt expressed as a morph-target influence.
+ * The RotX/RotY shape keys are calibrated so influence 1 = +15deg (-1 = -15deg),
+ * so full tilt in a direction is simply an influence of 1.
+ */
+export const STICK_MORPH_MAX = 1
+
 export const BUTTON_ANIMATION: ValueAnimationTransition = {
   type: "spring",
   stiffness: 2000,

@@ -2,7 +2,7 @@ import type { RapierRigidBody } from "@react-three/rapier"
 import * as Sentry from "@sentry/nextjs"
 import throttle from "lodash.throttle"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Group, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from "three"
+import { Group, Quaternion, Vector3 } from "three"
 
 import {
   getClientId,
@@ -13,15 +13,10 @@ import {
   createRealtimeClient,
   type RealtimeChannelLike
 } from "@/components/realtime/transport"
-import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
-import {
-  createGlobalShaderMaterial,
-  useCustomShaderMaterial
-} from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 
-import { useAssets } from "../assets-provider"
+import { useBallAppearance } from "./use-ball-appearance"
 
 const GHOST_BROADCAST_MS = 100
 const MAX_GHOSTS = 5
@@ -80,8 +75,11 @@ export const GhostBalls = ({ ballRef }: GhostBallsProps) => {
 }
 
 const GhostBallsImpl = ({ ballRef }: GhostBallsProps) => {
-  const { basketball } = useAssets()
-  const basketballModel = useKTX2GLTF(basketball)
+  const {
+    geometry,
+    material: ghostMaterial,
+    rotation
+  } = useBallAppearance(GHOST_OPACITY)
   const supabase = useMemo(() => createRealtimeClient(), [])
 
   const subscribedRef = useRef(false)
@@ -92,35 +90,6 @@ const GhostBallsImpl = ({ ballRef }: GhostBallsProps) => {
   // slot index -> client id occupying it; ghosts render from a fixed mesh pool
   const slotsRef = useRef<(string | null)[]>(Array(MAX_GHOSTS).fill(null))
   const poolRefs = useRef<(Group | null)[]>(Array(MAX_GHOSTS).fill(null))
-
-  const geometry = useMemo(
-    () => (basketballModel.scene.children[0] as Mesh).geometry,
-    [basketballModel]
-  )
-
-  const ghostMaterial = useMemo(() => {
-    const base = (
-      (basketballModel.scene.children[0] as Mesh)
-        .material as MeshStandardMaterial
-    ).clone()
-    base.transparent = true
-    base.opacity = GHOST_OPACITY
-    const mat = createGlobalShaderMaterial(base, {
-      LIGHT: true,
-      BASKETBALL: true
-    })
-    mat.uniforms.lightDirection.value = new Vector3(0, 1, -1)
-    mat.uniforms.backLightDirection.value = new Vector3(0, 0, 1)
-    mat.depthWrite = false
-    return mat
-  }, [basketballModel])
-
-  useEffect(() => {
-    return () => {
-      useCustomShaderMaterial.getState().removeMaterial(ghostMaterial.id)
-      ghostMaterial.dispose()
-    }
-  }, [ghostMaterial])
 
   useEffect(() => {
     const freeGhost = (id: string) => {
@@ -305,7 +274,7 @@ const GhostBallsImpl = ({ ballRef }: GhostBallsProps) => {
             scale={1.25}
             geometry={geometry}
             material={ghostMaterial}
-            rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
+            rotation={rotation}
             raycast={noRaycast}
             userData={{ hasGlobalMaterial: true }}
           />

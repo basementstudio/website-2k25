@@ -27,12 +27,17 @@ export type InspectableDraggerProps = {
     mass: number
   }
   enabled?: boolean
+  // While true, drags don't rotate (e.g. the gesture started on the iPod's
+  // click wheel — use-ipod-wheel.ts). A ref, not state: it's set in a
+  // pointerdown listener, before use-gesture's own handler runs.
+  blockRef?: React.RefObject<boolean>
   children?: React.ReactNode
   domElement?: HTMLElement
 }
 
 export const InspectableDragger = ({
   enabled = true,
+  blockRef,
   snap,
   global,
   domElement,
@@ -94,6 +99,7 @@ export const InspectableDragger = ({
         memo: [oldY, oldX] = [rotationY.get(), rotationX.get()]
       }) => {
         if (!enabled) return [y, x]
+        if (blockRef?.current) return [oldY, oldX]
         if (cursor) setCursor(down ? "grabbing" : "grab")
 
         x = MathUtils.clamp(

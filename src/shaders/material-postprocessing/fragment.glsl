@@ -36,6 +36,12 @@ uniform float u404Transition;
 
 uniform float uTime;
 
+// Ground fog (Halloween) — off while uFogAmount is 0.
+uniform float uFogAmount;
+uniform vec3 uFogColor;
+uniform mat4 uCameraProjectionInverse;
+uniform mat4 uCameraWorld;
+
 const float DENSITY = 0.9;
 const float OPACITY_SCANLINE = 0.24;
 const float OPACITY_NOISE = 0.01;
@@ -181,6 +187,119 @@ vec3 blend(const vec3 x, const vec3 y, const float opacity) {
   return mix(x, z, opacity);
 }
 
+// --- Ground fog ------------------------------------------------------------
+// Reconstructs each pixel's world position from the depth buffer and marches
+// the camera ray through two slabs of animated noise: the ground floor and the
+// upstairs floor. Depth-based, so it wraps whatever it touches without the
+// hard intersection lines fog sprites would draw.
+
+const int FOG_STEPS = 6;
+const float FOG_HEIGHT = 0.9;
+const float UPSTAIRS_Y = 3.73;
+
+float fogHash(vec3 p) {
+  p = fract(p * 0.1031);
+  p += dot(p, p.zyx + 31.32);
+  return fract((p.x + p.y) * p.z);
+}
+
+float fogNoise(vec3 p) {
+  vec3 i = floor(p);
+  vec3 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(
+    mix(
+      mix(fogHash(i), fogHash(i + vec3(1, 0, 0)), f.x),
+      mix(fogHash(i + vec3(0, 1, 0)), fogHash(i + vec3(1, 1, 0)), f.x),
+      f.y
+    ),
+    mix(
+      mix(fogHash(i + vec3(0, 0, 1)), fogHash(i + vec3(1, 0, 1)), f.x),
+      mix(fogHash(i + vec3(0, 1, 1)), fogHash(i + vec3(1, 1, 1)), f.x),
+      f.y
+    ),
+    f.z
+  );
+}
+
+// Density at p, h being the height above the slab's floor.
+float fogDensity(vec3 p, float h) {
+  vec3 drift = vec3(uTime * 0.07, uTime * 0.015, uTime * 0.04);
+  float n =
+    fogNoise(p * 0.55 + drift) * 0.65 + fogNoise(p * 1.7 - drift * 1.7) * 0.35;
+  // Thick at the floor, thinning out upward; the noise eats the top so the
+  // surface reads as rolling wisps instead of a flat sheet.
+  // The fade to 0 at FOG_HEIGHT keeps the slab's top from drawing a hard
+  // horizon line where the camera sees it edge-on.
+  float falloff = exp(-h * 3.2) * (1.0 - smoothstep(0.35, 1.0, h / FOG_HEIGHT));
+  return falloff * smoothstep(0.42, 0.75, n + falloff * 0.2);
+}
+
+// Upstairs footprint — the ground floor's front half is double height, so a
+// slab at UPSTAIRS_Y there would hang in mid-air.
+float upstairsMask(vec3 p) {
+  return step(p.z, -14.55) * step(1.86, p.x) * step(p.x, 13.12);
+}
+
+// Front-to-back march of [tNear, tFar] along the ray; accumulates into
+// scatter/transmittance.
+void marchFogSlab(
+  vec3 ro,
+  vec3 rd,
+  float floorY,
+  float tMax,
+  bool upstairs,
+  float jitter,
+  inout vec3 scatter,
+  inout float transmittance
+) {
+  // Clip the ray to floorY <= y <= floorY + FOG_HEIGHT.
+  float t0 = 0.0;
+  float t1 = tMax;
+  if (abs(rd.y) > 1e-4) {
+    float ta = (floorY - ro.y) / rd.y;
+    float tb = (floorY + FOG_HEIGHT - ro.y) / rd.y;
+    t0 = max(t0, min(ta, tb));
+    t1 = min(t1, max(ta, tb));
+  } else if (ro.y < floorY || ro.y > floorY + FOG_HEIGHT) {
+    return;
+  }
+  if (t1 <= t0) return;
+
+  float stepLen = (t1 - t0) / float(FOG_STEPS);
+  for (int i = 0; i < FOG_STEPS; i++) {
+    vec3 p = ro + rd * (t0 + stepLen * (float(i) + jitter));
+    float mask = upstairs ? upstairsMask(p) : 1.0;
+    float d = fogDensity(p, max(p.y - floorY, 0.0)) * mask * uFogAmount;
+    float absorb = exp(-d * stepLen);
+    // Wisps catch a bit more light than the thin haze between them.
+    scatter += transmittance * (1.0 - absorb) * uFogColor * (0.7 + d);
+    transmittance *= absorb;
+  }
+}
+
+vec3 applyFog(vec3 color, vec2 uv) {
+  float depth = texture2D(uDepthTexture, uv).x;
+  vec4 view = uCameraProjectionInverse * vec4(vec3(uv, depth) * 2.0 - 1.0, 1.0);
+  view /= view.w;
+  vec3 world = (uCameraWorld * view).xyz;
+  vec3 ro = uCameraWorld[3].xyz;
+  vec3 toPixel = world - ro;
+  // Sky/background: cap the distance so it doesn't march to the far plane.
+  float tMax = min(length(toPixel), 40.0);
+  vec3 rd = normalize(toPixel);
+
+  // Per-pixel jitter trades the step banding for grain, which the post
+  // stack's dithering already hides.
+  float jitter = random(uv * resolution + fract(uTime) * 61.0);
+
+  vec3 scatter = vec3(0.0);
+  float transmittance = 1.0;
+  marchFogSlab(ro, rd, 0.0, tMax, false, jitter, scatter, transmittance);
+  marchFogSlab(ro, rd, UPSTAIRS_Y, tMax, true, jitter, scatter, transmittance);
+  return color * transmittance + scatter;
+}
+
 void main() {
   // Precalculate resolution divisions
   vec2 halfResolution = resolution / 2.0;
@@ -192,6 +311,8 @@ void main() {
   // Optimized texture reading
   vec4 baseColorSample = texture2D(uMainTexture, vUv);
   vec3 color = baseColorSample.rgb;
+
+  if (uFogAmount > 0.0) color = applyFog(color, vUv);
 
   // Apply tonemap only once for the main color
   color = tonemap(color);

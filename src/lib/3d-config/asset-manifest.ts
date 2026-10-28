@@ -28,9 +28,16 @@ export type AssetsBase = Omit<
 >
 
 export const ASSETS_BASE: AssetsBase = {
+  airplane: {
+    plane: "/3d/models/airplane-plane-0542b052.glb",
+    collider: "/3d/models/airplane-collider-5b3ba7a4.glb",
+    // Nico's autopilot tour: a closed line loop drawn in Blender
+    // (path.glb), followed by free flight's idle autopilot.
+    path: "/3d/models/airplane-path-2539e215.glb"
+  },
   // --- Map models ---
-  office: "/3d/models/office-077b4007.glb",
-  officeItems: "/3d/models/officeItems-d6e81382.glb",
+  officeItems: "/3d/models/officeItems-c443f764.glb",
+  office: "/3d/models/office-43fdb686.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-7e5bd72e.glb",
   outdoorCars: "/3d/models/outdoorCars-d9030620.glb",
@@ -56,199 +63,46 @@ export const ASSETS_BASE: AssetsBase = {
     }
   },
 
-  // --- Bakes (lightmaps + AO) ---
-  bakes: [
-    {
-      title: "00",
-      lightmap: "/3d/textures/bake-00-lightmap-5f8d79f7.ktx2",
-      ambientOcclusion: "/3d/textures/bake-00-ao-8c56cc34.jpg",
-      meshes: [
-        "SM_00_000",
-        "SM_00_001",
-        "SM_00_002",
-        "SM_00_003",
-        "SM_00_004",
-        "SM_00_005",
-        "SM_00_006",
-        "SM_00_007",
-        "SM_00_008",
-        "SM_00_009",
-        "SM_00_010",
-        "SM_00_011",
-        "SM_00_012"
-      ]
-    },
-    {
-      title: "00a",
-      lightmap: "/3d/textures/bake-00a-lightmap-1d893b04.ktx2",
-      ambientOcclusion: "",
-      meshes: [
-        "SM_00a_00",
-        "SM_00a_01",
-        "SM_00a_02",
-        "SM_00a_03",
-        "SM_CatTail",
-        "SM_KitCat_1",
-        "SM_KitCat_2"
-      ]
-    },
-    {
-      title: "01",
-      lightmap: "/3d/textures/bake-01-lightmap-69b52dd9.ktx2",
-      ambientOcclusion: "/3d/textures/bake-01-ao-e448b3e7.jpg",
-      meshes: ["SM_01_1", "SM_01_2", "SM_01_3", "SM_01_4"]
-    },
-    {
-      title: "02",
-      lightmap: "/3d/textures/bake-02-lightmap-420bb0f8.ktx2",
-      ambientOcclusion: "/3d/textures/bake-02-ao-f8901563.jpg",
-      meshes: [
-        "02_BT_1",
-        "02_BT_2",
-        "02_BT_3",
-        "02_BT_4",
-        "02_BT_5",
-        "02_BT_6",
-        "02_BT_7",
-        "02_BT_8",
-        "02_BT_9",
-        "02_BT_10",
-        "02_BT_11",
-        "02_BT_12",
-        "02_BT_13",
-        "02_BT_14",
-        "02_JYTK_L",
-        "02_JYTK_R",
-        "02_Map",
-        "02_Arcade_B"
-      ]
-    },
-    {
-      title: "2A",
-      lightmap: "/3d/textures/bake-2A-lightmap-b661a365.ktx2",
-      ambientOcclusion: "/3d/textures/bake-2A-ao-b3d5aa21.jpg",
-      meshes: ["02_Arcade_A"]
-    },
-    {
-      title: "03",
-      lightmap: "/3d/textures/bake-03-lightmap-0131918c.ktx2",
-      ambientOcclusion: "/3d/textures/bake-03-ao-65209297.jpg",
-      meshes: [
-        "SM_03_00",
-        "SM_03_01",
-        "SM_03_02",
-        "SM_03_03",
-        "SM_03_04",
-        "SM_03_05",
-        "SM_03_06",
-        "SM_03_07"
-      ]
-    },
-    {
-      title: "04",
-      lightmap: "/3d/textures/bake-04-lightmap-cf0d9e21.ktx2",
-      ambientOcclusion: "/3d/textures/bake-04-ao-4af56635.jpg",
-      meshes: [
-        "SM_04_1",
-        "SM_04_2",
-        "SM_04_3",
-        "SM_04_4",
-        "SM_04_5",
-        "SM_04_6",
-        "SM_04_7",
-        "SM_04_8",
-        "SM_04_9"
-      ]
-    },
-    {
-      title: "05",
-      lightmap: "/3d/textures/bake-05-lightmap-d95f2f92.ktx2",
-      ambientOcclusion: "",
-      meshes: ["SM_05_00", "SM_05_01"]
-    },
-    {
-      title: "06",
-      lightmap: "/3d/textures/bake-06-lightmap-c9547c40.ktx2",
-      ambientOcclusion: "/3d/textures/bake-06-ao-cb146198.jpg",
-      meshes: [
-        "SM_06_01",
-        "SM_06_02",
-        "SM_06_03",
-        "SM_06_04",
-        "SM_06_05",
-        "SM_06_06",
-        "SM_06_07"
-      ]
-    },
-    {
-      title: "07",
-      lightmap: "/3d/textures/bake-07-lightmap-cf08d1cc.ktx2",
-      ambientOcclusion: "/3d/textures/bake-07-ao-28c990e3.jpg",
-      meshes: ["SM_07_01", "SM_07_02"]
-    },
-    {
-      title: "SM_library_Wood",
-      lightmap: "/3d/textures/bake-SM_library_Wood-lightmap-7b2a6253.ktx2",
-      ambientOcclusion: "/3d/textures/bake-SM_library_Wood-ao-fd6bcdee.jpg",
-      meshes: ["SM_library_Wood"]
-    },
-    {
-      title: "SM_LibraryWall_01",
-      lightmap: "/3d/textures/bake-SM_LibraryWall_01-lightmap-0eaa42a6.ktx2",
-      ambientOcclusion: "/3d/textures/bake-SM_LibraryWall_01-ao-04a99bf7.jpg",
-      meshes: ["SM_LibraryWall_01"]
-    },
-    {
-      title: "SM_Roof",
-      lightmap: "/3d/textures/bake-SM_Roof-lightmap-3b7e575f.ktx2",
-      ambientOcclusion: "",
-      meshes: ["SM_Roof"]
-    },
-    {
-      title: "SM_RoofMetallic",
-      lightmap: "/3d/textures/bake-SM_RoofMetallic-lightmap-818ff320.ktx2",
-      ambientOcclusion: "",
-      meshes: ["SM_RoofMetallic"]
-    },
-    {
-      title: "ServicesModels",
-      lightmap: "/3d/textures/bake-ServicesModels-lightmap-b5e56e81.ktx2",
-      ambientOcclusion: "",
-      meshes: [
-        "SM_PinkFloyd",
-        "SM_SOTD_01",
-        "SM_Patas",
-        "SM_WebbyKidSuper",
-        "SM_WebbyMrBeast"
-      ]
-    },
-    {
-      title: "Showcase Models",
-      lightmap: "/3d/textures/bake-Showcase_Models-lightmap-bdcaf84d.ktx2",
-      ambientOcclusion: "",
-      meshes: [
-        "DL_Frame",
-        "SM_EDGLRD",
-        "SM_Geist",
-        "SM_KissBag",
-        "SM_Swaggersouls",
-        "SM_VercelShip2324",
-        "SM_MrBeast"
-      ]
-    },
-    {
-      title: "People_Tables",
-      lightmap: "/3d/textures/bake-People_Tables-lightmap-eaf260f7.ktx2",
-      ambientOcclusion: "/3d/textures/bake-People_Tables-ao-964c430b.jpg",
-      meshes: ["SM_05_02"]
-    },
-    {
-      title: "Chairs",
-      lightmap: "/3d/textures/bake-Chairs-lightmap-52722e14.ktx2",
-      ambientOcclusion: "",
-      meshes: ["SM_05_03"]
-    }
-  ],
+  // --- Lightmap atlas (merge-by-material pipeline) ---
+  // The new office.glb export tags almost every mesh with a "Lightmap"
+  // custom property (read at runtime as mesh.userData.Lightmap) instead of
+  // the hand-maintained name lists below. "Map00" is this shared atlas —
+  // see bakes.tsx. The old bakes[] array stays for files not migrated yet
+  // (e.g. officeItems.glb) and doesn't need to list Map00 meshes anymore.
+  //
+  // KTX2 (Basis UASTC HDR) is being trialed as a replacement for the EXR —
+  // much smaller, and three.js's KTX2Loader already transcodes to BC6H /
+  // uncompressed half-float on devices without native ASTC-HDR, so no
+  // custom fallback needed. bakes.tsx currently loads the .ktx2 field; the
+  // .exr field is kept wired here (not orphaned) as a one-line revert if the
+  // KTX2 path looks wrong — flip USE_KTX2_LIGHTMAPS in bakes.tsx back to
+  // false, don't need to touch this file.
+  lightmapAtlas: "/3d/textures/lightmap-atlas-d331cacb.exr",
+  // TEMP A/B test (ongoing) — Nico's "hdrastc_orig" re-bakes. Every earlier
+  // candidate kept on disk, untouched, for a one-line revert:
+  // lightmap-atlas-a69f004e.ktx2 (original),
+  // lightmap-atlas-test-cc5fe3a6.ktx2, lightmap-atlas-fix-a09eb318.ktx2,
+  // lightmap-atlas-fix2-f0e727ed.ktx2 (confirmed working, Sep 16),
+  // lightmap-atlas-fix3-f4d71467.ktx2, lightmap-atlas-fix4-291b7694.ktx2.
+  lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-fix5-144bd902.ktx2",
+  // AO trial (Sep 10) — jpg, shares the lightmap's UV atlas layout. Not in
+  // KTX2 yet (uncompressed for now, per Nico — KTX2 pass comes later once
+  // the AO look itself is confirmed).
+  lightmapAtlasAo: "/3d/textures/lightmap-atlas-ao-2a8edf7e.jpg",
+
+  // --- Bakes (lightmaps + AO) — legacy per-zone system, now fully retired ---
+  // Every mesh every one of these 18 groups used to target has since been
+  // merged into a Map00-tagged batch mesh (bakes.tsx's atlas traversal picks
+  // those up directly via userData.Lightmap) or, for the one exception
+  // (SM_06_01, tagged "blog"), is handled exclusively by lamp/index.tsx.
+  // Verified via scripts/3d-assets — every mesh name in the old groups now
+  // either doesn't exist anywhere, or exists only as the merged batch that
+  // already carries Lightmap:"Map00", meaning the atlas write already wins
+  // (bakes.tsx runs the atlas traversal after this array, last-write-wins) —
+  // these EXR/AO fetches were pure dead weight, never visibly applied.
+  // Keep this array's shape (still Bake[]) for whichever future glb needs a
+  // real per-zone bake again — just don't leave dead entries in it.
+  bakes: [],
 
   // --- Matcaps ---
   matcaps: [
@@ -260,6 +114,14 @@ export const ASSETS_BASE: AssetsBase = {
     {
       mesh: "SM_SOTD_Glass_02",
       file: "/3d/textures/matcap-SM_SOTD_Glass_02-dffa5eb9.webp",
+      isGlass: true
+    },
+    {
+      // Same glass look as the other SOTD award frames, reused for the new
+      // USAvionix one — no new texture, just another mesh name pointing at
+      // the existing file.
+      mesh: "SM_SOTD_Glass_01",
+      file: "/3d/textures/matcap-SM_SOTD_Glass-dffa5eb9.webp",
       isGlass: true
     },
     {
@@ -344,7 +206,8 @@ export const ASSETS_BASE: AssetsBase = {
     "SM_BasketballGlass",
     "cloudy_01",
     "SM_NextjsBelt",
-    "SM_NextJSText"
+    "SM_NextJSText",
+    "SM_Plane"
   ],
   glassReflexes: [
     {
@@ -499,7 +362,10 @@ export const ASSETS_BASE: AssetsBase = {
   characters: {
     model: "/3d/models/character-model-daed86d4.glb",
     textureBody: "/3d/textures/character-body-a791b664.webp",
+    textureBodyHalloween: "/3d/textures/character-body-halloween-0e87e8ac.png",
     textureFaces: "/3d/textures/character-faces-3f09fa28.webp",
+    textureFacesHalloween:
+      "/3d/textures/character-faces-halloween-b669e416.png",
     textureArms: "/3d/textures/character-arms-de19ba86.png",
     textureComic: "/3d/textures/character-comic-5b7b0e61.jpg"
   },
@@ -512,8 +378,18 @@ export const ASSETS_BASE: AssetsBase = {
   },
 
   // --- Lamp ---
+  // Two dedicated bakes for the lamp's on/off state (Map01 / Map01-off in
+  // Blender) — replaces the old single extraLightmap + shared-atlas-fallback
+  // scheme, since the lamp-affected meshes (Lightmap: "Map01") don't carry
+  // the atlas UV set at all. lamp/index.tsx assigns extraLightmap to
+  // lampLightmap and extraLightmapOff to lightMap; lightLampEnabled (already
+  // wired) toggles between the two.
   lamp: {
-    extraLightmap: "/3d/textures/lamp-extraLightmap-94076bfb.ktx2"
+    extraLightmap: "/3d/textures/lamp-extraLightmap-blog-on-f351ce6b.exr",
+    extraLightmapOff: "/3d/textures/lamp-extraLightmap-blog-off-b828b18e.exr",
+    extraLightmapKtx2: "/3d/textures/lamp-extraLightmap-blog-on-1c6f69e3.ktx2",
+    extraLightmapOffKtx2:
+      "/3d/textures/lamp-extraLightmap-blog-off-aa00bcce.ktx2"
   }
 }
 

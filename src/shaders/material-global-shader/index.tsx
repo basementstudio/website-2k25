@@ -2,6 +2,8 @@ import { Matrix3, MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
+import { LIGHTMAP_TINT } from "@/constants/halloween"
+
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
 
@@ -11,6 +13,13 @@ export const outdoorTintUniform = { value: new Vector3(1, 1, 1) }
 export const outdoorEmissiveUniform = { value: 1 }
 export const cityNightUniform = { value: 0 }
 export const cityActivityUniform = { value: 1 }
+// Shared by every global-shader material. lightFlicker scales the baked
+// lightmaps (1 = normal, 0 = power cut); lightning adds a cold flash on top.
+// Seasonal code (src/components/halloween/storm.tsx) drives them.
+export const lightFlickerUniform = { value: 1 }
+export const lightningUniform = { value: 0 }
+// Halloween red cast on the baked lightmaps (see LIGHTMAP_TINT).
+export const lightmapTintUniform = { value: new Vector3(...LIGHTMAP_TINT) }
 
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
@@ -26,6 +35,27 @@ export const createGlobalShaderMaterial = (
     CITY?: boolean
     DAYLIGHT?: boolean
     IS_LOBO_MARINO?: boolean
+    /**
+     * True when the mesh's geometry carries a 3rd UV set (TEXCOORD_2) — the
+     * merge-by-material pipeline's shared lightmap atlas placement. False
+     * (default) samples the lightmap off the 2nd UV set (TEXCOORD_1), same
+     * as the old per-zone bakes and the lamp's dedicated on/off sheets.
+     */
+    LIGHTMAP_ATLAS?: boolean
+    /**
+     * True when the mesh has a baked metallicRoughnessTexture — gives it a
+     * cheap specular highlight while being inspected (see fragment.glsl's
+     * isInspectionMode block). No effect at rest (lightmap-lit, no specular).
+     */
+    METAL?: boolean
+    /**
+     * Double-sided paper whose texture packs one image per side of the sheet
+     * side by side: front faces sample the UVs as authored (left half),
+     * back faces the same UVs shifted +0.5 in U (right half). Nico set this
+     * up on SM_Plane's "papier" material so the plane's top and underside
+     * read differently.
+     */
+    TWO_SIDED_ATLAS?: boolean
   }
 ) => {
   const {
@@ -34,6 +64,8 @@ export const createGlobalShaderMaterial = (
     opacity: baseOpacity = 1.0,
     metalness,
     roughness,
+    metalnessMap,
+    roughnessMap,
     alphaMap,
     emissiveMap,
     userData = {}
@@ -59,6 +91,9 @@ export const createGlobalShaderMaterial = (
     opacity: { value: baseOpacity },
     noiseFactor: { value: 0.5 },
     uTime: { value: 0.0 },
+    uLightFlicker: lightFlickerUniform,
+    uLightmapTint: lightmapTintUniform,
+    uLightning: lightningUniform,
     alphaMap: { value: alphaMap },
     alphaMapTransform: { value: new Matrix3().identity() },
     emissive: { value: baseMaterial.emissive || new Vector3() },
@@ -73,6 +108,7 @@ export const createGlobalShaderMaterial = (
     inspectingEnabled: { value: false },
     inspectingFactor: { value: 0 },
     fadeFactor: { value: 0 },
+    hintFactor: { value: 0 },
 
     // Lamp
     lampLightmap: { value: null },
@@ -96,6 +132,10 @@ export const createGlobalShaderMaterial = (
   if (defines?.MATCAP) {
     uniforms["matcap"] = { value: null }
     uniforms["glassMatcap"] = { value: false }
+  }
+
+  if (defines?.METAL) {
+    uniforms["metalRoughnessMap"] = { value: metalnessMap ?? roughnessMap }
   }
 
   if (defines?.OUTDOOR) {
@@ -152,7 +192,10 @@ export const createGlobalShaderMaterial = (
           ? Boolean(defines?.IS_LOBO_MARINO)
           : false,
       DAYLIGHT:
-        defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false
+        defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false,
+      LIGHTMAP_ATLAS: Boolean(defines?.LIGHTMAP_ATLAS),
+      METAL: Boolean(defines?.METAL),
+      TWO_SIDED_ATLAS: Boolean(defines?.TWO_SIDED_ATLAS)
     },
     uniforms,
     transparent:

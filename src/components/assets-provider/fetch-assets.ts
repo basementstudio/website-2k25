@@ -3,6 +3,7 @@ import type { PortableTextBlock } from "@/service/sanity/types"
 import { fetchAssetsLocal } from "./fetch-assets-local"
 
 export interface AssetsResult {
+  airplane: { plane: string; collider: string; path: string }
   officeItems: string
   office: string
   officeWireframe: string
@@ -18,6 +19,12 @@ export interface AssetsResult {
     }
   }
   routingElements: string
+  /** Shared lightmap atlas most merged office.glb meshes point to via userData.Lightmap === "Map00". */
+  lightmapAtlas: string
+  /** Same atlas, KTX2 (Basis UASTC HDR) — see USE_KTX2_LIGHTMAPS in bakes.tsx. */
+  lightmapAtlasKtx2: string
+  /** Ambient occlusion for the shared atlas — same UV layout as lightmapAtlas. */
+  lightmapAtlasAo: string
   bakes: {
     title: string
     lightmap: string
@@ -142,7 +149,9 @@ export interface AssetsResult {
   characters: {
     model: string
     textureBody: string
+    textureBodyHalloween: string
     textureFaces: string
+    textureFacesHalloween: string
     textureArms: string
     textureComic: string
   }
@@ -153,6 +162,9 @@ export interface AssetsResult {
   }
   lamp: {
     extraLightmap: string
+    extraLightmapOff: string
+    extraLightmapKtx2: string
+    extraLightmapOffKtx2: string
   }
   // extra textures for things
   mapTextures: {
@@ -167,6 +179,9 @@ export interface AssetsResult {
   }[]
 }
 
+// Gotcha: in `next dev` this cache entry survives edits to
+// asset-manifest.ts (and edits to this file), so swapping a glb hash there
+// keeps serving the old URL until the dev server restarts.
 export async function fetchAssets(): Promise<AssetsResult> {
   "use cache"
   return fetchAssetsLocal()
