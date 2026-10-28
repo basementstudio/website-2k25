@@ -1,6 +1,9 @@
 uniform float uTime;
 uniform float uSeed;
 
+#include <common>
+#include <skinning_pars_vertex>
+
 varying vec3 vLocal;
 varying vec3 vWorldPosition;
 varying vec3 vViewDir;
@@ -12,32 +15,26 @@ void main() {
   float angle = atan(p.z, p.x);
   float t = uTime + uSeed * 10.0;
 
-  // Long folds hang from the head, opening and closing as gusts pass down
-  // the sheet. Keep their phase coherent along the length of the fabric.
-  float foldAngle = angle + sin(p.y * 3.0 - t * 1.2) * 0.12 * loose;
-  float folds = sin(foldAngle * 9.0 + p.y * 1.6 - t * 0.65);
-  float fineFold = sin(foldAngle * 15.0 - p.y * 2.5 + t * 0.9);
-  float radial = (folds * 0.045 + fineFold * 0.012) * (1.0 - smoothstep(0.55, 0.96, p.y));
+  // Folds belong to the sheet. The spring-driven skeleton moves them as
+  // one surface rather than sending unrelated waves through the body.
+  float folds = sin(angle * 9.0 + p.y * 1.6);
+  float fineFold = sin(angle * 15.0 - p.y * 2.5);
+  float radial =
+    (folds * 0.045 + fineFold * 0.012) * (1.0 - smoothstep(0.55, 0.96, p.y));
   p.xz += vec2(cos(angle), sin(angle)) * radial;
 
-  // The head leads; the lower fabric follows with a delayed, broader wiggle.
-  p.x += sin(t * 1.8 - p.y * 4.8) * (0.012 + loose * 0.15);
-  p.x += sin(t * 3.1 - p.y * 8.0 + angle) * 0.025 * loose;
-  p.z += sin(t * 1.5 - p.y * 5.5 + 0.8) * 0.085 * loose;
-
-  // Rippling hem, torn into points that trail and flutter.
+  // A small breeze at the hem; the head and body have no idle distortion.
   float hem = 1.0 - smoothstep(0.0, 0.32, p.y);
-  float tatters = pow(
-    0.5 + 0.5 * cos(angle * 7.0 + sin(t * 1.3 + angle) * 0.35),
-    2.0
-  );
+  float tatters = pow(0.5 + 0.5 * cos(angle * 7.0), 2.0);
   p.y -= tatters * hem * 0.065;
-  p.xz *= 1.0 + sin(angle * 4.0 - t * 2.2 + p.y * 5.0) * 0.13 * loose;
-  p.y += sin(angle * 5.0 - t * 3.2) * 0.065 * loose;
+  p.y += sin(angle * 5.0 - t * 1.2) * 0.008 * hem;
   // The tail lags behind the sway of the head.
   p.z -= loose * 0.1;
 
-  vec4 world = modelMatrix * vec4(p, 1.0);
+  vec3 transformed = p;
+  #include <skinbase_vertex>
+  #include <skinning_vertex>
+  vec4 world = modelMatrix * vec4(transformed, 1.0);
   // Features and weave stay attached to the fabric as it bends.
   vLocal = position;
   vWorldPosition = world.xyz;

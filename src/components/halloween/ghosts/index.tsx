@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import {
   BackSide,
   BufferGeometry,
@@ -23,6 +23,7 @@ import {
 } from "@/shaders/material-global-shader"
 
 import frag from "./frag.glsl"
+import { createGhostRig } from "./rig"
 import { createTrailGeometry, createTrailMaterial, emitWisps } from "./trail"
 import vert from "./vert.glsl"
 
@@ -141,6 +142,22 @@ const Ghost = ({ path, scale, seed, glow = 1 }: GhostProps) => {
     return [uniforms, inside, outside] as const
   }, [seed, glow])
   const trailRef = useRef<Points<BufferGeometry, ShaderMaterial>>(null)
+  const rig = useMemo(
+    () => createGhostRig(geometry, [inside, outside]),
+    [geometry, inside, outside]
+  )
+  const springs = useRef<ReturnType<typeof rig.start> | null>(null)
+  useEffect(() => {
+    const simulation = rig.start()
+    springs.current = simulation
+    return () => {
+      simulation.dispose()
+      springs.current = null
+      rig.mesh.geometry.dispose()
+      rig.mesh.skeleton.dispose()
+      rig.mesh.material.forEach((material) => material.dispose())
+    }
+  }, [rig])
   const trailGeometry = useMemo(createTrailGeometry, [])
   const trailMaterial = useMemo(() => createTrailMaterial(glow), [glow])
   const dodge = useMemo(
@@ -204,6 +221,8 @@ const Ghost = ({ path, scale, seed, glow = 1 }: GhostProps) => {
       lean + Math.sin(time * 0.9 + seed * 5) * 0.06,
       0.05
     )
+    group.updateMatrixWorld(true)
+    springs.current?.update(delta)
 
     const opacity = (1 - fadeFactor.current.get() * 0.8) * 0.7
     uniforms.uTime.value = time
@@ -229,17 +248,7 @@ const Ghost = ({ path, scale, seed, glow = 1 }: GhostProps) => {
         frustumCulled={false}
       />
       <group ref={ref} scale={[scale, scale * 1.3, scale * 0.85]}>
-        {[inside, outside].map((material, i) => (
-          <mesh
-            key={i}
-            geometry={geometry}
-            material={material}
-            renderOrder={i - 1}
-            raycast={() => null}
-            // The hem ripple pushes vertices outside the geometry's bounds.
-            frustumCulled={false}
-          />
-        ))}
+        <primitive object={rig.mesh} />
       </group>
     </>
   )
