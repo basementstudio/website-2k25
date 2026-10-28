@@ -4,7 +4,8 @@ Abrir una sección con la oficina 3D, esperar a que termine de cargar y pulsar *
 
 - WASD / flechas: subir, bajar y girar. Espacio: impulso breve (el avión cae entre impulsos). Esc: salir del vuelo. R: reiniciar. C: alterna entre la GoPro montada en el avión (por defecto) y la cámara de seguimiento.
 - Siete aros en orden, colisiones, cámara de seguimiento con corrección ante paredes, contador y controles táctiles.
-- No hay pausa: Esc sale del vuelo. Perder el foco (Alt+Tab) sólo suelta las teclas apretadas.
+- No hay pausa: Esc sale del vuelo.
+- Vuelo libre: si pasan 5 s sin tocar nada, o la ventana pierde el foco (Alt+Tab), un piloto automático sigue el recorrido de `path.glb` (una línea cerrada dibujada en Blender, `airplane.path` en el manifest); cualquier tecla devuelve el control. No hay indicador en pantalla. Para cambiar el recorrido: re-exportar la línea, `pnpm assets:hash` y actualizar el manifest — el test de `physics.test.ts` simula vueltas completas y falla si el recorrido choca con el collider.
 - La GoPro (vista por defecto) va en un spring arm con lag de rotación y posición (`GOPRO_ROTATION_LAG`, `GOPRO_LOCATION_LAG`, `GOPRO_LAG_MAX_DISTANCE` en `flight.tsx`), así sigue al avión suave en vez de ir rígida.
 - El avión que vuela es un clon del `SM_Plane` de `officeItems` (el mismo del escritorio, que se oculta durante el vuelo). Despega desde donde está en el escritorio. Sus shape keys: `u`/`d` siguen subir/bajar, `N` es el temblor (más fuerte con la velocidad y al chocar). El material `papier` usa la mitad izquierda de la textura arriba y la derecha (U + 0.5) abajo.
 - El collider de la oficina es `Col-plane-optimized.glb` (exportado sin Draco ni custom properties), con nombre content-hashed en el manifest. `airplane.plane` (el `Plane.glb` viejo) quedó en el manifest pero ya no se usa.

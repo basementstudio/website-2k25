@@ -20,7 +20,9 @@ import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import {
+  autopilotSteer,
   createFlightCollider,
+  createFlightPath,
   crossesGate,
   FLIGHT_GATES,
   PLANE_RADIUS,
@@ -109,6 +111,10 @@ const FLUTTER_BOOST = 0.45
 const FLUTTER_TURN = 0.5
 // Noise lattice points per second — roughly how many direction changes.
 const FLUTTER_FREQUENCY = 3.5
+// Idle autopilot tour — see the frame loop.
+const AUTOPILOT_IDLE_SECONDS = 5
+// Meters ahead along the path the autopilot steers toward.
+const AUTOPILOT_LOOKAHEAD = 1.3
 // Smooth 1D value noise in [-1, 1] (cosine-interpolated hashed lattice) —
 // drives SM_Plane's "N" shape key as an irregular in-flight idle flutter.
 // Layered sines read as a regular "breathing" loop; this doesn't repeat.
@@ -130,6 +136,13 @@ const easeInOutCubic = (t: number) =>
 export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
   const { airplane } = useAssets()
   const { scene: colliderSource } = useGLTF(airplane.collider)
+  const { scene: pathSource } = useGLTF(airplane.path)
+  const path = useMemo(() => {
+    const path = createFlightPath(pathSource)
+    if (!path)
+      console.warn("[airplane] path.glb has no usable line — autopilot off.")
+    return path
+  }, [pathSource])
   const deskPlane = useMesh((s) =>
     s.inspectables.find((mesh) => mesh.name === PLANE_MESH_NAME)
   )
@@ -257,6 +270,10 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       armQuaternion: new Quaternion(),
       armOrigin: new Vector3(),
       armSnap: true,
+      autopilot: false,
+      pathSample: 0,
+      pathDirection: 1,
+      pathTangent: new Vector3(),
       boost: 0,
       impulseCooldown: 0,
       impulseWasDown: false,
@@ -308,6 +325,9 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
     state.impulseWasDown = false
     state.collisionGrace = 1.25
     state.armSnap = true
+    state.autopilot = false
+    flightFx.lastInput = performance.now()
+    flightFx.forceAutopilot = false
     if (cameraRef.current && navCameraPose.current) {
       // Start exactly where the navigation camera was, so entering flight
       // is a glide over to the chase cam rather than a cut (see the intro
@@ -322,6 +342,7 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       state.armLength = state.armDesired.distanceTo(state.position)
     }
     useAirplaneStore.setState({
+      autopilot: false,
       phase: preview ? "off" : "ready",
       gate: 0,
       seconds: 0,
@@ -376,13 +397,58 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       state.pitch = Math.sin(t * Math.PI) * 0.25
       state.seconds += dt
     } else if (phase === "flying") {
-      const horizontal =
+      let horizontal =
         Number(flightKeys.has("KeyD") || flightKeys.has("ArrowRight")) -
         Number(flightKeys.has("KeyA") || flightKeys.has("ArrowLeft"))
-      const vertical =
+      let vertical =
         Number(flightKeys.has("KeyW") || flightKeys.has("ArrowUp")) -
         Number(flightKeys.has("KeyS") || flightKeys.has("ArrowDown"))
 
+      // Idle autopilot (free flight only): after a few seconds without
+      // input, or straight away when the window loses focus, fly Nico's
+      // path.glb loop on its own; any key hands control back (hud.tsx
+      // clears it). Pure pursuit: chase a point a little ahead of the
+      // plane's place on the curve. Steering goes through the same
+      // horizontal/vertical inputs as the keys, so bank, shape keys and
+      // camera all behave exactly like a player flying it.
+      const idleSeconds = (performance.now() - flightFx.lastInput) / 1000
+      const autopilot =
+        path !== null &&
+        flightMode === "free" &&
+        (flightFx.forceAutopilot || idleSeconds > AUTOPILOT_IDLE_SECONDS)
+      if (autopilot && path) {
+        if (!state.autopilot) {
+          // Join at the nearest point on the loop, heading whichever way
+          // round is closer to where the plane is already pointing.
+          state.pathSample = path.nearest(state.position)
+          state.pathTangent
+            .subVectors(
+              path.at(state.pathSample + 4),
+              path.at(state.pathSample - 4)
+            )
+            .setY(0)
+          state.pathDirection =
+            state.pathTangent.x * -Math.sin(state.yaw) +
+              state.pathTangent.z * -Math.cos(state.yaw) >=
+            0
+              ? 1
+              : -1
+        } else {
+          state.pathSample = path.nearest(state.position, state.pathSample)
+        }
+        const lookahead =
+          (AUTOPILOT_LOOKAHEAD / path.length) * path.points.length
+        const target = path.at(
+          state.pathSample + state.pathDirection * lookahead
+        )
+        const steer = autopilotSteer(state.position, state.yaw, target)
+        horizontal = steer.horizontal
+        vertical = steer.vertical
+      }
+      if (autopilot !== state.autopilot) {
+        state.autopilot = autopilot
+        useAirplaneStore.setState({ autopilot })
+      }
       state.yaw -= horizontal * 1.65 * dt
       // Bounce recovery (see the collision below): ease the heading round
       // to the deflected one instead of snapping it, let the push-off

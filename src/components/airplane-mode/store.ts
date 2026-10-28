@@ -18,6 +18,8 @@ interface FlightState {
   seconds: number
   speed: number
   altitude: number
+  // Free flight's idle autopilot is flying (see flight.tsx).
+  autopilot: boolean
   // Set by enterMode, read once flight.tsx's setup effect reaches "ready" —
   // auto-launches straight into this mode instead of showing the trial/free
   // choice screen. Cleared by launch().
@@ -36,7 +38,13 @@ export const flightKeys = new Set<string>()
 // read by DOM overlays (speed-lines.tsx) — mutable like flightKeys rather
 // than zustand state, since it changes every frame.
 export const flightFx = {
-  boost: 0
+  boost: 0,
+  // performance.now() of the last flight input (hud.tsx) — free flight
+  // hands over to the autopilot tour after a few idle seconds.
+  lastInput: 0,
+  // Set when the window loses focus (Alt+Tab): autopilot right away instead
+  // of waiting out the idle delay. Cleared by the next input.
+  forceAutopilot: false
 }
 export const useAirplaneStore = create<FlightState>((set) => ({
   phase: "off",
@@ -46,6 +54,7 @@ export const useAirplaneStore = create<FlightState>((set) => ({
   seconds: 0,
   speed: 0,
   altitude: 0,
+  autopilot: false,
   autoLaunchMode: null,
   enter: () => {
     flightKeys.clear()

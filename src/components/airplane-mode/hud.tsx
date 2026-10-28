@@ -12,7 +12,7 @@ import { Arrow } from "@/components/primitives/icons/arrow"
 
 import { FLIGHT_GATES } from "./physics"
 import { SpeedLines } from "./speed-lines"
-import { flightKeys, useAirplaneStore } from "./store"
+import { flightFx, flightKeys, useAirplaneStore } from "./store"
 
 const controls = [
   ["KeyA", "←", "Turn left"],
@@ -74,9 +74,14 @@ export function AirplaneHud() {
     window.scrollTo({ top: 0, behavior: "instant" })
     useNavigationStore.getState().setIsCanvasTabMode(false)
     panel.current?.focus()
-    // Alt+Tab never delivers the keyup — drop held keys so the plane doesn't
-    // keep turning on its own.
-    const releaseKeys = () => flightKeys.clear()
+    // Alt+Tab never delivers the keyup, so drop held keys. Free flight hands
+    // over to the autopilot tour straight away (flight.tsx); any key takes
+    // control back. The autopilot has no on-screen indicator.
+    const releaseKeys = () => {
+      flightKeys.clear()
+      const { phase, mode } = useAirplaneStore.getState()
+      if (phase === "flying" && mode === "free") flightFx.forceAutopilot = true
+    }
     const down = (event: KeyboardEvent) => {
       // Capture flight keys before the site's existing navigation shortcuts.
       event.stopImmediatePropagation()
@@ -136,6 +141,10 @@ export function AirplaneHud() {
         return
       event.preventDefault()
       flightKeys.add(event.code)
+      if (event.code !== "Escape") {
+        flightFx.lastInput = performance.now()
+        flightFx.forceAutopilot = false
+      }
       if (event.repeat) return
       // Nico: Esc always leaves flight straight away (used to pause).
       if (event.code === "Escape") {
@@ -269,6 +278,8 @@ export function AirplaneHud() {
                 event.preventDefault()
                 event.currentTarget.setPointerCapture(event.pointerId)
                 flightKeys.add(code)
+                flightFx.lastInput = performance.now()
+                flightFx.forceAutopilot = false
               }}
               onPointerUp={() => flightKeys.delete(code)}
               onPointerCancel={() => flightKeys.delete(code)}
