@@ -49,14 +49,25 @@ export interface RealtimeClientLike {
 const REALTIME_PROVIDER = process.env.NEXT_PUBLIC_REALTIME_PROVIDER
 const REALTIME_HOST = process.env.NEXT_PUBLIC_REALTIME_HOST
 
+// Never connects and never reports SUBSCRIBED, so the call sites stay idle
+const disabledChannel: RealtimeChannelLike = {
+  state: "closed",
+  on: () => disabledChannel,
+  subscribe: () => disabledChannel,
+  send: () => Promise.resolve("ok"),
+  track: () => Promise.resolve("ok"),
+  untrack: () => Promise.resolve("ok"),
+  presenceState: () => ({})
+}
+
 export const createRealtimeClient = (): RealtimeClientLike => {
   if (REALTIME_PROVIDER === "cloudflare") {
-    if (!REALTIME_HOST) {
-      throw new Error(
-        "NEXT_PUBLIC_REALTIME_PROVIDER=cloudflare needs NEXT_PUBLIC_REALTIME_HOST"
-      )
-    }
-    return createCloudflareClient(REALTIME_HOST)
+    if (REALTIME_HOST) return createCloudflareClient(REALTIME_HOST)
+    // Thrown during render, this would take down the basketball game with it
+    console.error(
+      "NEXT_PUBLIC_REALTIME_PROVIDER=cloudflare needs NEXT_PUBLIC_REALTIME_HOST; realtime is off"
+    )
+    return { channel: () => disabledChannel, removeChannel: () => {} }
   }
   return createClient()
 }

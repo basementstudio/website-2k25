@@ -8,10 +8,11 @@
   "durable_objects": {
     "bindings": [{ "name": "Room", "class_name": "Room" }]
   },
-  // The Workers Free plan only allows SQLite-backed Durable Objects
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
   "vars": {
-    "ALLOWED_ORIGINS": "https://basement.studio,https://website-2k25-git-test-cloudflare-realtime-basement.vercel.app,https://website-2k25-25l9ltv44-basement.vercel.app,http://localhost:3000"
+    "ALLOWED_ORIGINS": "https://basement.studio,https://website-2k25-git-test-cloudflare-realtime-basement.vercel.app,http://localhost:3000"
   },
-  "observability": { "enabled": true }
+  // Every relayed message is an invocation; logging all of them would bill
+  // more log events than requests
+  "observability": { "enabled": true, "head_sampling_rate": 0.1 }
 }
