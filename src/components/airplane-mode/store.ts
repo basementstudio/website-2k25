@@ -5,7 +5,6 @@ export type FlightPhase =
   | "loading"
   | "ready"
   | "flying"
-  | "paused"
   | "crashed"
   | "finished"
   | "error"

@@ -74,16 +74,9 @@ export function AirplaneHud() {
     window.scrollTo({ top: 0, behavior: "instant" })
     useNavigationStore.getState().setIsCanvasTabMode(false)
     panel.current?.focus()
-    // Pause on Alt+Tab so the clock can't run (or rings get flown) while
-    // you're away.
-    const pause = () => {
-      flightKeys.clear()
-      if (useAirplaneStore.getState().phase === "flying")
-        useAirplaneStore.setState({ phase: "paused" })
-    }
-    const visibility = () => {
-      if (document.hidden) pause()
-    }
+    // Alt+Tab never delivers the keyup — drop held keys so the plane doesn't
+    // keep turning on its own.
+    const releaseKeys = () => flightKeys.clear()
     const down = (event: KeyboardEvent) => {
       // Capture flight keys before the site's existing navigation shortcuts.
       event.stopImmediatePropagation()
@@ -152,10 +145,7 @@ export function AirplaneHud() {
       }
       if (event.code === "KeyR" && current !== "loading" && current !== "error")
         restart()
-      if (
-        event.code === "Enter" &&
-        (current === "ready" || current === "paused")
-      )
+      if (event.code === "Enter" && current === "ready")
         useAirplaneStore.setState({ phase: "flying" })
     }
     const up = (event: KeyboardEvent) => {
@@ -164,16 +154,14 @@ export function AirplaneHud() {
     }
     window.addEventListener("keydown", down, true)
     window.addEventListener("keyup", up, true)
-    window.addEventListener("blur", pause)
-    document.addEventListener("visibilitychange", visibility)
+    window.addEventListener("blur", releaseKeys)
     return () => {
       flightKeys.clear()
       document.body.style.overflow = overflow
       window.scrollTo({ top: scroll, behavior: "instant" })
       window.removeEventListener("keydown", down, true)
       window.removeEventListener("keyup", up, true)
-      window.removeEventListener("blur", pause)
-      document.removeEventListener("visibilitychange", visibility)
+      window.removeEventListener("blur", releaseKeys)
       if (focused?.isConnected) focused.focus({ preventScroll: true })
       else
         document
@@ -188,11 +176,6 @@ export function AirplaneHud() {
   // (inspectable-viewer.tsx), which calls enterMode() directly and makes
   // `active` true without ever going through this branch.
   if (!active) return null
-  const resume = () => {
-    flightKeys.clear()
-    useAirplaneStore.setState({ phase: "flying" })
-    panel.current?.focus()
-  }
   const chooseMode = (next: "free" | "trial") => {
     launch(next)
     panel.current?.focus()
@@ -203,24 +186,22 @@ export function AirplaneHud() {
           title: "The office, from above",
           body: `Chase the rings against the clock, or just cruise around. ${KEYS_HINT}`
         }
-      : phase === "paused"
-        ? { title: "Flight paused", body: KEYS_HINT }
-        : phase === "finished"
-          ? {
-              title: "A perfect lap",
-              body: `You flew through ${FLIGHT_GATES.length} rings in ${seconds.toFixed(1)} seconds.`
-            }
-          : phase === "crashed"
-            ? { title: "An unexpected landing", body: KEYS_HINT }
-            : phase === "error"
-              ? {
-                  title: "We couldn't load the plane",
-                  body: "Head back to the office and try again."
-                }
-              : null
+      : phase === "finished"
+        ? {
+            title: "A perfect lap",
+            body: `You flew through ${FLIGHT_GATES.length} rings in ${seconds.toFixed(1)} seconds.`
+          }
+        : phase === "crashed"
+          ? { title: "An unexpected landing", body: KEYS_HINT }
+          : phase === "error"
+            ? {
+                title: "We couldn't load the plane",
+                body: "Head back to the office and try again."
+              }
+            : null
   // No preloader while the flight assets load — the scene just waits a beat
   // and launches; Close stays available the whole time.
-  const flying = phase === "flying" || phase === "paused"
+  const flying = phase === "flying"
   return createPortal(
     <div
       className="fixed inset-0 z-[2147483000] text-brand-w1 outline-none"
@@ -254,7 +235,6 @@ export function AirplaneHud() {
                 <Cta onClick={() => chooseMode("trial")} label="Time trial" />
               </>
             )}
-            {phase === "paused" && <Cta onClick={resume} label="Keep flying" />}
             {(phase === "crashed" || phase === "finished") && (
               <Cta onClick={restart} label="Try again" />
             )}
@@ -276,17 +256,6 @@ export function AirplaneHud() {
               .toString()
               .padStart(2, "0")}`}
           />
-          {phase === "flying" && (
-            <button
-              className={textButtonClass}
-              onClick={() => {
-                flightKeys.clear()
-                useAirplaneStore.setState({ phase: "paused" })
-              }}
-            >
-              Pause
-            </button>
-          )}
         </footer>
       )}
       {phase === "flying" && (

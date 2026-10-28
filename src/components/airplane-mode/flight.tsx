@@ -71,6 +71,14 @@ const GOPRO_TILT_QUATERNION = new Quaternion().setFromAxisAngle(
   -0.14
 )
 const GOPRO_BLEND_RATE = 3
+// The GoPro rides a lagged spring arm rather than a rigid mount (Unreal's
+// CameraRotationLag / CameraLag): the arm's rotation and origin chase the
+// plane's, so turns, climbs and bank swing the camera round smoothly instead
+// of locking it to every input. Max distance keeps it from falling far behind
+// on a boost.
+const GOPRO_ROTATION_LAG = 5
+const GOPRO_LOCATION_LAG = 9
+const GOPRO_LAG_MAX_DISTANCE = 0.12
 // Boost (Space) speed feel: FOV widens by this many degrees at full boost,
 // eased in fast and out slower; the same eased value drives the anime speed
 // lines overlay (speed-lines.tsx) through flightFx.boost.
@@ -246,6 +254,9 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       mountQuaternion: new Quaternion(),
       mountPosition: new Vector3(),
       goproBlend: 0,
+      armQuaternion: new Quaternion(),
+      armOrigin: new Vector3(),
+      armSnap: true,
       boost: 0,
       impulseCooldown: 0,
       impulseWasDown: false,
@@ -296,6 +307,7 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
     state.impulseCooldown = 0
     state.impulseWasDown = false
     state.collisionGrace = 1.25
+    state.armSnap = true
     if (cameraRef.current && navCameraPose.current) {
       // Start exactly where the navigation camera was, so entering flight
       // is a glide over to the chase cam rather than a cut (see the intro
@@ -614,14 +626,38 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
         dt
       )
       const blend = state.goproBlend
-      if (blend > 1e-3 && planeRef.current) {
-        // Rigid mount: rides along with the plane's full pitch/yaw/bank.
+      if (planeRef.current) {
+        // Tracked every frame (even while the chase cam is showing) so the
+        // arm is already settled when C blends over to it.
         state.mountQuaternion.setFromEuler(planeRef.current.rotation)
+        if (state.armSnap) {
+          state.armQuaternion.copy(state.mountQuaternion)
+          state.armOrigin.copy(state.position)
+          state.armSnap = false
+        } else {
+          state.armQuaternion.slerp(
+            state.mountQuaternion,
+            1 - Math.exp(-GOPRO_ROTATION_LAG * dt)
+          )
+          state.armOrigin.lerp(
+            state.position,
+            1 - Math.exp(-GOPRO_LOCATION_LAG * dt)
+          )
+          state.mountPosition.subVectors(state.armOrigin, state.position)
+          if (state.mountPosition.length() > GOPRO_LAG_MAX_DISTANCE)
+            state.armOrigin
+              .copy(state.position)
+              .add(state.mountPosition.setLength(GOPRO_LAG_MAX_DISTANCE))
+        }
+      }
+      if (blend > 1e-3 && planeRef.current) {
         state.mountPosition
           .copy(GOPRO_OFFSET)
-          .applyQuaternion(state.mountQuaternion)
-          .add(state.position)
-        state.mountQuaternion.multiply(GOPRO_TILT_QUATERNION)
+          .applyQuaternion(state.armQuaternion)
+          .add(state.armOrigin)
+        state.mountQuaternion
+          .copy(state.armQuaternion)
+          .multiply(GOPRO_TILT_QUATERNION)
         camera.position.lerp(state.mountPosition, blend)
         camera.quaternion.slerp(state.mountQuaternion, blend)
       }
