@@ -42,9 +42,7 @@ export const ArcadeBoard = () => {
 
   return (
     <>
-      {buttons?.map((button) => (
-        <Button key={button.name} button={button} />
-      ))}
+      {buttons?.map((button) => <Button key={button.name} button={button} />)}
       {sticks?.map((stick) => (
         <Stick key={stick.name} stick={stick} sequence={sequence} />
       ))}

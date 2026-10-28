@@ -30,18 +30,8 @@ interface StickProps {
  * morphY <- old rotation.z axis (Right = -, Left = +)
  */
 const directionToMorph = (direction: number) => ({
-  x:
-    direction === 3
-      ? -STICK_MORPH_MAX
-      : direction === 4
-        ? STICK_MORPH_MAX
-        : 0,
-  y:
-    direction === 1
-      ? STICK_MORPH_MAX
-      : direction === 2
-        ? -STICK_MORPH_MAX
-        : 0
+  x: direction === 3 ? -STICK_MORPH_MAX : direction === 4 ? STICK_MORPH_MAX : 0,
+  y: direction === 1 ? STICK_MORPH_MAX : direction === 2 ? -STICK_MORPH_MAX : 0
 })
 
 export const Stick = ({ stick, sequence }: StickProps) => {
@@ -385,10 +375,7 @@ export const Stick = ({ stick, sequence }: StickProps) => {
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
     >
-      <mesh
-        position={stick.center}
-        rotation={[(16 * Math.PI) / 180, 0, 0]}
-      >
+      <mesh position={stick.center} rotation={[(16 * Math.PI) / 180, 0, 0]}>
         <cylinderGeometry args={[0.03, 0.03, 0.12, 12]} />
         <MeshDiscardMaterial />
       </mesh>
