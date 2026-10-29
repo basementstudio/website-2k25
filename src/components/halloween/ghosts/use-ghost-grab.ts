@@ -214,9 +214,11 @@ export const useGhostGrab = (
       if (state.active) {
         state.localTarget.copy(state.target)
         target.parent?.worldToLocal(state.localTarget)
+        // Trail the cursor rather than pinning to it, so the sheet feels
+        // carried through the air instead of welded to the pointer.
         state.step
           .subVectors(state.localTarget, target.position)
-          .multiplyScalar(1 - Math.exp(-18 * delta))
+          .multiplyScalar(1 - Math.exp(-7 * delta))
           .clampLength(0, scale * 5 * delta)
         target.position.add(state.step)
         state.offset.subVectors(target.position, path)
