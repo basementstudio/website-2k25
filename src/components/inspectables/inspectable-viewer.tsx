@@ -7,6 +7,7 @@ import { useAirplaneStore } from "@/components/airplane-mode/store"
 import { useAssets } from "@/components/assets-provider"
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useInspectable } from "@/components/inspectables/context"
+import { Arrow } from "@/components/primitives/icons/arrow"
 import { useFujifilmPhotos } from "@/hooks/use-fujifilm-photos"
 import { cn } from "@/utils/cn"
 
@@ -25,11 +26,11 @@ const PLANE_MESH_NAME = "SM_Plane"
 
 const FlyButton = ({ onFly }: { onFly: () => void }) => (
   <button
-    className="text-f-p-mobile text-brand-w1 lg:text-f-p"
-    tabIndex={0}
+    className="actionable-opacity group flex items-center gap-2 self-start rounded-sm bg-brand-w1 px-3 py-1.5 text-f-p-mobile text-brand-k [--anim-duration:250ms] lg:text-f-p"
     onClick={onFly}
   >
-    Fly this plane
+    <span className="group-hover:underline">Launch the plane</span>
+    <Arrow className="size-4 shrink-0" />
   </button>
 )
 
