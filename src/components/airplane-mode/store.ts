@@ -5,7 +5,6 @@ export type FlightPhase =
   | "loading"
   | "ready"
   | "flying"
-  | "paused"
   | "crashed"
   | "finished"
   | "error"
@@ -19,8 +18,7 @@ interface FlightState {
   seconds: number
   speed: number
   altitude: number
-  // Free flight's idle autopilot is flying (see flight.tsx) — HUD shows a
-  // "press any key" hint.
+  // Free flight's idle autopilot is flying (see flight.tsx).
   autopilot: boolean
   // Set by enterMode, read once flight.tsx's setup effect reaches "ready" —
   // auto-launches straight into this mode instead of showing the trial/free
@@ -28,7 +26,7 @@ interface FlightState {
   autoLaunchMode: FlightMode | null
   enter: () => void
   // Same as enter(), but skips the trial/free choice screen and launches
-  // straight into `mode` once ready — used by the "Fly this plane" button
+  // straight into `mode` once ready — used by the "Launch the plane" button
   // on the SM_Plane inspectable (Nico, for now: only free mode from there).
   enterMode: (mode: FlightMode) => void
   exit: () => void

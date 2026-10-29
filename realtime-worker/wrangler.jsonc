@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "basement-realtime",
+  // basement studio
+  "account_id": "cb18c9b36b7fb78e00162649cc1984ff",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "durable_objects": {
+    "bindings": [{ "name": "Room", "class_name": "Room" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://basement.studio,https://website-2k25-git-test-cloudflare-realtime-basement.vercel.app,http://localhost:3000"
+  },
+  // Every relayed message is an invocation; logging all of them would bill
+  // more log events than requests
+  "observability": { "enabled": true, "head_sampling_rate": 0.1 }
+}

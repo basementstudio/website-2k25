@@ -8,33 +8,46 @@ import { useContactStore } from "@/components/contact/contact-store"
 import { useInspectable } from "@/components/inspectables/context"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
-import { cn } from "@/utils/cn"
+import { Arrow } from "@/components/primitives/icons/arrow"
 
 import { FLIGHT_GATES } from "./physics"
 import { SpeedLines } from "./speed-lines"
 import { flightFx, flightKeys, useAirplaneStore } from "./store"
-import styles from "./styles.module.css"
 
 const controls = [
-  ["KeyA", "←", "Girar a la izquierda"],
-  ["KeyW", "↑", "Subir"],
-  ["KeyS", "↓", "Bajar"],
-  ["KeyD", "→", "Girar a la derecha"],
-  ["Space", "+", "Impulso"]
+  ["KeyA", "←", "Turn left"],
+  ["KeyW", "↑", "Climb"],
+  ["KeyS", "↓", "Descend"],
+  ["KeyD", "→", "Turn right"],
+  ["Space", "+", "Boost"]
 ]
+
+// Same primary CTA as the rest of the site (careers' Apply button).
+const ctaClass =
+  "actionable-opacity group flex items-center justify-center gap-2 rounded-sm bg-brand-w1 px-3 py-1.5 text-f-p-mobile text-brand-k [--anim-duration:250ms] lg:text-f-p"
+const textButtonClass =
+  "actionable actionable-no-underline text-f-p-mobile text-brand-w1 lg:text-f-p"
+const KEYS_HINT =
+  "W / ↑ climbs, S / ↓ descends, A and D turn. Space boosts, C switches camera. R restarts, Esc exits."
+
+const Cta = ({ onClick, label }: { onClick: () => void; label: string }) => (
+  <button className={ctaClass} onClick={onClick}>
+    <span className="group-hover:underline">{label}</span>
+    <Arrow className="size-4 shrink-0" />
+  </button>
+)
+
+const Stat = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex flex-col gap-1">
+    <span className="text-f-p-mobile text-brand-g1 lg:text-f-p">{label}</span>
+    <strong className="text-f-h4-mobile tabular-nums text-brand-w1 lg:text-f-h3">
+      {value}
+    </strong>
+  </div>
+)
 export function AirplaneHud() {
-  const {
-    phase,
-    mode,
-    gate,
-    seconds,
-    speed,
-    altitude,
-    autopilot,
-    exit,
-    restart,
-    launch
-  } = useAirplaneStore()
+  const { phase, mode, gate, seconds, speed, altitude, exit, restart, launch } =
+    useAirplaneStore()
   const active = phase !== "off"
   const loaded = useAppLoadingStore(
     (s) => s.canRunMainApp && s.canvasVisible && !s.showLoadingCanvas
@@ -61,19 +74,13 @@ export function AirplaneHud() {
     window.scrollTo({ top: 0, behavior: "instant" })
     useNavigationStore.getState().setIsCanvasTabMode(false)
     panel.current?.focus()
-    // Nico: no "Flight paused." card on Alt+Tab in free flight — the
-    // autopilot tour takes over instead (flight.tsx) and any key hands
-    // control back. The time trial still pauses, so the clock can't run
-    // (or rings get flown) while you're away.
-    const pause = () => {
+    // Alt+Tab never delivers the keyup, so drop held keys. Free flight hands
+    // over to the autopilot tour straight away (flight.tsx); any key takes
+    // control back. The autopilot has no on-screen indicator.
+    const releaseKeys = () => {
       flightKeys.clear()
       const { phase, mode } = useAirplaneStore.getState()
-      if (phase !== "flying") return
-      if (mode === "free") flightFx.forceAutopilot = true
-      else useAirplaneStore.setState({ phase: "paused" })
-    }
-    const visibility = () => {
-      if (document.hidden) pause()
+      if (phase === "flying" && mode === "free") flightFx.forceAutopilot = true
     }
     const down = (event: KeyboardEvent) => {
       // Capture flight keys before the site's existing navigation shortcuts.
@@ -147,10 +154,7 @@ export function AirplaneHud() {
       }
       if (event.code === "KeyR" && current !== "loading" && current !== "error")
         restart()
-      if (
-        event.code === "Enter" &&
-        (current === "ready" || current === "paused")
-      )
+      if (event.code === "Enter" && current === "ready")
         useAirplaneStore.setState({ phase: "flying" })
     }
     const up = (event: KeyboardEvent) => {
@@ -159,16 +163,14 @@ export function AirplaneHud() {
     }
     window.addEventListener("keydown", down, true)
     window.addEventListener("keyup", up, true)
-    window.addEventListener("blur", pause)
-    document.addEventListener("visibilitychange", visibility)
+    window.addEventListener("blur", releaseKeys)
     return () => {
       flightKeys.clear()
       document.body.style.overflow = overflow
       window.scrollTo({ top: scroll, behavior: "instant" })
       window.removeEventListener("keydown", down, true)
       window.removeEventListener("keyup", up, true)
-      window.removeEventListener("blur", pause)
-      document.removeEventListener("visibilitychange", visibility)
+      window.removeEventListener("blur", releaseKeys)
       if (focused?.isConnected) focused.focus({ preventScroll: true })
       else
         document
@@ -179,144 +181,99 @@ export function AirplaneHud() {
 
   if (typeof document === "undefined") return null
   // Nico: removed the standalone "↗ Airplane mode" launch button — flying
-  // is discovered by inspecting SM_Plane and hitting its "Fly" button
+  // is discovered by inspecting SM_Plane and hitting its "Launch the plane" button
   // (inspectable-viewer.tsx), which calls enterMode() directly and makes
   // `active` true without ever going through this branch.
   if (!active) return null
-  const resume = () => {
-    flightKeys.clear()
-    useAirplaneStore.setState({ phase: "flying" })
-    panel.current?.focus()
-  }
   const chooseMode = (next: "free" | "trial") => {
     launch(next)
     panel.current?.focus()
   }
-  const title =
-    phase === "loading"
-      ? "Preparing the airplane…"
-      : phase === "ready"
-        ? "The office, from above."
-        : phase === "paused"
-          ? "Flight paused."
-          : phase === "finished"
-            ? "A perfect lap."
-            : phase === "error"
-              ? "We could not load the airplane."
-              : "An unexpected landing."
-  // Loading/ready read as "looking closely at the plane", same as any other
-  // inspectable — no header chrome or stats yet, just a soft vignette and the
-  // choice card. The full flight HUD only kicks in once a mode is chosen.
-  const inspecting = phase === "loading" || phase === "ready"
+  const card =
+    phase === "ready"
+      ? {
+          title: "The office, from above",
+          body: `Chase the rings against the clock, or just cruise around. ${KEYS_HINT}`
+        }
+      : phase === "finished"
+        ? {
+            title: "A perfect lap",
+            body: `You flew through ${FLIGHT_GATES.length} rings in ${seconds.toFixed(1)} seconds.`
+          }
+        : phase === "crashed"
+          ? { title: "An unexpected landing", body: KEYS_HINT }
+          : phase === "error"
+            ? {
+                title: "We couldn't load the plane",
+                body: "Head back to the office and try again."
+              }
+            : null
+  // No preloader while the flight assets load — the scene just waits a beat
+  // and launches; Close stays available the whole time.
+  const flying = phase === "flying"
   return createPortal(
     <div
-      className={cn(styles.hud, inspecting && styles.inspecting)}
+      className="fixed inset-0 z-[2147483000] text-brand-w1 outline-none"
       ref={panel}
       tabIndex={-1}
       role="dialog"
       aria-modal="true"
-      aria-label="Airplane mode"
+      aria-label="Paper plane"
     >
-      {!inspecting && <SpeedLines />}
-      {phase === "flying" && autopilot && (
-        <div className={styles.autopilot} aria-live="polite">
-          <span>AUTOPILOT</span> Press any key to take the controls
-        </div>
-      )}
-      <header className={styles.header}>
-        {inspecting ? (
-          <button
-            className={styles.close}
-            onClick={exit}
-            aria-label="Close [ESC]"
-          >
-            Close [ESC]
-          </button>
-        ) : (
-          <>
-            <div>
-              <span>PAPER FLIGHT</span>
-              <strong>Airplane mode</strong>
-            </div>
-            <button onClick={exit}>Back to the office ×</button>
-          </>
-        )}
+      {flying && <SpeedLines />}
+      <header className="absolute inset-x-0 top-[max(1rem,env(safe-area-inset-top))] flex justify-end px-4">
+        <button className={textButtonClass} onClick={exit}>
+          Close [ESC]
+        </button>
       </header>
-      {phase !== "flying" && (
-        <section className={styles.card} aria-live="polite">
-          <span>A LITTLE ESCAPE</span>
-          <h2>{title}</h2>
-          <p>
-            {phase === "error"
-              ? "Go back to the office and try again."
-              : phase === "loading"
-                ? "Loading the airplane and office collisions."
-                : phase === "finished"
-                  ? `You flew through ${FLIGHT_GATES.length} rings in ${seconds.toFixed(1)} seconds.`
-                  : phase === "ready"
-                    ? "Chase the gold rings against the clock, or just cruise the office freely. W / ↑ climbs, S / ↓ descends, A and D turn. Space gives a boost, C switches to the chase cam; Esc exits and R restarts."
-                    : "W / ↑ climbs, S / ↓ descends, A and D turn. Space gives a boost, C switches to the chase cam; Esc exits and R restarts."}
+      {card && (
+        <section
+          className="absolute left-1/2 top-1/2 flex w-[min(28rem,calc(100%-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 border border-brand-w1/20 bg-brand-k/80 p-4 backdrop-blur-md lg:p-6"
+          aria-live="polite"
+        >
+          <h2 className="text-pretty text-f-h2-mobile lg:text-f-h2">
+            {card.title}
+          </h2>
+          <p className="text-pretty text-f-p-mobile text-brand-w2 lg:text-f-p">
+            {card.body}
           </p>
-          {phase === "ready" && (
-            <div className={styles.modes}>
-              <button onClick={() => chooseMode("free")}>Free flight ↗</button>
-              <button onClick={() => chooseMode("trial")}>Time trial ↗</button>
-            </div>
-          )}
-          {phase === "paused" && <button onClick={resume}>Keep flying</button>}
-          {(phase === "crashed" || phase === "finished") && (
-            <button onClick={restart}>Try again ↗</button>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {phase === "ready" && (
+              <>
+                <Cta onClick={() => chooseMode("free")} label="Free flight" />
+                <Cta onClick={() => chooseMode("trial")} label="Time trial" />
+              </>
+            )}
+            {(phase === "crashed" || phase === "finished") && (
+              <Cta onClick={restart} label="Try again" />
+            )}
+          </div>
         </section>
       )}
-      {!inspecting && (
-        <footer className={styles.footer}>
+      {(flying || phase === "crashed" || phase === "finished") && (
+        <footer className="absolute inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] flex items-end gap-6 lg:gap-8">
           {mode === "trial" && (
-            <div>
-              <span>RINGS</span>
-              <strong>
-                {gate} / {FLIGHT_GATES.length}
-              </strong>
-            </div>
+            <Stat label="Rings" value={`${gate} / ${FLIGHT_GATES.length}`} />
           )}
-          <div>
-            <span>SPEED</span>
-            <strong>{(speed * 3.6).toFixed(0)} km/h</strong>
-          </div>
-          <div>
-            <span>ALTITUDE</span>
-            <strong>{altitude.toFixed(1)} m</strong>
-          </div>
-          <div>
-            <span>TIME</span>
-            <strong>
-              {Math.floor(seconds / 60)
-                .toString()
-                .padStart(2, "0")}
-              :
-              {Math.floor(seconds % 60)
-                .toString()
-                .padStart(2, "0")}
-            </strong>
-          </div>
-          {phase === "flying" && (
-            <button
-              onClick={() => {
-                flightKeys.clear()
-                useAirplaneStore.setState({ phase: "paused" })
-              }}
-            >
-              Pause
-            </button>
-          )}
+          <Stat label="Speed" value={`${(speed * 3.6).toFixed(0)} km/h`} />
+          <Stat label="Altitude" value={`${altitude.toFixed(1)} m`} />
+          <Stat
+            label="Time"
+            value={`${Math.floor(seconds / 60)
+              .toString()
+              .padStart(2, "0")}:${Math.floor(seconds % 60)
+              .toString()
+              .padStart(2, "0")}`}
+          />
         </footer>
       )}
       {phase === "flying" && (
-        <div className={styles.touch}>
+        <div className="absolute bottom-24 right-4 hidden gap-2 max-lg:flex [@media(pointer:coarse)]:flex">
           {controls.map(([code, label, aria]) => (
             <button
               key={code}
               aria-label={aria}
+              className="flex size-11 touch-none items-center justify-center border border-brand-w1/20 bg-brand-k/60 text-f-h4 text-brand-w1"
               onPointerDown={(event) => {
                 event.preventDefault()
                 event.currentTarget.setPointerCapture(event.pointerId)
