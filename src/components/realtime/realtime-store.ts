@@ -118,6 +118,23 @@ export const formatName = (name: string) => {
     : trimmed
 }
 
+// localStorage can be missing or throw (e.g. Safari with storage blocked), and
+// the name read runs at module load, so every access must be guarded.
+const readStoredName = () => {
+  if (typeof window === "undefined") return ""
+  try {
+    return localStorage.getItem(NAME_STORAGE_KEY) ?? ""
+  } catch {
+    return ""
+  }
+}
+
+const writeStoredName = (name: string) => {
+  try {
+    localStorage.setItem(NAME_STORAGE_KEY, name)
+  } catch {}
+}
+
 interface RealtimeStore {
   onlineCount: number
   cursors: Record<string, RemoteCursor>
@@ -138,10 +155,7 @@ export const useRealtimeStore = create<RealtimeStore>((set) => ({
   cursors: {},
   chatMessage: "",
   country: null,
-  displayName:
-    typeof window === "undefined"
-      ? ""
-      : (localStorage.getItem(NAME_STORAGE_KEY) ?? ""),
+  displayName: readStoredName(),
   setOnlineCount: (count) => set({ onlineCount: count }),
   upsertCursor: (cursor) =>
     set((state) => ({ cursors: { ...state.cursors, [cursor.id]: cursor } })),
@@ -156,7 +170,7 @@ export const useRealtimeStore = create<RealtimeStore>((set) => ({
   setCountry: (country) => set({ country }),
   setDisplayName: (name) => {
     const trimmed = name.trim().slice(0, NAME_HARD_CAP)
-    localStorage.setItem(NAME_STORAGE_KEY, trimmed)
+    writeStoredName(trimmed)
     set({ displayName: trimmed })
   }
 }))
