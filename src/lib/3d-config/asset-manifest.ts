@@ -58,7 +58,10 @@ export const ASSETS_BASE: AssetsBase = {
   // --- Special events ---
   specialEvents: {
     halloween: {
-      ghost: "/3d/models/halloween-ghost-cf419ad7.glb"
+      ghost: "/3d/models/halloween-ghost-d690163a.glb",
+      pumpkin: "/3d/models/halloween-pumpkin-074b33e5.glb",
+      pumpkinC02: "/3d/models/halloween-pumpkin-c02-laugh-06899fc7.glb",
+      pumpkinC03: "/3d/models/halloween-pumpkin-c03-laugh-f661ad9a.glb"
     },
     christmas: {
       tree: "/3d/models/christmas-tree-50bcb465.glb",

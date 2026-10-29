@@ -19,15 +19,6 @@ varying float vContact;
 void main() {
   vec3 p = position;
   // Preserve the folds, eye openings and hem authored in the GLB.
-  // A broad, delayed breath of air flexes the hanging sheet between the
-  // joints. The face stays still; the lower folds don't freeze in place.
-  float loose = pow(1.0 - smoothstep(0.05, 0.82, position.y), 1.4);
-  float breeze = uTime * 1.6 + uSeed * 10.0 - (1.0 - position.y) * 3.2;
-  float billow = loose * uTouchMotion * (0.035 + uGrab * 0.02);
-  p.x += sin(breeze) * billow;
-  p.z += sin(breeze * 0.83 + position.x * 4.0 + 0.7) * billow * 0.7;
-  p.y += sin(breeze + position.x * 3.0) * billow * 0.18;
-
   // A hand presses into an oval patch of fabric and drags it along the
   // stroke. The soft ridge around it is displaced cloth, not a travelling
   // wave. The head stays anchored and the rear layer remains undisturbed.

@@ -107,11 +107,19 @@ export const createGhostRig = (
   }
   const bones = body.skeleton.bones
     .filter((bone) => /^spine\d+|^tassel/.test(bone.name))
-    .map((bone) => ({
-      bone,
-      rest: bone.quaternion.clone(),
-      tassel: bone.name.startsWith("tassel")
-    }))
+    .map((bone) => {
+      const tassel = bone.name.startsWith("tassel")
+      let depth = 0
+      for (let parent = bone.parent; parent; parent = parent.parent) {
+        if (
+          tassel
+            ? parent.name.startsWith("tassel")
+            : /^spine\d+/.test(parent.name)
+        )
+          depth++
+      }
+      return { bone, rest: bone.quaternion.clone(), tassel, depth }
+    })
 
   return {
     object,
@@ -123,7 +131,7 @@ export const createGhostRig = (
       return levels[i] + (levels[Math.min(32, i + 1)] - levels[i]) * (row - i)
     },
     start: () => {
-      const drivers = bones.map(({ bone, rest, tassel }, i) => {
+      const drivers = bones.map(({ bone, rest, tassel, depth }) => {
         const frame = new Group()
         frame.position.copy(bone.position)
         frame.quaternion.copy(rest)
@@ -138,8 +146,15 @@ export const createGhostRig = (
           rotation: new Quaternion(),
           spring: new WiggleBone(driver, {
             stiffness:
-              bone.userData.wiggleStiffness ?? (tassel ? 180 : 620 - i * 180),
-            damping: bone.userData.wiggleDamping ?? (tassel ? 19 : 31 - i * 5)
+              bone.userData.wiggleStiffness ??
+              (tassel
+                ? Math.max(140, 260 - depth * 60)
+                : Math.max(300, 700 - depth * 160)),
+            damping:
+              bone.userData.wiggleDamping ??
+              (tassel
+                ? Math.max(24, 30 - depth * 3)
+                : Math.max(30, 45 - depth * 5))
           })
         }
       })
@@ -168,10 +183,17 @@ export const createGhostRig = (
             deltaRotation.copy(driver.quaternion)
             const angle = 2 * Math.acos(Math.min(1, Math.abs(deltaRotation.w)))
             const maxBend =
-              (bones[i].tassel ? 0.2 : 0.06 + i * 0.04) +
-              Math.min(1, Math.max(0, grab)) * 0.08
-            if (angle > maxBend)
-              deltaRotation.slerp(IDENTITY, 1 - maxBend / angle)
+              (bones[i].tassel
+                ? Math.min(0.12, 0.08 + bones[i].depth * 0.02)
+                : Math.min(0.085, 0.035 + bones[i].depth * 0.025)) +
+              Math.min(1, Math.max(0, grab)) * 0.045
+            // Progressively resist bending rather than hitting a hard stop.
+            // Local rotations add up along the spine, so keep each modest.
+            if (angle > 1e-6)
+              deltaRotation.slerp(
+                IDENTITY,
+                1 - (maxBend * Math.tanh(angle / maxBend)) / angle
+              )
             // Ease changes in bend so a quick tug or direction reversal
             // rolls through the sheet instead of snapping at the limit.
             rotation.slerp(

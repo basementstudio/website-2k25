@@ -12,6 +12,7 @@ import {
 } from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 
+import { ASSETS_BASE } from "../../../lib/3d-config/asset-manifest"
 import { createGhostRig } from "./rig"
 
 let source: Object3D
@@ -22,7 +23,9 @@ before(async () => {
     name: "test-textures",
     loadTexture: async () => new Texture()
   }))
-  const bytes = await readFile("public/3d/models/halloween-ghost-cf419ad7.glb")
+  const bytes = await readFile(
+    `public${ASSETS_BASE.specialEvents.halloween.ghost}`
+  )
   source = (await loader.parseAsync(Uint8Array.from(bytes).buffer, "")).scene
 })
 
@@ -89,6 +92,9 @@ test("a held ghost has more cloth follow-through while keeping its head rigid", 
   const free = createFixture()
   const held = createFixture()
   const simulations = [free.start(), held.start()]
+  const tips = held.mesh.skeleton.bones
+    .filter((bone) => /^tassel.*_03$/.test(bone.name))
+    .map((bone) => ({ bone, rest: bone.quaternion.clone(), flex: 0 }))
   const spineRest = free.mesh.skeleton.bones[2].quaternion.clone()
   let maxJointFlex = 0
   const rest = new Vector3()
@@ -101,6 +107,10 @@ test("a held ghost has more cloth follow-through while keeping its head rigid", 
       rig.object.updateMatrixWorld(true)
       simulations[index].update(1 / 60, index)
       rig.object.updateMatrixWorld(true)
+      if (index === 1)
+        tips.forEach((tip) => {
+          tip.flex = Math.max(tip.flex, tip.bone.quaternion.angleTo(tip.rest))
+        })
       if (index === 0)
         maxJointFlex = Math.max(
           maxJointFlex,
@@ -124,6 +134,11 @@ test("a held ghost has more cloth follow-through while keeping its head rigid", 
   assert.ok(
     maxima[1] > maxima[0] * 1.15,
     "grabbing should make the cloth response more visible"
+  )
+  assert.equal(tips.length, 4, "all four cloth edges have a segmented chain")
+  assert.ok(
+    tips.every((tip) => tip.flex > 0.005),
+    "every new tip must participate in the cloth follow-through"
   )
   for (const [index, rig] of [free, held].entries()) {
     simulations[index].dispose()

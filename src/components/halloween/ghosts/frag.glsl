@@ -63,11 +63,16 @@ void main() {
   float light = clamp((dot(n, lightDir) + 0.45) / 1.45, 0.0, 1.0);
   float transmission = max(dot(-n, lightDir), 0.0);
   vec3 color = uColor * (0.78 + light * 0.24 + transmission * 0.12);
-  color += mix(uColor, vec3(1.05, 0.88, 1.3), 0.4) * fresnel * 0.32;
+  color += uColor * fresnel * 0.2;
   color *= 0.985 + weave * 0.03;
   float faceCloth = smoothstep(0.65, 0.9, vLocal.y);
-  float alpha = 0.22 + fresnel * 0.22 + faceCloth * 0.14;
-  alpha *= mix(0.3, 1.0, smoothstep(0.0, 0.18, vLocal.y));
+  float alpha = 0.34 + fresnel * 0.2 + faceCloth * 0.16;
+  // The UV unwrap runs from the crown in the centre to the outer hem.
+  // Feather the whole perimeter into the room, keeping the face readable.
+  // UV space keeps the gradient attached to the cloth through every bend.
+  vec2 edgeDistance = min(vClothUv, vec2(1.0) - vClothUv);
+  float uvInterior = smoothstep(0.015, 0.30, min(edgeDistance.x, edgeDistance.y));
+  alpha *= mix(0.10, 1.0, uvInterior);
 
   color += uColor * vContact * 0.05;
   if (!gl_FrontFacing) {

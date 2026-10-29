@@ -1,6 +1,7 @@
 uniform float fadeFactor;
 varying vec2 vUv;
 varying float vFlicker;
+varying float vLit;
 
 void main() {
   vec2 p = vec2((vUv.x - 0.5) * 2.0, vUv.y);
@@ -20,6 +21,6 @@ void main() {
       3.0
   );
   vec3 color = mix(vec3(2.8, 0.48, 0.035), vec3(4.0, 2.8, 1.1), core);
-  float alpha = (flame + halo * 0.12) * vFlicker * (1.0 - fadeFactor);
+  float alpha = (flame + halo * 0.12) * vFlicker * vLit * (1.0 - fadeFactor);
   gl_FragColor = vec4(color, alpha);
 }

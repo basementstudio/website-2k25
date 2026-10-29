@@ -428,6 +428,20 @@ void main() {
   gl_FragColor.a *= pattern;
   #endif
 
+  #if !defined(OUTDOOR) && !defined(VIDEO) && !defined(GODRAY)
+  #if defined(USE_EMISSIVE) || defined(USE_EMISSIVEMAP)
+  // Unbaked luminaires bypass the lightmap's power-cut multiplier. Dim
+  // their whole surface, including glass reflections, with the same signal.
+  // Baked surfaces already received it above; avoid dimming them twice.
+  if (
+    lightMapIntensity <= 0.0 && emissiveIntensity > 0.0 &&
+    dot(emissive, vec3(1.0)) > 0.0
+  ) {
+    gl_FragColor.rgb *= uLightFlicker;
+  }
+  #endif
+  #endif
+
   #ifdef GODRAY
   gl_FragColor.a *= pattern * uGodrayOpacity * uGodrayDensity;
   #endif

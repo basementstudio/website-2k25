@@ -3,6 +3,7 @@ import { useState } from "react"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
 
 import { HalloweenCandles } from "./candles"
+import { HalloweenCat } from "./cat"
 import { HalloweenFog } from "./fog"
 import { HalloweenGhosts } from "./ghosts"
 import { HalloweenPortraits } from "./portraits"
@@ -23,7 +24,8 @@ export const ClientHalloween = () => {
     <>
       <HalloweenSpiders />
       <HalloweenWebs />
-      <HalloweenCandles />
+      <HalloweenCandles reducedMotion={reducedMotion} />
+      <HalloweenCat reducedMotion={reducedMotion} />
       <HalloweenPumpkins reducedMotion={reducedMotion} />
       <HalloweenPortraits reducedMotion={reducedMotion} />
       <HalloweenGhosts reducedMotion={reducedMotion} />

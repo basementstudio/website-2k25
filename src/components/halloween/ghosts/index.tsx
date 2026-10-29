@@ -27,31 +27,12 @@ import {
 
 import { useHalloweenPointer } from "../use-pointer"
 import frag from "./frag.glsl"
+import { createRoomPath, type GhostPath } from "./paths"
+import { indoorGhosts } from "./presence"
 import { createGhostRig } from "./rig"
 import { createTrailGeometry, createTrailMaterial, emitWisps } from "./trail"
 import { useGhostGrab } from "./use-ghost-grab"
 import vert from "./vert.glsl"
-
-// A ghost's route: writes its position at time t into `out` and returns how
-// present it is (0 = invisible, 1 = fully there).
-type GhostPath = (t: number, out: Vector3) => number
-
-// Indoors: a Lissajous loop, fading in and out of existence every so often.
-const roomPath =
-  (ghost: (typeof GHOSTS)[number]): GhostPath =>
-  (t, out) => {
-    const a = t * ghost.speed + ghost.seed * 10
-    out.set(
-      ghost.center[0] + Math.sin(a) * ghost.radius[0],
-      ghost.center[1] + Math.sin(a * 2.3) * 0.12,
-      ghost.center[2] + Math.sin(a * 1.4 + 1) * ghost.radius[1]
-    )
-    return MathUtils.smoothstep(
-      Math.sin(t * 0.18 + ghost.seed * 7),
-      -0.85,
-      -0.35
-    )
-  }
 
 // Outside: drifts down the street from one end to the other, then waits
 // off-screen before the next pass.
@@ -65,8 +46,8 @@ const streetPath =
     const progress = Math.min(local / travel, 1)
     out.set(
       MathUtils.lerp(from, to, progress),
-      ghost.y * 0.5 + Math.sin(t * 1.7 + ghost.seed * 9) * 0.15,
-      ghost.z + Math.sin(t * 0.6 + ghost.seed * 4) * 0.4
+      ghost.y * 0.5 + Math.sin(t * 0.6 + ghost.seed * 9) * 0.06,
+      ghost.z + Math.sin(t * 0.22 + ghost.seed * 4) * 0.15
     )
     // Fade in/out over the first and last tenth of the pass.
     return local > travel
@@ -80,7 +61,6 @@ const streetPath =
 const position = new Vector3()
 const next = new Vector3()
 const velocity = new Vector3()
-const cameraRight = new Vector3()
 const middle = new Vector3()
 const closest = new Vector3()
 const cameraDirection = new Vector3()
@@ -89,8 +69,10 @@ const pointerPlane = new Plane()
 interface GhostProps {
   source: Object3D
   path: GhostPath
-  scale: number
+  height: number
   seed: number
+  heading: number
+  indoor: boolean
   glow?: number
   reducedMotion: boolean
 }
@@ -98,13 +80,29 @@ interface GhostProps {
 const Ghost = ({
   source,
   path,
-  scale,
+  height,
   seed,
+  heading,
+  indoor,
   glow = 1,
   reducedMotion
 }: GhostProps) => {
   const ref = useRef<Group>(null)
   const pointer = useHalloweenPointer()
+  // Keep the established grab/return speeds while sizing the normalized
+  // model uniformly in metres, instead of stretching its skeleton.
+  const interactionScale = height * 0.375
+  const presenceState = useMemo(
+    () => ({ position: new Vector3(), opacity: 0 }),
+    []
+  )
+  useEffect(() => {
+    if (!indoor) return
+    indoorGhosts.add(presenceState)
+    return () => {
+      indoorGhosts.delete(presenceState)
+    }
+  }, [indoor, presenceState])
   const { fadeFactor } = useFadeAnimation()
   // Render both sides without writing depth so overlapping folds blend
   // as translucent fabric instead of cutting hard patches into the sheet.
@@ -112,7 +110,7 @@ const Ghost = ({
     const uniforms = {
       uTime: { value: 0 },
       uSeed: { value: seed },
-      uColor: { value: new Color("#c6a5ed").multiplyScalar(glow * 1.65) },
+      uColor: { value: new Color("#a17ad1").multiplyScalar(glow * 1.2) },
       uOpacity: { value: 0 },
       uPointer: { value: new Vector2(0, 0.45) },
       uHover: { value: 0 },
@@ -135,7 +133,7 @@ const Ghost = ({
   }, [seed, glow, reducedMotion])
   const grab = useGhostGrab(
     ref,
-    scale,
+    interactionScale,
     () =>
       uniforms.uOpacity.value > 0.2 &&
       fadeFactor.current.get() < 0.1 &&
@@ -168,39 +166,45 @@ const Ghost = ({
     if (!group) return
     const { camera } = state
 
-    // Paths cross other sections' cameras (the Home loops pass right
-    // through the Services camera): vanish before filling the screen.
+    // Vanish near the camera so a nearby ghost cannot fill the screen.
     const routePresence = path(time, position)
     path(time + 0.1, next)
     grab.follow(position, delta)
     const influence = Math.max(
       grab.state.weight,
-      Math.min(1, grab.state.offset.length() / scale)
+      Math.min(1, grab.state.offset.length() / interactionScale)
     )
     const presence =
       MathUtils.lerp(routePresence, 1, influence) *
       MathUtils.smoothstep(
         group.position.distanceTo(camera.position),
-        scale * 1.5,
-        scale * 3.5
+        height * 0.55,
+        height * 1.35
       )
-    // Always turned to stare at whoever's watching...
-    const heading = Math.atan2(
-      camera.position.x - group.position.x,
-      camera.position.z - group.position.z
-    )
-    const turn = heading - group.rotation.y
+    // Follow the passage through the room, independently of the viewer.
+    velocity.subVectors(next, position).divideScalar(0.1)
+    const speed = Math.hypot(velocity.x, velocity.z)
+    const travelHeading =
+      speed > 0.01 && speed < 4
+        ? Math.atan2(velocity.x, velocity.z)
+        : group.rotation.y
+    const turn =
+      travelHeading +
+      (reducedMotion ? 0 : Math.sin(time * 0.18 + seed * 8) * 0.025) -
+      group.rotation.y
     if (!grab.state.active)
       group.rotation.y +=
-        Math.atan2(Math.sin(turn), Math.cos(turn)) * (1 - Math.exp(-4 * delta))
-    // ...and leaning into the drift, as seen from the camera.
-    velocity.subVectors(next, position).divideScalar(0.1)
-    cameraRight.setFromMatrixColumn(camera.matrixWorld, 0)
-    const lean = MathUtils.clamp(-velocity.dot(cameraRight) * 0.12, -0.1, 0.1)
+        Math.atan2(Math.sin(turn), Math.cos(turn)) *
+        (1 - Math.exp(-1.5 * delta))
+    // Lean in model space, so moving the camera cannot tug on the rig.
+    const sideSpeed =
+      velocity.x * Math.cos(group.rotation.y) -
+      velocity.z * Math.sin(group.rotation.y)
+    const lean = MathUtils.clamp(-sideSpeed * 0.06, -0.04, 0.04)
     if (!grab.state.active)
       group.rotation.z = MathUtils.lerp(
         group.rotation.z,
-        lean + Math.sin(time * 0.9 + seed * 5) * 0.025,
+        lean + (reducedMotion ? 0 : Math.sin(time * 0.45 + seed * 5) * 0.012),
         1 - Math.exp(-3 * delta)
       )
     group.updateMatrixWorld(true)
@@ -278,10 +282,13 @@ const Ghost = ({
     const opacity = (1 - fadeFactor.current.get() * 0.8) * 0.95
     uniforms.uTime.value = time
     uniforms.uOpacity.value = presence * opacity
+    group.getWorldPosition(presenceState.position)
+    presenceState.position.y += height * 0.55
+    presenceState.opacity = uniforms.uOpacity.value
 
     const trail = trailRef.current
     if (trail) {
-      emitWisps(trail, group.position, scale, presence, delta, time)
+      emitWisps(trail, group.position, interactionScale, presence, delta, time)
       trail.material.uniforms.uOpacity.value = opacity
       state.gl.getDrawingBufferSize(trail.material.uniforms.uResolution.value)
     }
@@ -298,7 +305,7 @@ const Ghost = ({
         raycast={() => null}
         frustumCulled={false}
       />
-      <group ref={ref} scale={scale * 1.3}>
+      <group ref={ref} scale={height} rotation={[0, heading, 0]}>
         <primitive object={rig.object} />
         <mesh
           name="ghost-grab-surface"
@@ -314,13 +321,16 @@ const Ghost = ({
 
 const ROOM_PATHS = GHOSTS.map((ghost) => ({
   ...ghost,
-  path: roomPath(ghost),
+  path: createRoomPath(ghost.seed),
+  heading: -0.25,
+  indoor: true,
   glow: 1
 }))
 const STREET_PATHS = STREET_GHOSTS.map((ghost) => ({
   ...ghost,
-  scale: ghost.scale * 0.7,
   path: streetPath(ghost),
+  heading: Math.PI + 0.2,
+  indoor: false,
   glow: 1.15
 }))
 
@@ -333,17 +343,21 @@ export const HalloweenGhosts = ({
   const { scene } = useGLTF(specialEvents.halloween.ghost, false)
   return (
     <>
-      {[...ROOM_PATHS, ...STREET_PATHS].map(({ path, scale, seed, glow }) => (
-        <Ghost
-          key={seed}
-          source={scene}
-          path={path}
-          scale={scale}
-          seed={seed}
-          glow={glow}
-          reducedMotion={reducedMotion}
-        />
-      ))}
+      {[...ROOM_PATHS, ...STREET_PATHS].map(
+        ({ path, height, seed, glow, heading, indoor }) => (
+          <Ghost
+            key={seed}
+            source={scene}
+            path={path}
+            height={height}
+            seed={seed}
+            heading={heading}
+            indoor={indoor}
+            glow={glow}
+            reducedMotion={reducedMotion}
+          />
+        )
+      )}
     </>
   )
 }

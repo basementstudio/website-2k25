@@ -1,57 +1,53 @@
 import { useEffect, useMemo, useState } from "react"
-import {
-  Color,
-  Mesh,
-  MeshStandardMaterial,
-  ShaderMaterial,
-  Vector3
-} from "three"
+import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
-import pumpkinFragment from "@/components/halloween/pumpkins/frag.glsl"
-import { createPumpkinGeometry } from "@/components/halloween/pumpkins/geometry"
+import { createPumpkinMaterial } from "@/components/halloween/pumpkins/material"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
-import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
   createGlobalShaderMaterial,
-  lightFlickerUniform,
-  lightningUniform,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 import { IsHalloweenSeason } from "@/utils/special-events"
 
-import pumpkinVertex from "./pumpkin-ball.vert.glsl"
-
 // The local ball and multiplayer copies share the same seasonal appearance.
 export const useBallAppearance = (opacity = 1) => {
-  const { basketball } = useAssets()
+  const { basketball, specialEvents } = useAssets()
   const model = useKTX2GLTF(basketball)
   const [halloween] = useState(IsHalloweenSeason)
+  const seasonalModel = useKTX2GLTF(
+    halloween ? specialEvents.halloween.pumpkin : basketball,
+    "/draco/"
+  )
   const appearance = useMemo(() => {
     const source = model.scene.children[0] as Mesh
     source.geometry.computeBoundingSphere()
     const radius = source.geometry.boundingSphere!.radius
     if (halloween) {
-      const geometry = createPumpkinGeometry()
-      const pumpkinScale = radius / 0.62
-      geometry
-        .translate(0, -0.47, 0)
-        .scale(pumpkinScale, pumpkinScale, pumpkinScale)
-      const material = new ShaderMaterial({
-        vertexShader: pumpkinVertex,
-        fragmentShader: pumpkinFragment,
-        uniforms: {
-          uPumpkinScale: { value: pumpkinScale },
-          uTint: { value: new Color("#cd6b25") },
-          uOpacity: { value: opacity },
-          uTime: { value: 0 },
-          fadeFactor: { value: 0 },
-          uLightFlicker: lightFlickerUniform,
-          uLightning: lightningUniform
-        },
-        transparent: opacity < 1,
-        depthWrite: opacity === 1
+      let authored: Mesh | undefined
+      seasonalModel.scene.updateMatrixWorld(true)
+      seasonalModel.scene.traverse((object) => {
+        if (object instanceof Mesh) authored = object
       })
+      if (!authored) throw new Error("The seasonal pumpkin GLB has no mesh")
+      const geometry = authored.geometry
+        .clone()
+        .applyMatrix4(authored.matrixWorld)
+      if (!geometry.hasAttribute("normal")) geometry.computeVertexNormals()
+      geometry.computeBoundingBox()
+      const bounds = geometry.boundingBox!
+      const size = bounds.getSize(new Vector3())
+      const center = bounds.getCenter(new Vector3())
+      const pumpkinScale = radius / (Math.max(size.x, size.z) * 0.5)
+      // Fit the body to the collider; the curly stem extends above it.
+      geometry
+        .translate(-center.x, -(bounds.min.y + size.y * 0.34), -center.z)
+        .scale(pumpkinScale, pumpkinScale, pumpkinScale)
+      const material = createPumpkinMaterial(
+        authored.material as MeshStandardMaterial,
+        geometry.hasAttribute("color"),
+        opacity
+      )
       return {
         geometry,
         material,
@@ -75,11 +71,7 @@ export const useBallAppearance = (opacity = 1) => {
       radius,
       rotation: [-Math.PI / 2, 0, -Math.PI / 2] as [number, number, number]
     }
-  }, [model, halloween, opacity])
-
-  useFrameCallback((_, __, time) => {
-    if (halloween) appearance.material.uniforms.uTime.value = time
-  })
+  }, [model, seasonalModel, halloween, opacity])
 
   useEffect(
     () => () => {
