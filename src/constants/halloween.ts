@@ -505,27 +505,29 @@ export interface HalloweenPumpkin {
 export const PUMPKINS: readonly HalloweenPumpkin[] = [
   {
     asset: "C03",
-    position: [4.95, 0, -11.15],
+    position: [5.31, 0, -13.86],
     height: 0.6,
-    rotation: 0.6,
-    faceCamera: "home"
+    rotation: 0.1499
   },
-  { asset: "C01", position: [4.86, 0, -10.72], height: 0.24, rotation: -0.35 },
+  {
+    asset: "C01",
+    position: [5.01, 0, -13.62],
+    height: 0.2664,
+    rotation: -0.35
+  },
   {
     asset: "C03",
-    position: [7.88, 0, -12.32],
+    position: [8.78, 0, -12.32],
     height: 0.55,
-    rotation: -0.65,
-    faceCamera: "home"
+    rotation: -0.9241
   },
   {
     asset: "C02",
-    position: [7.48, 0, -12.08],
+    position: [8.52, 0, -12.8],
     height: 0.36,
-    rotation: -0.85,
-    faceCamera: "home"
+    rotation: -0.4079
   },
-  { asset: "C01", position: [7.89, 0, -11.88], height: 0.23, rotation: 0.3 },
+  { asset: "C01", position: [8.39, 0, -12.21], height: 0.23, rotation: 0.3 },
   { asset: "C02", position: [2.7, 0.653, -6.95], height: 0.38, rotation: 2.5 },
   { asset: "C01", position: [1.99, 3.824, -9.5], height: 0.22, rotation: 1.2 },
   {

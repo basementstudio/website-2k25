@@ -24,6 +24,7 @@ import {
   registerLevaSetters,
   useDebugCameraStore
 } from "./debug-state"
+import { PumpkinDebugControls } from "./pumpkin-controls"
 import { ReactScan } from "./react-scan"
 
 const onNumberChange =
@@ -431,6 +432,7 @@ export const OnlyDebug = () => (
     <SkyDebugControls />
     <CityDebugControls />
     <PostprocessingDebugControls />
+    <PumpkinDebugControls />
     <ReactScan />
   </>
 )

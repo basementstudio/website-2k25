@@ -21,13 +21,15 @@ export const AssetPumpkin = ({
   pumpkin,
   hover,
   index,
-  reducedMotion
+  reducedMotion,
+  rotation
 }: {
   url: string
   pumpkin: HalloweenPumpkin
   hover: Float32Array
   index: number
   reducedMotion: boolean
+  rotation?: [number, number, number]
 }) => {
   const { scene } = useKTX2GLTF(url, "/draco/")
   const { fadeFactor } = useFadeAnimation()
@@ -104,7 +106,7 @@ export const AssetPumpkin = ({
         pumpkin.position[2]
       ]}
       scale={pumpkin.height}
-      rotation={[0, pumpkin.rotation, 0]}
+      rotation={rotation ?? [0, pumpkin.rotation, 0]}
     >
       <primitive object={object} />
     </group>

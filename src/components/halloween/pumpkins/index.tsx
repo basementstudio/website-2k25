@@ -8,6 +8,7 @@ import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { useHalloweenPointer } from "../use-pointer"
 import { AssetPumpkin } from "./asset"
+import { resolvePumpkinTransform, usePumpkinDebugStore } from "./debug-store"
 
 export const HalloweenPumpkins = ({
   reducedMotion = false
@@ -17,25 +18,27 @@ export const HalloweenPumpkins = ({
   const { scenes, specialEvents } = useAssets()
   const { fadeFactor } = useFadeAnimation()
   const pointer = useHalloweenPointer()
+  const debugEnabled = usePumpkinDebugStore((state) => state.enabled)
+  const edits = usePumpkinDebugStore((state) => state.edits)
   const pumpkins = useMemo(
     () =>
-      PUMPKINS.map((pumpkin) => {
-        const camera = pumpkin.faceCamera
-          ? scenes.find(
-              (scene) => scene.name.toLowerCase() === pumpkin.faceCamera
-            )?.cameraConfig.position
-          : undefined
+      PUMPKINS.map((pumpkin, index) => {
+        const camera = scenes.find(
+          (scene) => scene.name.toLowerCase() === "home"
+        )?.cameraConfig.position
+        const transform = resolvePumpkinTransform(
+          index,
+          debugEnabled ? edits[index] : undefined,
+          camera
+        )
         return {
           ...pumpkin,
-          rotation: camera
-            ? Math.atan2(
-                camera[0] - pumpkin.position[0],
-                camera[2] - pumpkin.position[2]
-              )
-            : pumpkin.rotation
+          position: transform.position,
+          height: transform.height,
+          rotationEuler: transform.rotation
         }
       }),
-    [scenes]
+    [scenes, debugEnabled, edits]
   )
   const scratch = useMemo(
     () => ({
@@ -93,6 +96,7 @@ export const HalloweenPumpkins = ({
           hover={scratch.hover}
           index={index}
           reducedMotion={reducedMotion}
+          rotation={pumpkin.rotationEuler}
         />
       ))}
     </Suspense>
