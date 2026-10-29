@@ -17,6 +17,7 @@ import { lightFlickerUniform } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
+import { useGhostAttention } from "./use-ghost-attention"
 
 enum PetSkinnedName {
   PURE = "Pure-v1",
@@ -164,6 +165,7 @@ function PetsInner({
   const { actions } = useAnimations(animations, pureSkinned)
   const { actions: bostonActions } = useAnimations(animations, bostonSkinned)
   const currentScene = useCurrentScene()
+  useGhostAttention(pureSkinned, currentScene === "home")
 
   const setCursor = useCursor()
 

@@ -12,7 +12,8 @@ export const outdoorEmissiveUniform = { value: 1 }
 export const cityNightUniform = { value: 0 }
 export const cityActivityUniform = { value: 1 }
 // Shared by every global-shader material. lightFlicker scales the baked
-// lightmaps (1 = normal, 0 = power cut); lightning adds a cold flash on top.
+// lightmaps and indoor luminaires (1 = normal, 0 = power cut);
+// lightning adds a cold flash on top.
 // Seasonal code (src/components/halloween/storm.tsx) drives them.
 export const lightFlickerUniform = { value: 1 }
 export const lightningUniform = { value: 0 }

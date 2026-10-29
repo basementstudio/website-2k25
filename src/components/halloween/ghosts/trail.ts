@@ -61,7 +61,7 @@ export const createTrailMaterial = (glow: number) =>
       uLife: { value: LIFE },
       uScale: { value: 1 },
       uResolution: { value: new Vector2(1, 1) },
-      uColor: { value: new Color("#8793a7").multiplyScalar(glow * 0.65) },
+      uColor: { value: new Color("#9c7ec7").multiplyScalar(glow * 0.5) },
       uOpacity: { value: 1 },
       uLightFlicker: lightFlickerUniform,
       uLightning: lightningUniform

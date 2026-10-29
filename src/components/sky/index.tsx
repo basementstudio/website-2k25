@@ -19,6 +19,7 @@ import {
 
 import { useAssets } from "@/components/assets-provider"
 import { useFadeAnimation } from "@/components/inspectables/use-fade-animation"
+import { RearBuildings } from "@/components/rear-buildings"
 import { useWeather } from "@/components/weather/weather-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
@@ -50,6 +51,7 @@ import {
   smoothstep,
   WEATHER_SMOOTH_SECONDS
 } from "./config"
+import { ExteriorGround } from "./ground"
 import { SKY_TIME_PRESETS } from "./presets"
 import { skyDebug } from "./sky-settings"
 import { skyState } from "./sky-state"
@@ -422,9 +424,13 @@ export const Sky = () => {
   }, 0)
 
   return (
-    <mesh position={SKY_SPHERE_CENTER} renderOrder={1} frustumCulled={false}>
-      <sphereGeometry args={[SKY_SPHERE_RADIUS, 32, 16]} />
-      <primitive object={skyMaterial} attach="material" />
-    </mesh>
+    <>
+      <ExteriorGround skyMaterial={skyMaterial} />
+      <RearBuildings skyMaterial={skyMaterial} />
+      <mesh position={SKY_SPHERE_CENTER} renderOrder={1} frustumCulled={false}>
+        <sphereGeometry args={[SKY_SPHERE_RADIUS, 32, 16]} />
+        <primitive object={skyMaterial} attach="material" />
+      </mesh>
+    </>
   )
 }

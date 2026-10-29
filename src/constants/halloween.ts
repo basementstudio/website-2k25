@@ -99,45 +99,39 @@ export const SPIDER_FLEE_SPEED = 1.6
 // before a spider on it bolts.
 export const SPIDER_FLEE_RADIUS = 0.55
 
-// Floating ghosts: each drifts along a Lissajous loop around `center`,
-// `radius` being its [x, z] reach. `scale` is the ghost's height.
+// One indoor ghost takes occasional passages through Home and its corridor.
+// Uniform scale preserves the authored cloth proportions at 1.75 m tall.
 export const GHOSTS = [
-  // One in Home and one upstairs; keep each room's silhouette uncluttered.
+  // Keep a single indoor ghost in Home.
   {
-    center: [6.2, 1.5, -11],
-    radius: [1.8, 1.4],
-    scale: 0.6,
-    speed: 0.22,
+    height: 1.75,
     seed: 0.13
-  },
-  // Upstairs, roaming between People and the Blog corner.
-  {
-    center: [10.4, 4.95, -22],
-    radius: [1.3, 3.6],
-    scale: 0.55,
-    speed: 0.12,
-    seed: 0.91
   }
 ] as const satisfies readonly {
-  center: [number, number, number]
-  radius: [number, number]
-  scale: number
-  speed: number
+  height: number
   seed: number
 }[]
 
 // Ghosts drifting down the street out front (seen through the Services
 // windows): each crosses x from → to at `speed` units/s, then waits `wait`
-// seconds off-screen. Oversized and extra bright so they read through the
-// glass from across the room. The street runs along x at z 4–9; the sidewalk sits
+// seconds off-screen. Its subtle glow reads through the glass from across
+// the room. The street runs along x at z 4–9; the sidewalk sits
 // between it and the building front (z ≈ -5.7).
 export const STREET_GHOSTS = [
-  { x: [-25, 35], y: 1.2, z: 1.5, scale: 2.2, speed: 2.2, wait: 6, seed: 0.27 }
+  {
+    x: [-25, 35],
+    y: 0.28,
+    z: 1.5,
+    height: 1.75,
+    speed: 1.1,
+    wait: 9,
+    seed: 0.27
+  }
 ] as const satisfies readonly {
   x: [number, number]
   y: number
   z: number
-  scale: number
+  height: number
   speed: number
   wait: number
   seed: number
@@ -453,18 +447,6 @@ export const CANDLE_CLUSTERS = [
     rotation: 0
   },
   {
-    name: "stairs-middle",
-    position: [2.42, 1.993, -12.4],
-    scale: 0.9,
-    rotation: 0
-  },
-  {
-    name: "stairs-high",
-    position: [2.42, 2.763, -13.42],
-    scale: 0.8,
-    rotation: 0
-  },
-  {
     name: "floor-stairs",
     position: [3.85, 0, -12.1],
     scale: 1.2,
@@ -510,82 +492,49 @@ export const CANDLE_CLUSTERS = [
 ] as const
 
 export interface HalloweenPumpkin {
+  asset: "C01" | "C02" | "C03"
   position: [number, number, number]
-  // Body height; the stem extends a little above it.
+  // Total authored model height, including the stem, in world metres.
   height: number
   rotation: number
-  variety: "round" | "squat" | "tall"
-  face: "classic" | "angry" | "crooked" | "whole"
-  // Fixed orientation toward a section's resting camera, not a billboard.
   faceCamera?: "home"
 }
 
+// C03 is always largest, C02 medium, C01 smallest. The Home floor groups
+// leave the corridor clear and overlap in projection without hiding faces.
 export const PUMPKINS: readonly HalloweenPumpkin[] = [
   {
-    position: [4.45, 0, -11.65],
-    height: 0.48,
-    rotation: 0.6,
-    variety: "round",
-    face: "classic",
-    faceCamera: "home"
+    asset: "C03",
+    position: [5.31, 0, -13.86],
+    height: 0.6,
+    rotation: 0.1499
   },
   {
-    position: [4.2, 0, -12.55],
-    height: 0.3,
-    rotation: -0.35,
-    variety: "squat",
-    face: "whole"
-  },
-  // Three pumpkins in front of the TVs, clear of the wall and candle group.
-  {
-    position: [7.75, 0, -12.65],
-    height: 0.42,
-    rotation: -0.65,
-    variety: "round",
-    face: "classic",
-    faceCamera: "home"
+    asset: "C01",
+    position: [5.01, 0, -13.62],
+    height: 0.2664,
+    rotation: -0.35
   },
   {
-    position: [7.22, 0, -12.58],
-    height: 0.24,
-    rotation: -0.85,
-    variety: "squat",
-    face: "angry",
-    faceCamera: "home"
+    asset: "C03",
+    position: [8.78, 0, -12.32],
+    height: 0.55,
+    rotation: -0.9241
   },
   {
-    position: [7.87, 0, -12.16],
-    height: 0.25,
-    rotation: 0.3,
-    variety: "tall",
-    face: "whole"
+    asset: "C02",
+    position: [8.52, 0, -12.8],
+    height: 0.36,
+    rotation: -0.4079
   },
+  { asset: "C01", position: [8.39, 0, -12.21], height: 0.23, rotation: 0.3 },
+  { asset: "C02", position: [2.7, 0.653, -6.95], height: 0.38, rotation: 2.5 },
+  { asset: "C01", position: [1.99, 3.824, -9.5], height: 0.22, rotation: 1.2 },
   {
-    position: [2.7, 0.653, -6.95],
-    height: 0.38,
-    rotation: 2.5,
-    variety: "round",
-    face: "angry"
-  },
-  {
-    position: [1.99, 3.824, -9.5],
-    height: 0.23,
-    rotation: 1.2,
-    variety: "tall",
-    face: "whole"
-  },
-  {
+    asset: "C03",
     position: [9.65, 3.726, -24.05],
-    height: 0.4,
-    rotation: -0.5,
-    variety: "squat",
-    face: "angry"
+    height: 0.57,
+    rotation: -0.5
   },
-  {
-    position: [4.15, 4.495, -24.35],
-    height: 0.24,
-    rotation: 1.1,
-    variety: "round",
-    face: "classic"
-  }
+  { asset: "C01", position: [4.15, 4.495, -24.35], height: 0.24, rotation: 1.1 }
 ]

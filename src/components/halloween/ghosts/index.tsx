@@ -1,19 +1,21 @@
-import { useMemo, useRef } from "react"
+import { useGLTF } from "@react-three/drei"
+import { useEffect, useMemo, useRef } from "react"
 import {
-  BackSide,
   BufferGeometry,
   Color,
-  FrontSide,
+  DoubleSide,
   Group,
-  LatheGeometry,
   MathUtils,
+  type Object3D,
+  Plane,
   Points,
   ShaderMaterial,
-  SplineCurve,
+  type Texture,
   Vector2,
   Vector3
 } from "three"
 
+import { useAssets } from "@/components/assets-provider"
 import { useFadeAnimation } from "@/components/inspectables/use-fade-animation"
 import { GHOSTS, STREET_GHOSTS } from "@/constants/halloween"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
@@ -22,47 +24,13 @@ import {
   lightningUniform
 } from "@/shaders/material-global-shader"
 
+import { useHalloweenPointer } from "../use-pointer"
 import frag from "./frag.glsl"
+import { createRoomPath, type GhostPath } from "./paths"
+import { indoorGhosts } from "./presence"
+import { createGhostRig } from "./rig"
 import { createTrailGeometry, createTrailMaterial, emitWisps } from "./trail"
 import vert from "./vert.glsl"
-
-// A sheet draped over a rounded head: shoulders fall into a loose, open
-// skirt, with enough fabric at the hem for the wind to catch.
-const PROFILE = [
-  [0, 1],
-  [0.085, 0.985],
-  [0.15, 0.94],
-  [0.175, 0.85],
-  [0.235, 0.73],
-  [0.26, 0.61],
-  [0.28, 0.43],
-  [0.32, 0.22],
-  [0.38, 0]
-].map(([r, y]) => new Vector2(r, y))
-// Smoothed and densified: the folds and torn hem are shaped in the vertex
-// shader, so the robe needs rows to bend.
-const SMOOTH_PROFILE = new SplineCurve(PROFILE).getPoints(48)
-
-// A ghost's route: writes its position at time t into `out` and returns how
-// present it is (0 = invisible, 1 = fully there).
-type GhostPath = (t: number, out: Vector3) => number
-
-// Indoors: a Lissajous loop, fading in and out of existence every so often.
-const roomPath =
-  (ghost: (typeof GHOSTS)[number]): GhostPath =>
-  (t, out) => {
-    const a = t * ghost.speed + ghost.seed * 10
-    out.set(
-      ghost.center[0] + Math.sin(a) * ghost.radius[0],
-      ghost.center[1] + Math.sin(a * 2.3) * 0.12,
-      ghost.center[2] + Math.sin(a * 1.4 + 1) * ghost.radius[1]
-    )
-    return MathUtils.smoothstep(
-      Math.sin(t * 0.18 + ghost.seed * 7),
-      -0.85,
-      -0.35
-    )
-  }
 
 // Outside: drifts down the street from one end to the other, then waits
 // off-screen before the next pass.
@@ -76,8 +44,8 @@ const streetPath =
     const progress = Math.min(local / travel, 1)
     out.set(
       MathUtils.lerp(from, to, progress),
-      ghost.y * 0.5 + Math.sin(t * 1.7 + ghost.seed * 9) * 0.15,
-      ghost.z + Math.sin(t * 0.6 + ghost.seed * 4) * 0.4
+      ghost.y * 0.5 + Math.sin(t * 0.6 + ghost.seed * 9) * 0.06,
+      ghost.z + Math.sin(t * 0.22 + ghost.seed * 4) * 0.15
     )
     // Fade in/out over the first and last tenth of the pass.
     return local > travel
@@ -91,127 +59,202 @@ const streetPath =
 const position = new Vector3()
 const next = new Vector3()
 const velocity = new Vector3()
-const cameraRight = new Vector3()
 const middle = new Vector3()
 const closest = new Vector3()
-const away = new Vector3()
-
-// Startled by the cursor: how far from the ghost's middle (in heights) the
-// cursor ray has to pass, how hard it shoves the ghost away, and the spring
-// pulling it back onto its path.
-const DODGE_RADIUS = 0.7
-const DODGE_PUSH = 60
-const DODGE_SPRING = 7
-const DODGE_DAMPING = 3.5
-const DODGE_MAX = 1.2
+const cameraDirection = new Vector3()
+const pointerPlane = new Plane()
 
 interface GhostProps {
+  source: Object3D
   path: GhostPath
-  scale: number
+  height: number
   seed: number
+  heading: number
+  indoor: boolean
   glow?: number
+  reducedMotion: boolean
 }
 
-const Ghost = ({ path, scale, seed, glow = 1 }: GhostProps) => {
+const Ghost = ({
+  source,
+  path,
+  height,
+  seed,
+  heading,
+  indoor,
+  glow = 1,
+  reducedMotion
+}: GhostProps) => {
   const ref = useRef<Group>(null)
+  const pointer = useHalloweenPointer()
+  // Size the wisps to the ghost, which is scaled uniformly in metres.
+  const wispScale = height * 0.375
+  const presenceState = useMemo(
+    () => ({ position: new Vector3(), opacity: 0 }),
+    []
+  )
+  useEffect(() => {
+    if (!indoor) return
+    indoorGhosts.add(presenceState)
+    return () => {
+      indoorGhosts.delete(presenceState)
+    }
+  }, [indoor, presenceState])
   const { fadeFactor } = useFadeAnimation()
-  const geometry = useMemo(() => new LatheGeometry(SMOOTH_PROFILE, 64), [])
-  // The far side of the robe is drawn first, then the near side over it —
-  // with a single double-sided pass, half the face ends up behind the back.
-  const [uniforms, inside, outside] = useMemo(() => {
+  // Render both sides without writing depth so overlapping folds blend
+  // as translucent fabric instead of cutting hard patches into the sheet.
+  const [uniforms, material] = useMemo(() => {
     const uniforms = {
       uTime: { value: 0 },
       uSeed: { value: seed },
-      uColor: { value: new Color("#cbd0d4").multiplyScalar(glow) },
+      uColor: { value: new Color("#a17ad1").multiplyScalar(glow * 1.2) },
       uOpacity: { value: 0 },
+      uPointer: { value: new Vector2(0, 0.45) },
+      uHover: { value: 0 },
+      uDrag: { value: new Vector2() },
+      uTouchMotion: { value: reducedMotion ? 0 : 1 },
+      uClothMap: { value: null as Texture | null },
       uLightFlicker: lightFlickerUniform,
       uLightning: lightningUniform
     }
-    const [inside, outside] = [BackSide, FrontSide].map(
-      (side) =>
-        new ShaderMaterial({
-          vertexShader: vert,
-          fragmentShader: frag,
-          uniforms,
-          transparent: true,
-          depthWrite: false,
-          side
-        })
-    )
-    return [uniforms, inside, outside] as const
-  }, [seed, glow])
+    const material = new ShaderMaterial({
+      vertexShader: vert,
+      fragmentShader: frag,
+      uniforms,
+      transparent: true,
+      depthWrite: false,
+      side: DoubleSide
+    })
+    return [uniforms, material] as const
+  }, [seed, glow, reducedMotion])
   const trailRef = useRef<Points<BufferGeometry, ShaderMaterial>>(null)
+  const rig = useMemo(
+    () => createGhostRig(source, [material]),
+    [source, material]
+  )
+  const springs = useRef<ReturnType<typeof rig.start> | null>(null)
+  useEffect(() => {
+    const simulation = rig.start()
+    springs.current = simulation
+    return () => {
+      simulation.dispose()
+      springs.current = null
+      rig.mesh.geometry.dispose()
+      rig.mesh.skeleton.dispose()
+      rig.materials.forEach((material) => material.dispose())
+    }
+  }, [rig])
   const trailGeometry = useMemo(createTrailGeometry, [])
   const trailMaterial = useMemo(() => createTrailMaterial(glow), [glow])
-  const dodge = useMemo(
-    () => ({ offset: new Vector3(), velocity: new Vector3() }),
-    []
-  )
+  const hovering = useRef(false)
+  const dragTarget = useMemo(() => new Vector2(), [])
 
   useFrameCallback((state, delta, time) => {
     const group = ref.current
     if (!group) return
     const { camera } = state
 
-    // Paths cross other sections' cameras (the Home loops pass right
-    // through the Services camera): vanish before filling the screen.
-    const presence =
-      path(time, position) *
-      MathUtils.smoothstep(
-        position.distanceTo(camera.position),
-        scale * 1.5,
-        scale * 3.5
-      )
+    // Vanish near the camera so a nearby ghost cannot fill the screen.
+    const routePresence = path(time, position)
     path(time + 0.1, next)
-
-    // The cursor passing close shoves it off its path; a spring brings it
-    // back once the cursor's gone.
-    state.raycaster.setFromCamera(state.pointer, camera)
-    middle.copy(position).add(dodge.offset)
-    middle.y += scale * 0.72
-    state.raycaster.ray.closestPointToPoint(middle, closest)
-    const reach = scale * DODGE_RADIUS
-    const near = 1 - Math.min(closest.distanceTo(middle) / reach, 1)
-    if (near > 0 && presence > 0.2) {
-      away.subVectors(middle, closest)
-      if (away.lengthSq() < 1e-6)
-        away.setFromMatrixColumn(camera.matrixWorld, 0)
-      dodge.velocity.addScaledVector(
-        away.normalize(),
-        near * DODGE_PUSH * scale * delta
+    group.position.copy(position)
+    const presence =
+      routePresence *
+      MathUtils.smoothstep(
+        group.position.distanceTo(camera.position),
+        height * 0.55,
+        height * 1.35
       )
-    }
-    dodge.velocity
-      .addScaledVector(dodge.offset, -DODGE_SPRING * delta)
-      .multiplyScalar(Math.exp(-DODGE_DAMPING * delta))
-    dodge.offset
-      .addScaledVector(dodge.velocity, delta)
-      .clampLength(0, scale * DODGE_MAX)
-    group.position.copy(position).add(dodge.offset)
-    // Always turned to stare at whoever's watching...
-    const heading = Math.atan2(
-      camera.position.x - position.x,
-      camera.position.z - position.z
-    )
-    const turn = heading - group.rotation.y
-    group.rotation.y += Math.atan2(Math.sin(turn), Math.cos(turn)) * 0.08
-    // ...and leaning into the drift, as seen from the camera.
-    velocity.subVectors(next, position).divideScalar(0.1).add(dodge.velocity)
-    cameraRight.setFromMatrixColumn(camera.matrixWorld, 0)
-    const lean = MathUtils.clamp(-velocity.dot(cameraRight) * 0.25, -0.3, 0.3)
+    // Follow the passage through the room, independently of the viewer.
+    velocity.subVectors(next, position).divideScalar(0.1)
+    const speed = Math.hypot(velocity.x, velocity.z)
+    const travelHeading =
+      speed > 0.01 && speed < 4
+        ? Math.atan2(velocity.x, velocity.z)
+        : group.rotation.y
+    const turn =
+      travelHeading +
+      (reducedMotion ? 0 : Math.sin(time * 0.18 + seed * 8) * 0.025) -
+      group.rotation.y
+    group.rotation.y +=
+      Math.atan2(Math.sin(turn), Math.cos(turn)) * (1 - Math.exp(-1.5 * delta))
+    // Lean in model space, so moving the camera cannot tug on the rig.
+    const sideSpeed =
+      velocity.x * Math.cos(group.rotation.y) -
+      velocity.z * Math.sin(group.rotation.y)
+    const lean = MathUtils.clamp(-sideSpeed * 0.06, -0.04, 0.04)
     group.rotation.z = MathUtils.lerp(
       group.rotation.z,
-      lean + Math.sin(time * 0.9 + seed * 5) * 0.06,
-      0.05
+      lean + (reducedMotion ? 0 : Math.sin(time * 0.45 + seed * 5) * 0.012),
+      1 - Math.exp(-3 * delta)
     )
+    group.updateMatrixWorld(true)
+    springs.current?.update(delta)
 
-    const opacity = (1 - fadeFactor.current.get() * 0.8) * 0.7
+    // Project onto a camera-facing plane through the cloth, then work in
+    // garment coordinates. Hover affects only the shader, never the route.
+    let hover = 0
+    dragTarget.set(0, 0)
+    if (pointer.active && presence > 0.2) {
+      state.raycaster.setFromCamera(pointer.position, camera)
+      group.localToWorld(middle.set(0, 0.5, 0))
+      camera.getWorldDirection(cameraDirection)
+      pointerPlane.setFromNormalAndCoplanarPoint(cameraDirection, middle)
+      if (state.raycaster.ray.intersectPlane(pointerPlane, closest)) {
+        group.worldToLocal(closest)
+        const radius = rig.radiusAt(closest.y)
+        hover =
+          MathUtils.smoothstep(closest.y, -0.14, 0) *
+          (1 - MathUtils.smoothstep(closest.y, 0.96, 1.04)) *
+          (1 - MathUtils.smoothstep(Math.abs(closest.x), radius, radius + 0.06))
+        if (hover > 0.01) {
+          if (!hovering.current) {
+            uniforms.uPointer.value.set(closest.x, closest.y)
+            uniforms.uDrag.value.set(0, 0)
+          } else {
+            // The cloth caught under the hand lags behind the stroke.
+            // A bounded tangential pull complements the local indentation.
+            dragTarget
+              .set(
+                closest.x - uniforms.uPointer.value.x,
+                closest.y - uniforms.uPointer.value.y
+              )
+              .multiplyScalar(1.8)
+              .clampLength(0, 0.1)
+            const follow = 1 - Math.exp(-16 * delta)
+            uniforms.uPointer.value.x = MathUtils.lerp(
+              uniforms.uPointer.value.x,
+              closest.x,
+              follow
+            )
+            uniforms.uPointer.value.y = MathUtils.lerp(
+              uniforms.uPointer.value.y,
+              closest.y,
+              follow
+            )
+          }
+        }
+      }
+    }
+    hovering.current = hover > 0.01
+    uniforms.uHover.value = MathUtils.damp(
+      uniforms.uHover.value,
+      hover,
+      hover > uniforms.uHover.value ? 8 : 3.5,
+      delta
+    )
+    uniforms.uDrag.value.lerp(dragTarget, 1 - Math.exp(-6 * delta))
+
+    const opacity = (1 - fadeFactor.current.get() * 0.8) * 0.95
     uniforms.uTime.value = time
     uniforms.uOpacity.value = presence * opacity
+    group.getWorldPosition(presenceState.position)
+    presenceState.position.y += height * 0.55
+    presenceState.opacity = uniforms.uOpacity.value
 
     const trail = trailRef.current
     if (trail) {
-      emitWisps(trail, group.position, scale, presence, delta, time)
+      emitWisps(trail, group.position, wispScale, presence, delta, time)
       trail.material.uniforms.uOpacity.value = opacity
       state.gl.getDrawingBufferSize(trail.material.uniforms.uResolution.value)
     }
@@ -228,18 +271,8 @@ const Ghost = ({ path, scale, seed, glow = 1 }: GhostProps) => {
         raycast={() => null}
         frustumCulled={false}
       />
-      <group ref={ref} scale={[scale, scale * 1.3, scale * 0.85]}>
-        {[inside, outside].map((material, i) => (
-          <mesh
-            key={i}
-            geometry={geometry}
-            material={material}
-            renderOrder={i - 1}
-            raycast={() => null}
-            // The hem ripple pushes vertices outside the geometry's bounds.
-            frustumCulled={false}
-          />
-        ))}
+      <group ref={ref} scale={height} rotation={[0, heading, 0]}>
+        <primitive object={rig.object} />
       </group>
     </>
   )
@@ -247,20 +280,43 @@ const Ghost = ({ path, scale, seed, glow = 1 }: GhostProps) => {
 
 const ROOM_PATHS = GHOSTS.map((ghost) => ({
   ...ghost,
-  path: roomPath(ghost),
+  path: createRoomPath(ghost.seed),
+  heading: -0.25,
+  indoor: true,
   glow: 1
 }))
 const STREET_PATHS = STREET_GHOSTS.map((ghost) => ({
   ...ghost,
-  scale: ghost.scale * 0.7,
   path: streetPath(ghost),
+  heading: Math.PI + 0.2,
+  indoor: false,
   glow: 1.15
 }))
 
-export const HalloweenGhosts = () => (
-  <>
-    {[...ROOM_PATHS, ...STREET_PATHS].map(({ path, scale, seed, glow }) => (
-      <Ghost key={seed} path={path} scale={scale} seed={seed} glow={glow} />
-    ))}
-  </>
-)
+export const HalloweenGhosts = ({
+  reducedMotion
+}: {
+  reducedMotion: boolean
+}) => {
+  const { specialEvents } = useAssets()
+  const { scene } = useGLTF(specialEvents.halloween.ghost, false)
+  return (
+    <>
+      {[...ROOM_PATHS, ...STREET_PATHS].map(
+        ({ path, height, seed, glow, heading, indoor }) => (
+          <Ghost
+            key={seed}
+            source={scene}
+            path={path}
+            height={height}
+            seed={seed}
+            heading={heading}
+            indoor={indoor}
+            glow={glow}
+            reducedMotion={reducedMotion}
+          />
+        )
+      )}
+    </>
+  )
+}

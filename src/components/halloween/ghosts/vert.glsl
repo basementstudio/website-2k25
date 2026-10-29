@@ -1,46 +1,48 @@
 uniform float uTime;
 uniform float uSeed;
+uniform vec2 uPointer;
+uniform float uHover;
+uniform vec2 uDrag;
+uniform float uTouchMotion;
+
+#include <common>
+#include <skinning_pars_vertex>
 
 varying vec3 vLocal;
+varying vec2 vClothUv;
 varying vec3 vWorldPosition;
 varying vec3 vViewDir;
+varying vec3 vViewNormal;
+varying float vContact;
 
 void main() {
   vec3 p = position;
-  // 0 at the top of the head, 1 at the hem: how loose the robe is there.
-  float loose = pow(clamp(1.0 - p.y, 0.0, 1.0), 1.5);
-  float angle = atan(p.z, p.x);
-  float t = uTime + uSeed * 10.0;
+  // Preserve the folds, eye openings and hem authored in the GLB.
+  // A hand presses into an oval patch of fabric and drags it along the
+  // stroke. The soft ridge around it is displaced cloth, not a travelling
+  // wave. The head stays anchored and the rear layer remains undisturbed.
+  vec2 contact = position.xy - uPointer;
+  vec2 footprint = contact / vec2(0.2, 0.24);
+  float cloth = 1.0 - smoothstep(0.65, 0.82, position.y);
+  float front = smoothstep(-0.02, 0.12, position.z);
+  float strength = cloth * front * uHover;
+  float pressure = exp(-dot(footprint, footprint) * 1.6) * strength;
+  float crease = exp(-pow((length(contact) - 0.23) / 0.085, 2.0)) * strength;
+  p.z -= (pressure * 0.095 - crease * 0.012) * uTouchMotion;
+  p.xy += uDrag * pressure * uTouchMotion;
+  vContact = pressure;
 
-  // Long folds hang from the head, opening and closing as gusts pass down
-  // the sheet. Keep their phase coherent along the length of the fabric.
-  float foldAngle = angle + sin(p.y * 3.0 - t * 1.2) * 0.12 * loose;
-  float folds = sin(foldAngle * 9.0 + p.y * 1.6 - t * 0.65);
-  float fineFold = sin(foldAngle * 15.0 - p.y * 2.5 + t * 0.9);
-  float radial = (folds * 0.045 + fineFold * 0.012) * (1.0 - smoothstep(0.55, 0.96, p.y));
-  p.xz += vec2(cos(angle), sin(angle)) * radial;
-
-  // The head leads; the lower fabric follows with a delayed, broader wiggle.
-  p.x += sin(t * 1.8 - p.y * 4.8) * (0.012 + loose * 0.15);
-  p.x += sin(t * 3.1 - p.y * 8.0 + angle) * 0.025 * loose;
-  p.z += sin(t * 1.5 - p.y * 5.5 + 0.8) * 0.085 * loose;
-
-  // Rippling hem, torn into points that trail and flutter.
-  float hem = 1.0 - smoothstep(0.0, 0.32, p.y);
-  float tatters = pow(
-    0.5 + 0.5 * cos(angle * 7.0 + sin(t * 1.3 + angle) * 0.35),
-    2.0
-  );
-  p.y -= tatters * hem * 0.065;
-  p.xz *= 1.0 + sin(angle * 4.0 - t * 2.2 + p.y * 5.0) * 0.13 * loose;
-  p.y += sin(angle * 5.0 - t * 3.2) * 0.065 * loose;
-  // The tail lags behind the sway of the head.
-  p.z -= loose * 0.1;
-
-  vec4 world = modelMatrix * vec4(p, 1.0);
+  vec3 transformed = p;
+  vec3 objectNormal = normal;
+  #include <skinbase_vertex>
+  #include <skinnormal_vertex>
+  #include <skinning_vertex>
+  vec4 world = modelMatrix * vec4(transformed, 1.0);
   // Features and weave stay attached to the fabric as it bends.
   vLocal = position;
+  vClothUv = uv;
   vWorldPosition = world.xyz;
   vViewDir = normalize(cameraPosition - world.xyz);
+  vViewNormal = normalize(normalMatrix * objectNormal);
   gl_Position = projectionMatrix * viewMatrix * world;
 }

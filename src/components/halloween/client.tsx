@@ -4,8 +4,8 @@ import { LIGHTMAP_TINT } from "@/constants/halloween"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { lightmapTintUniform } from "@/shaders/material-global-shader"
 
-import { HalloweenBats } from "./bats"
 import { HalloweenCandles } from "./candles"
+import { HalloweenCat } from "./cat"
 import { HalloweenFog } from "./fog"
 import { HalloweenGhosts } from "./ghosts"
 import { HalloweenPortraits } from "./portraits"
@@ -35,11 +35,11 @@ export const ClientHalloween = () => {
     <>
       <HalloweenSpiders />
       <HalloweenWebs />
-      <HalloweenCandles />
+      <HalloweenCandles reducedMotion={reducedMotion} />
+      <HalloweenCat reducedMotion={reducedMotion} />
       <HalloweenPumpkins reducedMotion={reducedMotion} />
       <HalloweenPortraits reducedMotion={reducedMotion} />
-      <HalloweenGhosts />
-      {!reducedMotion && <HalloweenBats />}
+      <HalloweenGhosts reducedMotion={reducedMotion} />
       {!reducedMotion && <HalloweenStorm />}
       {/* Raymarched per pixel in the post pass — desktop only, like Sparkles. */}
       {!isMobile && <HalloweenFog />}
