@@ -1,6 +1,5 @@
 import type { RapierRigidBody } from "@react-three/rapier"
 import * as Sentry from "@sentry/nextjs"
-import type { RealtimeChannel } from "@supabase/supabase-js"
 import throttle from "lodash.throttle"
 import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Group, Quaternion, Vector3 } from "three"
@@ -10,8 +9,11 @@ import {
   REALTIME_ENABLED,
   REALTIME_ENV
 } from "@/components/realtime/realtime-store"
+import {
+  createRealtimeClient,
+  type RealtimeChannelLike
+} from "@/components/realtime/transport"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
-import { createClient } from "@/service/supabase/client"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import { useBallAppearance } from "./use-ball-appearance"
@@ -78,7 +80,7 @@ const GhostBallsImpl = ({ ballRef }: GhostBallsProps) => {
     material: ghostMaterial,
     rotation
   } = useBallAppearance(GHOST_OPACITY)
-  const supabase = useMemo(() => createClient(), [])
+  const supabase = useMemo(() => createRealtimeClient(), [])
 
   const subscribedRef = useRef(false)
   const peerCountRef = useRef(1)
@@ -124,7 +126,7 @@ const GhostBallsImpl = ({ ballRef }: GhostBallsProps) => {
       target.lastSeen = now
     }
 
-    let channel: RealtimeChannel
+    let channel: RealtimeChannelLike
     try {
       channel = supabase.channel(`${REALTIME_ENV}:basketball`, {
         config: {

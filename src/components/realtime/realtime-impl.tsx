@@ -1,24 +1,43 @@
 "use client"
 
-import type { RealtimeChannel } from "@supabase/supabase-js"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useRef } from "react"
 
 import { useDeviceDetect } from "@/hooks/use-device-detect"
-import { createClient } from "@/service/supabase/client"
 
 import { censor } from "./censor"
 import {
   getBrowserId,
   getClientId,
   REALTIME_ENV,
+  type RemoteCursor,
   useRealtimeStore
 } from "./realtime-store"
+import { createRealtimeClient, type RealtimeChannelLike } from "./transport"
 
 const CURSOR_BROADCAST_MS = 250
 const BUSY_ROOM_PEERS = 6
 const CURSOR_BROADCAST_BUSY_MS = 500
 const MIN_SEND_DIST_PX = 2
+
+// Payloads come straight from other visitors' browsers. Rendering one with a
+// missing id or a non-string name throws, and the cursor layer has no error
+// boundary, so an unchecked payload takes down the page for everyone in the room.
+const parseCursor = (payload: unknown): RemoteCursor | null => {
+  if (!payload || typeof payload !== "object") return null
+  const { id, xn, yd, country, msg, name } = payload as Record<string, unknown>
+  if (typeof id !== "string" || !id || id.length > 64) return null
+  if (typeof xn !== "number" || !Number.isFinite(xn)) return null
+  if (typeof yd !== "number" || !Number.isFinite(yd)) return null
+  return {
+    id,
+    xn,
+    yd,
+    country: typeof country === "string" ? country.slice(0, 2) : null,
+    msg: typeof msg === "string" ? msg.slice(0, 120) : "",
+    name: typeof name === "string" ? name.slice(0, 64) : ""
+  }
+}
 
 // Grace period before a hidden tab leaves presence: every leave/join is
 // broadcast to all subscribers, so quick tab switches shouldn't churn the
@@ -31,8 +50,8 @@ const HIDDEN_UNTRACK_MS = 10_000
 export const RealtimeImpl = () => {
   const pathname = usePathname()
   const { isMobile } = useDeviceDetect()
-  const supabase = useMemo(() => createClient(), [])
-  const cursorChannelRef = useRef<RealtimeChannel | null>(null)
+  const supabase = useMemo(() => createRealtimeClient(), [])
+  const cursorChannelRef = useRef<RealtimeChannelLike | null>(null)
   const cursorSubscribedRef = useRef(false)
   const lastPosRef = useRef<{ xn: number; yd: number } | null>(null)
   const sendCursorRef = useRef<((xn: number, yd: number) => void) | null>(null)
@@ -84,9 +103,11 @@ export const RealtimeImpl = () => {
           .setOnlineCount(Object.keys(channel.presenceState()).length)
       })
       .subscribe(async (status) => {
-        if (status === "SUBSCRIBED" && !document.hidden) {
-          await track()
-        }
+        if (status !== "SUBSCRIBED") return
+        // A reconnect starts untracked; while hidden, leave tracking to the
+        // visibility handler, which only re-tracks when this is false
+        if (document.hidden) tracked = false
+        else await track()
       })
 
     // Only active viewers count: a tab that stays hidden leaves presence
@@ -212,10 +233,13 @@ export const RealtimeImpl = () => {
 
     channel
       .on("broadcast", { event: "cursor" }, ({ payload }) => {
+        const cursor = parseCursor(payload)
+        // Our own id can come back from a previous connection of this tab
+        if (!cursor || cursor.id === getClientId()) return
         store.upsertCursor({
-          ...payload,
-          msg: payload.msg ? censor(payload.msg) : payload.msg,
-          name: payload.name ? censor(payload.name) : payload.name
+          ...cursor,
+          msg: cursor.msg ? censor(cursor.msg) : cursor.msg,
+          name: cursor.name ? censor(cursor.name) : cursor.name
         })
       })
       .on("presence", { event: "sync" }, () => {
