@@ -4,7 +4,6 @@ uniform vec2 uPointer;
 uniform float uHover;
 uniform vec2 uDrag;
 uniform float uTouchMotion;
-uniform float uGrab;
 
 #include <common>
 #include <skinning_pars_vertex>
@@ -29,7 +28,7 @@ void main() {
   float strength = cloth * front * uHover;
   float pressure = exp(-dot(footprint, footprint) * 1.6) * strength;
   float crease = exp(-pow((length(contact) - 0.23) / 0.085, 2.0)) * strength;
-  p.z -= (pressure * mix(0.095, 0.035, uGrab) - crease * 0.012) * uTouchMotion;
+  p.z -= (pressure * 0.095 - crease * 0.012) * uTouchMotion;
   p.xy += uDrag * pressure * uTouchMotion;
   vContact = pressure;
 

@@ -1,4 +1,4 @@
-import { MeshDiscardMaterial, useGLTF } from "@react-three/drei"
+import { useGLTF } from "@react-three/drei"
 import { useEffect, useMemo, useRef } from "react"
 import {
   BufferGeometry,
@@ -17,7 +17,6 @@ import {
 
 import { useAssets } from "@/components/assets-provider"
 import { useFadeAnimation } from "@/components/inspectables/use-fade-animation"
-import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { GHOSTS, STREET_GHOSTS } from "@/constants/halloween"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
@@ -31,7 +30,6 @@ import { createRoomPath, type GhostPath } from "./paths"
 import { indoorGhosts } from "./presence"
 import { createGhostRig } from "./rig"
 import { createTrailGeometry, createTrailMaterial, emitWisps } from "./trail"
-import { useGhostGrab } from "./use-ghost-grab"
 import vert from "./vert.glsl"
 
 // Outside: drifts down the street from one end to the other, then waits
@@ -89,9 +87,8 @@ const Ghost = ({
 }: GhostProps) => {
   const ref = useRef<Group>(null)
   const pointer = useHalloweenPointer()
-  // Keep the established grab/return speeds while sizing the normalized
-  // model uniformly in metres, instead of stretching its skeleton.
-  const interactionScale = height * 0.375
+  // Size the wisps to the ghost, which is scaled uniformly in metres.
+  const wispScale = height * 0.375
   const presenceState = useMemo(
     () => ({ position: new Vector3(), opacity: 0 }),
     []
@@ -116,7 +113,6 @@ const Ghost = ({
       uHover: { value: 0 },
       uDrag: { value: new Vector2() },
       uTouchMotion: { value: reducedMotion ? 0 : 1 },
-      uGrab: { value: 0 },
       uClothMap: { value: null as Texture | null },
       uLightFlicker: lightFlickerUniform,
       uLightning: lightningUniform
@@ -131,14 +127,6 @@ const Ghost = ({
     })
     return [uniforms, material] as const
   }, [seed, glow, reducedMotion])
-  const grab = useGhostGrab(
-    ref,
-    interactionScale,
-    () =>
-      uniforms.uOpacity.value > 0.2 &&
-      fadeFactor.current.get() < 0.1 &&
-      !useNavigationStore.getState().isCameraTransitioning
-  )
   const trailRef = useRef<Points<BufferGeometry, ShaderMaterial>>(null)
   const rig = useMemo(
     () => createGhostRig(source, [material]),
@@ -169,13 +157,9 @@ const Ghost = ({
     // Vanish near the camera so a nearby ghost cannot fill the screen.
     const routePresence = path(time, position)
     path(time + 0.1, next)
-    grab.follow(position, delta)
-    const influence = Math.max(
-      grab.state.weight,
-      Math.min(1, grab.state.offset.length() / interactionScale)
-    )
+    group.position.copy(position)
     const presence =
-      MathUtils.lerp(routePresence, 1, influence) *
+      routePresence *
       MathUtils.smoothstep(
         group.position.distanceTo(camera.position),
         height * 0.55,
@@ -192,43 +176,26 @@ const Ghost = ({
       travelHeading +
       (reducedMotion ? 0 : Math.sin(time * 0.18 + seed * 8) * 0.025) -
       group.rotation.y
-    if (!grab.state.active)
-      group.rotation.y +=
-        Math.atan2(Math.sin(turn), Math.cos(turn)) *
-        (1 - Math.exp(-1.5 * delta))
+    group.rotation.y +=
+      Math.atan2(Math.sin(turn), Math.cos(turn)) * (1 - Math.exp(-1.5 * delta))
     // Lean in model space, so moving the camera cannot tug on the rig.
     const sideSpeed =
       velocity.x * Math.cos(group.rotation.y) -
       velocity.z * Math.sin(group.rotation.y)
     const lean = MathUtils.clamp(-sideSpeed * 0.06, -0.04, 0.04)
-    if (!grab.state.active)
-      group.rotation.z = MathUtils.lerp(
-        group.rotation.z,
-        lean + (reducedMotion ? 0 : Math.sin(time * 0.45 + seed * 5) * 0.012),
-        1 - Math.exp(-3 * delta)
-      )
+    group.rotation.z = MathUtils.lerp(
+      group.rotation.z,
+      lean + (reducedMotion ? 0 : Math.sin(time * 0.45 + seed * 5) * 0.012),
+      1 - Math.exp(-3 * delta)
+    )
     group.updateMatrixWorld(true)
-    springs.current?.update(delta, reducedMotion ? 0 : grab.state.weight)
-    uniforms.uGrab.value = grab.state.weight
+    springs.current?.update(delta)
 
     // Project onto a camera-facing plane through the cloth, then work in
     // garment coordinates. Hover affects only the shader, never the route.
     let hover = 0
     dragTarget.set(0, 0)
-    if (grab.state.active) {
-      hover = 1
-      uniforms.uPointer.value.set(
-        grab.state.localPoint.x,
-        grab.state.localPoint.y
-      )
-      group.worldToLocal(closest.copy(grab.state.hit))
-      dragTarget
-        .set(
-          closest.x - grab.state.localPoint.x,
-          closest.y - grab.state.localPoint.y
-        )
-        .clampLength(0, 0.16)
-    } else if (pointer.active && presence > 0.2) {
+    if (pointer.active && presence > 0.2) {
       state.raycaster.setFromCamera(pointer.position, camera)
       group.localToWorld(middle.set(0, 0.5, 0))
       camera.getWorldDirection(cameraDirection)
@@ -270,7 +237,6 @@ const Ghost = ({
       }
     }
     hovering.current = hover > 0.01
-    grab.setHovered(hover > 0.1)
     uniforms.uHover.value = MathUtils.damp(
       uniforms.uHover.value,
       hover,
@@ -288,7 +254,7 @@ const Ghost = ({
 
     const trail = trailRef.current
     if (trail) {
-      emitWisps(trail, group.position, interactionScale, presence, delta, time)
+      emitWisps(trail, group.position, wispScale, presence, delta, time)
       trail.material.uniforms.uOpacity.value = opacity
       state.gl.getDrawingBufferSize(trail.material.uniforms.uResolution.value)
     }
@@ -307,13 +273,6 @@ const Ghost = ({
       />
       <group ref={ref} scale={height} rotation={[0, heading, 0]}>
         <primitive object={rig.object} />
-        <mesh
-          name="ghost-grab-surface"
-          geometry={rig.mesh.geometry}
-          dispose={null}
-        >
-          <MeshDiscardMaterial />
-        </mesh>
       </group>
     </>
   )
