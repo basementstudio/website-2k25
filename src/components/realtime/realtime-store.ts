@@ -110,6 +110,26 @@ export const NAME_MAX_LENGTH = 20
 const NAME_HARD_CAP = 64
 const NAME_STORAGE_KEY = "rt-cursor-name"
 
+// Storage can be blocked (cross-site iframes, privacy settings), and even
+// touching `localStorage` then throws a SecurityError. This read runs at
+// module init, so guard it like getClientId/getBrowserId.
+const readStoredName = () => {
+  if (typeof window === "undefined") return ""
+  try {
+    return localStorage.getItem(NAME_STORAGE_KEY) ?? ""
+  } catch {
+    return ""
+  }
+}
+
+const writeStoredName = (name: string) => {
+  try {
+    localStorage.setItem(NAME_STORAGE_KEY, name)
+  } catch {
+    // Storage blocked: keep the name in memory for this session only.
+  }
+}
+
 /** Display form of a cursor name: capped at NAME_MAX_LENGTH with an ellipsis. */
 export const formatName = (name: string) => {
   const trimmed = name.trim()
@@ -138,10 +158,7 @@ export const useRealtimeStore = create<RealtimeStore>((set) => ({
   cursors: {},
   chatMessage: "",
   country: null,
-  displayName:
-    typeof window === "undefined"
-      ? ""
-      : (localStorage.getItem(NAME_STORAGE_KEY) ?? ""),
+  displayName: readStoredName(),
   setOnlineCount: (count) => set({ onlineCount: count }),
   upsertCursor: (cursor) =>
     set((state) => ({ cursors: { ...state.cursors, [cursor.id]: cursor } })),
@@ -156,7 +173,7 @@ export const useRealtimeStore = create<RealtimeStore>((set) => ({
   setCountry: (country) => set({ country }),
   setDisplayName: (name) => {
     const trimmed = name.trim().slice(0, NAME_HARD_CAP)
-    localStorage.setItem(NAME_STORAGE_KEY, trimmed)
+    writeStoredName(trimmed)
     set({ displayName: trimmed })
   }
 }))
