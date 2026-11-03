@@ -24,6 +24,11 @@ uniform float lightMapIntensity;
 // Power cut / lightning (Halloween storm) — 1 and 0 when idle.
 uniform float uLightFlicker;
 uniform vec3 uLightmapTint;
+// Color LUT over the lightmap: 33^3 grid in log2 space per channel, stored
+// as a 33-slice strip (slices along blue, r across, g down). Each texel holds
+// the log2 gain to apply, mapped from [-LUT_RANGE, LUT_RANGE] to [0, 1].
+uniform sampler2D uLightmapLut;
+uniform float uLightmapLutIntensity;
 uniform float uLightning;
 
 // Lights
@@ -162,6 +167,33 @@ float basicLight(vec3 normal, vec3 lightDir, float intensity) {
   return lightFactor;
 }
 
+const float LUT_SIZE = 33.0;
+const float LUT_LOG_MIN = -8.0;
+const float LUT_LOG_MAX = 8.0;
+const float LUT_RANGE = 2.0;
+
+vec3 applyLightmapLut(vec3 lm) {
+  vec3 cell =
+    clamp(
+      (log2(max(lm, vec3(1e-6))) - LUT_LOG_MIN) / (LUT_LOG_MAX - LUT_LOG_MIN),
+      0.0,
+      1.0
+    ) *
+    (LUT_SIZE - 1.0);
+  float slice = min(floor(cell.b), LUT_SIZE - 2.0);
+  float sliceMix = cell.b - slice;
+  vec2 uv = vec2(
+    (slice * LUT_SIZE + cell.r + 0.5) / (LUT_SIZE * LUT_SIZE),
+    (cell.g + 0.5) / LUT_SIZE
+  );
+  vec3 gain = mix(
+    texture2D(uLightmapLut, uv).rgb,
+    texture2D(uLightmapLut, uv + vec2(1.0 / LUT_SIZE, 0.0)).rgb,
+    sliceMix
+  );
+  return lm * exp2((gain * 2.0 - 1.0) * LUT_RANGE * uLightmapLutIntensity);
+}
+
 void main() {
   vec3 normalizedNormal = normalize(vNormal);
   vec3 normalizedViewDir = normalize(vViewDirection);
@@ -211,6 +243,10 @@ void main() {
     lightMapSample = texture2D(lampLightmap, vUv2).rgb;
   } else {
     lightMapSample = texture2D(lightMap, vUv2).rgb;
+  }
+
+  if (uLightmapLutIntensity > 0.0 && lightMapIntensity > 0.0) {
+    lightMapSample = applyLightmapLut(lightMapSample);
   }
 
   vec3 irradiance = color;

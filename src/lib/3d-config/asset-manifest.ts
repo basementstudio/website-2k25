@@ -95,6 +95,10 @@ export const ASSETS_BASE: AssetsBase = {
   // KTX2 yet (uncompressed for now, per Nico — KTX2 pass comes later once
   // the AO look itself is confirmed).
   lightmapAtlasAo: "/3d/textures/lightmap-atlas-ao-2a8edf7e.jpg",
+  // Color grade for every baked lightmap (atlas + lamp sheets), fitted so the
+  // current atlas reads like the retired per-zone bakes — see
+  // applyLightmapLut in material-global-shader/fragment.glsl.
+  lightmapLut: "/3d/textures/lightmap-lut-6678adac.png",
 
   // --- Bakes (lightmaps + AO) — legacy per-zone system, now fully retired ---
   // Every mesh every one of these 18 groups used to target has since been

@@ -31,6 +31,8 @@ export interface AssetsResult {
   lightmapAtlasKtx2: string
   /** Ambient occlusion for the shared atlas — same UV layout as lightmapAtlas. */
   lightmapAtlasAo: string
+  /** 3D color LUT applied to every lightmap sample — see bakes.tsx. */
+  lightmapLut: string
   bakes: {
     title: string
     lightmap: string

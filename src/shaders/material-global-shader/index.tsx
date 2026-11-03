@@ -1,4 +1,4 @@
-import { Matrix3, MeshStandardMaterial, Vector3 } from "three"
+import { Matrix3, MeshStandardMaterial, Texture, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
@@ -20,6 +20,10 @@ export const lightningUniform = { value: 0 }
 // Multiplies the baked lightmaps; neutral by default. Seasonal code
 // (src/components/halloween/client.tsx) sets the red cast while it's mounted.
 export const lightmapTintUniform = { value: new Vector3(1, 1, 1) }
+// Color LUT over the baked lightmaps (bakes.tsx loads it). Intensity 0
+// skips the lookup, so materials render untouched until the LUT lands.
+export const lightmapLutUniform = { value: null as Texture | null }
+export const lightmapLutIntensityUniform = { value: 0 }
 
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
@@ -93,6 +97,8 @@ export const createGlobalShaderMaterial = (
     uTime: { value: 0.0 },
     uLightFlicker: lightFlickerUniform,
     uLightmapTint: lightmapTintUniform,
+    uLightmapLut: lightmapLutUniform,
+    uLightmapLutIntensity: lightmapLutIntensityUniform,
     uLightning: lightningUniform,
     alphaMap: { value: alphaMap },
     alphaMapTransform: { value: new Matrix3().identity() },

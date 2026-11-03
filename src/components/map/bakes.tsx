@@ -3,6 +3,7 @@
 import { useLoader, useThree } from "@react-three/fiber"
 import { memo, Suspense, useEffect, useMemo } from "react"
 import {
+  ClampToEdgeWrapping,
   Group,
   LinearFilter,
   Mesh,
@@ -22,6 +23,10 @@ import { useKTX2Textures } from "@/hooks/use-ktx2-loader"
 import { useKTX2Texture } from "@/hooks/use-ktx2-texture"
 import { useMesh } from "@/hooks/use-mesh"
 import { markCanvasBootStage } from "@/lib/canvas-boot"
+import {
+  lightmapLutIntensityUniform,
+  lightmapLutUniform
+} from "@/shaders/material-global-shader"
 
 interface Bake {
   lightmap?: Texture
@@ -186,6 +191,37 @@ const useAtlasAmbientOcclusion = (): Texture => {
   return ao
 }
 
+// Color grade over every lightmap sample, so the merge-by-material atlas
+// reads like the retired per-zone bakes it replaced (same tone and tint;
+// spatial differences between the two bakes are out of a LUT's reach).
+// Fitted offline from lightmap-only renders of both versions at the home
+// and services cameras. `?lut=0` turns it off to A/B against the raw atlas.
+const useLightmapLut = () => {
+  const { lightmapLut } = useAssets()
+  const lut = useLoader(TextureLoader, lightmapLut)
+
+  useEffect(() => {
+    lut.flipY = false
+    lut.generateMipmaps = false
+    lut.minFilter = LinearFilter
+    lut.magFilter = LinearFilter
+    lut.wrapS = ClampToEdgeWrapping
+    lut.wrapT = ClampToEdgeWrapping
+    lut.colorSpace = NoColorSpace
+    lut.needsUpdate = true
+
+    const disabled =
+      new URLSearchParams(window.location.search).get("lut") === "0"
+    lightmapLutUniform.value = lut
+    lightmapLutIntensityUniform.value = disabled ? 0 : 1
+
+    return () => {
+      lightmapLutIntensityUniform.value = 0
+      lightmapLutUniform.value = null
+    }
+  }, [lut])
+}
+
 const useBakes = (): Record<string, Bake> => {
   const { bakes, matcaps, glassReflexes } = useAssets()
 
@@ -311,6 +347,7 @@ const Bakes = () => {
   const bakes = useBakes()
   const atlas = useLightmapAtlas()
   const atlasAo = useAtlasAmbientOcclusion()
+  useLightmapLut()
 
   const scene = useThree((state) => state.scene)
 
