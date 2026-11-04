@@ -36,7 +36,7 @@ export const ASSETS_BASE: AssetsBase = {
     path: "/3d/models/airplane-path-2539e215.glb"
   },
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-c443f764.glb",
+  officeItems: "/3d/models/officeItems-test-7dd0b4ff.glb",
   office: "/3d/models/office-g04-47af4c75.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-7e5bd72e.glb",
@@ -81,7 +81,7 @@ export const ASSETS_BASE: AssetsBase = {
   // uncompressed half-float on devices without native ASTC-HDR, so no
   // custom fallback needed. Currently testing the EXR supplied with G04;
   // set USE_KTX2_LIGHTMAPS to true in bakes.tsx to restore the KTX2 below.
-  lightmapAtlas: "/3d/textures/lightmap-atlas-g04-rec709-dc76b15b.exr",
+  lightmapAtlas: "/3d/textures/lightmap-atlas-g04-end-c14f91e5.exr",
   // TEMP A/B test (ongoing) — Nico's "hdrastc_orig" re-bakes. Every earlier
   // candidate kept on disk, untouched, for a one-line revert:
   // lightmap-atlas-a69f004e.ktx2 (original),

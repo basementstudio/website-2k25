@@ -165,7 +165,7 @@ const LEGACY_AO_ENABLED = false
 // a fresh visual retest. Both URLs stay wired in the manifest either way.
 // Was flipped false (Sep 10) while the AO trial's fresh EXR re-bake had no
 // matching KTX2 — re-enabled now that a fresh Map00.ktx2 landed for it.
-// Test MAP00-go4_rec709.exr with the G04 office.
+// Test MAP00-go4_end.exr with the G04 office.
 export const USE_KTX2_LIGHTMAPS = false
 
 const useLightmapAtlas = (): Texture => {
