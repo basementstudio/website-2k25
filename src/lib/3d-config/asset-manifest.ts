@@ -36,8 +36,8 @@ export const ASSETS_BASE: AssetsBase = {
     path: "/3d/models/airplane-path-2539e215.glb"
   },
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-test-7dd0b4ff.glb",
-  office: "/3d/models/office-g04-47af4c75.glb",
+  officeItems: "/3d/models/officeItems-optimized-9544c40d.glb",
+  office: "/3d/models/office-g04-optimized-a0a7702c.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-7e5bd72e.glb",
   outdoorCars: "/3d/models/outdoorCars-d9030620.glb",
@@ -79,20 +79,20 @@ export const ASSETS_BASE: AssetsBase = {
   // KTX2 (Basis UASTC HDR) is being trialed as a replacement for the EXR —
   // much smaller, and three.js's KTX2Loader already transcodes to BC6H /
   // uncompressed half-float on devices without native ASTC-HDR, so no
-  // custom fallback needed. Currently testing the EXR supplied with G04;
-  // set USE_KTX2_LIGHTMAPS to true in bakes.tsx to restore the KTX2 below.
-  lightmapAtlas: "/3d/textures/lightmap-atlas-g04-end-c14f91e5.exr",
+  // custom fallback needed. MAP00-3 KTX2 is active; its source EXR remains
+  // available for comparison via USE_KTX2_LIGHTMAPS in bakes.tsx.
+  lightmapAtlas: "/3d/textures/lightmap-atlas-map00-3-b664d3b4.exr",
   // TEMP A/B test (ongoing) — Nico's "hdrastc_orig" re-bakes. Every earlier
   // candidate kept on disk, untouched, for a one-line revert:
   // lightmap-atlas-a69f004e.ktx2 (original),
   // lightmap-atlas-test-cc5fe3a6.ktx2, lightmap-atlas-fix-a09eb318.ktx2,
   // lightmap-atlas-fix2-f0e727ed.ktx2 (confirmed working, Sep 16),
   // lightmap-atlas-fix3-f4d71467.ktx2, lightmap-atlas-fix4-291b7694.ktx2.
-  lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-fix5-144bd902.ktx2",
+  lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-map00-3-7f196f95.ktx2",
   // AO trial (Sep 10) — jpg, shares the lightmap's UV atlas layout. Not in
   // KTX2 yet (uncompressed for now, per Nico — KTX2 pass comes later once
   // the AO look itself is confirmed).
-  lightmapAtlasAo: "/3d/textures/lightmap-atlas-ao-new-03f53259.jpg",
+  lightmapAtlasAo: "/3d/textures/lightmap-atlas-ao-new-b838e119.jpg",
   ao1Atlas: "/3d/textures/ao1-6bacd8d7.jpg",
 
   // --- Bakes (lightmaps + AO) — legacy per-zone system, now fully retired ---
