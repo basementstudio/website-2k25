@@ -1,6 +1,6 @@
 import { useThree } from "@react-three/fiber"
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
-import { Mesh, Vector3 } from "three"
+import { Mesh, type Object3D, Quaternion, Vector3 } from "three"
 
 import { useContactStore } from "@/components/contact/contact-store"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
@@ -34,6 +34,42 @@ export const Clock = () => {
   const clock = useMesh((s) => s.services.clock)
   const clockBody = useMesh((s) => s.services.clockBody)
   const clockMorphIndex = useMesh((s) => s.services.clockMorphIndex)
+  const eyes = useRef<{ mesh: Object3D; rest: Quaternion }[]>([])
+  const eyeRotation = useMemo(() => new Quaternion(), [])
+  const eyeAxis = useMemo(() => new Vector3(0, 1, 0), [])
+  useLayoutEffect(() => {
+    if (!clock) return
+    const originals = ["Kit-Cat_Eye_L", "Kit-Cat_Eye_R"].flatMap((name) => {
+      const mesh = clock.getObjectByName(name)
+      if (!mesh?.parent) return []
+      return [
+        {
+          mesh,
+          parent: mesh.parent,
+          position: mesh.position.clone(),
+          quaternion: mesh.quaternion.clone(),
+          scale: mesh.scale.clone()
+        }
+      ]
+    })
+    // Kit-Cat has nonuniform scale, canceled by each eye at rest only.
+    // Their composed rest transforms are rigid; attach to the unscaled
+    // clock root before animating so rotation cannot introduce shear.
+    clock.updateWorldMatrix(true, true)
+    eyes.current = originals.map(({ mesh }) => {
+      clock.attach(mesh)
+      return { mesh, rest: mesh.quaternion.clone() }
+    })
+    return () => {
+      eyes.current = []
+      originals.forEach(({ mesh, parent, position, quaternion, scale }) => {
+        parent.add(mesh)
+        mesh.position.copy(position)
+        mesh.quaternion.copy(quaternion)
+        mesh.scale.copy(scale)
+      })
+    }
+  }, [clock])
   const timePreset = useSceneTime((s) => s.preset)
   const canvasVisible = useAppLoadingStore(
     (s) => s.canvasVisible && s.canRunMainApp
@@ -145,14 +181,17 @@ export const Clock = () => {
   }, [hovered, controlsVisible, timePreset, setCursor])
 
   useFrameCallback(({ camera }, _, elapsedTime) => {
+    const swing = Math.sin(elapsedTime * Math.PI)
+    // New exports separate the eyes from Time (tail). Rotate about each
+    // eye's local Y axis (Blender Z exported to glTF Y), retaining rest pose.
+    eyeRotation.setFromAxisAngle(eyeAxis, swing * (Math.PI / 9))
+    eyes.current.forEach(({ mesh, rest }) => {
+      mesh.quaternion.copy(rest).multiply(eyeRotation)
+    })
     const influences = clockBody?.morphTargetInfluences
     if (influences && clockMorphIndex !== null) {
-      // Eyes + tail swing together via one shape key ("Time") now, instead of
-      // rotating 3 separate meshes. Same phase as before; -1..1 assumes the
-      // shape key was sculpted as a symmetric swing around rest (influence 0).
-      // If it only swings one way in-engine, remap: (Math.sin(progress) + 1) / 2
-      const progress = elapsedTime * Math.PI
-      influences[clockMorphIndex] = Math.sin(progress)
+      // Older exports also include the eyes in this morph.
+      influences[clockMorphIndex] = swing
     }
 
     const button = trigger.current

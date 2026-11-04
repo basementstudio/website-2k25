@@ -8,6 +8,7 @@ import {
   Mesh,
   NearestFilter,
   NoColorSpace,
+  type Object3D,
   RawShaderMaterial,
   ShaderMaterial,
   Texture,
@@ -21,7 +22,15 @@ import { cctvConfig } from "@/components/postprocessing/renderer"
 import { useKTX2Textures } from "@/hooks/use-ktx2-loader"
 import { useKTX2Texture } from "@/hooks/use-ktx2-texture"
 import { useMesh } from "@/hooks/use-mesh"
+import { INSPECTABLES_META } from "@/lib/3d-config/inspectables-meta"
 import { markCanvasBootStage } from "@/lib/canvas-boot"
+
+import {
+  atlasAoIntensity,
+  atlasLightmapGamma,
+  atlasLightmapIntensity,
+  atlasLightmapSaturation
+} from "./lightmap-settings"
 
 interface Bake {
   lightmap?: Texture
@@ -62,18 +71,62 @@ const getShaderMaterialWithUniform = (
   return material as ShaderMaterial
 }
 
+// Moving clock hands keep their authored color texture without the static bake.
+const CLOCK_HANDS_WITHOUT_LIGHTMAP = new Set([
+  "SM_HourHand",
+  "SM_MinuterHand",
+  "SM_Second"
+])
+
 const addLightmap = (update: TextureUpdate) => {
   const material = getShaderMaterialWithUniform(update.mesh, "lightMap")
   if (!material) return
+  if (CLOCK_HANDS_WITHOUT_LIGHTMAP.has(update.mesh.name)) {
+    material.uniforms.lightMapEnabled.value = false
+    material.uniforms.lightMapIntensity.value = 0
+    // Small neutral brightness lift, preserving the texture's detail.
+    material.uniforms.baseColor.value.setRGB(1.2, 1.2, 1.2)
+    return
+  }
   material.uniforms.lightMap.value = update.texture
-  material.uniforms.lightMapIntensity.value = 1
+  material.uniforms.lightMapEnabled.value = true
+  material.uniforms.lightMapIntensity =
+    update.mesh.userData.Lightmap === "Map00"
+      ? atlasLightmapIntensity
+      : { value: update.intensity ?? 1 }
+  if (update.mesh.userData.Lightmap === "Map00") {
+    material.uniforms.lightMapSaturation = atlasLightmapSaturation
+    material.uniforms.lightMapGamma = atlasLightmapGamma
+  }
 }
 
-const addAmbientOcclusion = (update: TextureUpdate, intensity = 1) => {
+const AO_EXCLUDED_ROOTS = new Set([
+  ...INSPECTABLES_META.map(({ mesh }) => mesh),
+  "shirt",
+  "SM_KitCat"
+])
+
+const addAmbientOcclusion = (
+  update: TextureUpdate,
+  intensity = 1,
+  useSecondUv = false
+) => {
   const material = getShaderMaterialWithUniform(update.mesh, "aoMap")
   if (!material) return
+  // Exclude these complete objects and their children, including at rest.
+  for (let node: Object3D | null = update.mesh; node; node = node.parent) {
+    if (AO_EXCLUDED_ROOTS.has(node.name)) {
+      // Detach from the shared slider uniform when updating an existing material.
+      material.uniforms.aoMapIntensity = { value: 0 }
+      return
+    }
+  }
   material.uniforms.aoMap.value = update.texture
-  material.uniforms.aoMapIntensity.value = intensity
+  material.uniforms.aoUseSecondUv.value = useSecondUv
+  material.uniforms.aoMapIntensity =
+    useSecondUv || update.mesh.userData.Lightmap === "Map00"
+      ? atlasAoIntensity
+      : { value: intensity }
 }
 
 const addMatcap = (update: TextureUpdate, isGlass: boolean) => {
@@ -97,18 +150,9 @@ const addReflex = (update: TextureUpdate) => {
 // atlas UV set (TEXCOORD_2) at all, only their own dedicated on/off sheets.
 const ATLAS_LIGHTMAP_VALUE = "Map00"
 
-// Ambient occlusion trial for the shared atlas (Sep 10) — a jpg baked on
-// the same UV layout as the lightmap. Applied only to Map00-tagged meshes,
-// same traversal as the lightmap itself (see the atlas AO load below).
-// TEMP disabled (Sep 16) — Nico: "podemos apagar el AO, capaz es ese",
-// testing whether it's contributing to SM_Fujifilm looking black. Same UV2
-// (vUv2) feeds both aoMap and lightMap, so this alone won't fix the root
-// cause if that UV is really unpacked, but it isolates the variable.
-const AO_ENABLED = false
-// Nico: "al AO lo podemos bajar al 15%" -> later settled on 10% — the atlas
-// AO reads strong at full intensity, unlike the pre-existing per-mesh aoMap
-// bakes below which stay at their normal 1.0.
-const ATLAS_AO_INTENSITY = 0.1
+// Legacy per-mesh AO stays disabled. The shared Map00 atlas is applied
+// separately below using the same UV set as its lightmap.
+const LEGACY_AO_ENABLED = false
 
 // Trial: KTX2 (Basis UASTC HDR) atlas instead of EXR. Re-enabled — root
 // cause of the earlier "THREE.KTX2Loader: .transcodeImage failed." found:
@@ -121,7 +165,8 @@ const ATLAS_AO_INTENSITY = 0.1
 // a fresh visual retest. Both URLs stay wired in the manifest either way.
 // Was flipped false (Sep 10) while the AO trial's fresh EXR re-bake had no
 // matching KTX2 — re-enabled now that a fresh Map00.ktx2 landed for it.
-export const USE_KTX2_LIGHTMAPS = true
+// Test MAP00-go4_rec709.exr with the G04 office.
+export const USE_KTX2_LIGHTMAPS = false
 
 const useLightmapAtlas = (): Texture => {
   const { lightmapAtlas, lightmapAtlasKtx2 } = useAssets()
@@ -166,9 +211,8 @@ const useExrLightmapAtlas = (url: string): Texture => {
   return atlas
 }
 
-const useAtlasAmbientOcclusion = (): Texture => {
-  const { lightmapAtlasAo } = useAssets()
-  const ao = useLoader(TextureLoader, lightmapAtlasAo)
+const useAtlasAmbientOcclusion = (url: string): Texture => {
+  const ao = useLoader(TextureLoader, url)
 
   useEffect(() => {
     // TextureLoader's Texture already defaults flipY=true (unlike EXRLoader's
@@ -308,9 +352,11 @@ export const revealOpacityMaterials = new Set<
 >()
 
 const Bakes = () => {
+  const { lightmapAtlasAo, ao1Atlas } = useAssets()
   const bakes = useBakes()
   const atlas = useLightmapAtlas()
-  const atlasAo = useAtlasAmbientOcclusion()
+  const atlasAo = useAtlasAmbientOcclusion(lightmapAtlasAo)
+  const ao1 = useAtlasAmbientOcclusion(ao1Atlas)
 
   const scene = useThree((state) => state.scene)
 
@@ -337,7 +383,7 @@ const Bakes = () => {
         return
       }
       if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
-      if (AO_ENABLED && maps.aomap) {
+      if (LEGACY_AO_ENABLED && maps.aomap) {
         addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
       }
       if (maps.reflex) addReflex({ mesh: mesh, texture: maps.reflex })
@@ -367,17 +413,22 @@ const Bakes = () => {
     // hand-maintained name list.
     scene.traverse((child) => {
       if (!(child instanceof Mesh)) return
-      if (child.userData.Lightmap !== ATLAS_LIGHTMAP_VALUE) return
+      const hasLightmap = child.userData.Lightmap === ATLAS_LIGHTMAP_VALUE
+      const hasAo1 = child.userData.AO === "AO1"
+      if (!hasLightmap && !hasAo1) return
       if (!child.userData.hasGlobalMaterial) {
         skipped++
         return
       }
-      addLightmap({ mesh: child, texture: atlas })
-      if (AO_ENABLED) {
-        addAmbientOcclusion(
-          { mesh: child, texture: atlasAo },
-          ATLAS_AO_INTENSITY
-        )
+      if (hasLightmap) addLightmap({ mesh: child, texture: atlas })
+      if (hasAo1) {
+        if (child.geometry.hasAttribute("uv1")) {
+          addAmbientOcclusion({ mesh: child, texture: ao1 }, 1, true)
+        } else {
+          console.warn(`[bakes] ${child.name}: AO1 requires TEXCOORD_1`)
+        }
+      } else {
+        addAmbientOcclusion({ mesh: child, texture: atlasAo })
       }
     })
 
@@ -397,7 +448,7 @@ const Bakes = () => {
       clearTimeout(timeout2)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [atlas, atlasAo, mapMaterialsReady, bakes])
+  }, [atlas, atlasAo, ao1, mapMaterialsReady, bakes])
 
   return null
 }

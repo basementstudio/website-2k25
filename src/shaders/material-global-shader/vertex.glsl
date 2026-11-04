@@ -16,9 +16,11 @@ varying vec3 vMvPosition;
 varying vec3 vNormal;
 varying vec3 vViewDirection;
 varying vec2 vUv2;
+varying vec2 vAoUv;
 
 void main() {
   vUv = uv;
+  vAoUv = uv1;
   #ifdef LIGHTMAP_ATLAS
   vUv2 = uv2;
   #else

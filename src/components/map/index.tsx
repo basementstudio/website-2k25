@@ -163,6 +163,23 @@ export const Map = memo(() => {
             : THREE.FrontSide
 
           if (withVideo) {
+            // This export's Patas UVs are corrupt (up to ~119,000), so the
+            // clamped video samples only its edge. The screen is planar;
+            // recover its original mapping from local X/Z, with both axes
+            // reversed to match the authored screen orientation.
+            if (meshChild.name === "SM_ScreenPatas") {
+              const geometry = meshChild.geometry
+              geometry.computeBoundingBox()
+              const { min, max } = geometry.boundingBox!
+              const positions = geometry.attributes.position
+              const uv = new Float32Array(positions.count * 2)
+              for (let i = 0; i < positions.count; i++) {
+                uv[i * 2] = (max.x - positions.getX(i)) / (max.x - min.x)
+                uv[i * 2 + 1] = (max.z - positions.getZ(i)) / (max.z - min.z)
+              }
+              geometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2))
+            }
+
             const videoTexture = createVideoTextureWithResume(withVideo.url)
 
             // Clean up old video texture if it exists

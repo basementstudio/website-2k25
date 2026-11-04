@@ -3,6 +3,8 @@ precision highp float;
 
 varying vec2 vUv;
 varying vec2 vUv2;
+varying vec2 vAoUv;
+uniform bool aoUseSecondUv;
 varying vec3 vWorldPosition;
 varying vec3 vMvPosition;
 varying vec3 vNormal;
@@ -21,6 +23,9 @@ uniform float uTime;
 // Lightmap
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
+uniform bool lightMapEnabled;
+uniform float lightMapSaturation;
+uniform float lightMapGamma;
 // Power cut / lightning (Halloween storm) — 1 and 0 when idle.
 uniform float uLightFlicker;
 uniform vec3 uLightmapTint;
@@ -302,8 +307,19 @@ void main() {
   }
 
   #ifndef VIDEO
-  if (lightMapIntensity > 0.0) {
-    irradiance *= lightMapSample * uLightmapTint * lightMapIntensity * uLightFlicker;
+  if (lightMapEnabled) {
+    // Grade the lightmap before saturation/intensity; retain HDR values.
+    lightMapSample = pow(
+      max(lightMapSample, vec3(0.0)),
+      vec3(1.0 / max(lightMapGamma, 0.25))
+    );
+    float lightMapLuminance = dot(lightMapSample, vec3(0.2126, 0.7152, 0.0722));
+    lightMapSample = max(
+      mix(vec3(lightMapLuminance), lightMapSample, lightMapSaturation),
+      vec3(0.0)
+    );
+    irradiance *=
+      lightMapSample * uLightmapTint * lightMapIntensity * uLightFlicker;
   }
   if (uLightning > 0.0) {
     // Lightning comes in through the front windows (z ≈ -6): strongest
@@ -319,7 +335,9 @@ void main() {
 
   if (aoMapIntensity > 0.0) {
     float ambientOcclusion =
-      (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+      (texture2D(aoMap, aoUseSecondUv ? vAoUv : vUv2).r - 1.0) *
+        aoMapIntensity +
+      1.0;
 
     irradiance *= ambientOcclusion;
   }
@@ -434,7 +452,8 @@ void main() {
   // their whole surface, including glass reflections, with the same signal.
   // Baked surfaces already received it above; avoid dimming them twice.
   if (
-    lightMapIntensity <= 0.0 && emissiveIntensity > 0.0 &&
+    !lightMapEnabled &&
+    emissiveIntensity > 0.0 &&
     dot(emissive, vec3(1.0)) > 0.0
   ) {
     gl_FragColor.rgb *= uLightFlicker;

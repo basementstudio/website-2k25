@@ -37,7 +37,7 @@ export const ASSETS_BASE: AssetsBase = {
   },
   // --- Map models ---
   officeItems: "/3d/models/officeItems-c443f764.glb",
-  office: "/3d/models/office-43fdb686.glb",
+  office: "/3d/models/office-g04-47af4c75.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-7e5bd72e.glb",
   outdoorCars: "/3d/models/outdoorCars-d9030620.glb",
@@ -79,11 +79,9 @@ export const ASSETS_BASE: AssetsBase = {
   // KTX2 (Basis UASTC HDR) is being trialed as a replacement for the EXR —
   // much smaller, and three.js's KTX2Loader already transcodes to BC6H /
   // uncompressed half-float on devices without native ASTC-HDR, so no
-  // custom fallback needed. bakes.tsx currently loads the .ktx2 field; the
-  // .exr field is kept wired here (not orphaned) as a one-line revert if the
-  // KTX2 path looks wrong — flip USE_KTX2_LIGHTMAPS in bakes.tsx back to
-  // false, don't need to touch this file.
-  lightmapAtlas: "/3d/textures/lightmap-atlas-d331cacb.exr",
+  // custom fallback needed. Currently testing the EXR supplied with G04;
+  // set USE_KTX2_LIGHTMAPS to true in bakes.tsx to restore the KTX2 below.
+  lightmapAtlas: "/3d/textures/lightmap-atlas-g04-rec709-dc76b15b.exr",
   // TEMP A/B test (ongoing) — Nico's "hdrastc_orig" re-bakes. Every earlier
   // candidate kept on disk, untouched, for a one-line revert:
   // lightmap-atlas-a69f004e.ktx2 (original),
@@ -94,7 +92,8 @@ export const ASSETS_BASE: AssetsBase = {
   // AO trial (Sep 10) — jpg, shares the lightmap's UV atlas layout. Not in
   // KTX2 yet (uncompressed for now, per Nico — KTX2 pass comes later once
   // the AO look itself is confirmed).
-  lightmapAtlasAo: "/3d/textures/lightmap-atlas-ao-2a8edf7e.jpg",
+  lightmapAtlasAo: "/3d/textures/lightmap-atlas-ao-new-03f53259.jpg",
+  ao1Atlas: "/3d/textures/ao1-6bacd8d7.jpg",
 
   // --- Bakes (lightmaps + AO) — legacy per-zone system, now fully retired ---
   // Every mesh every one of these 18 groups used to target has since been
@@ -200,6 +199,10 @@ export const ASSETS_BASE: AssetsBase = {
   // --- Glass / double-side material lists ---
   glassMaterials: ["BSM_MTL_Glass", "MTL_Backup", "MTL_LightBox"],
   doubleSideElements: [
+    // The clock hands are single planes, authored with double-sided materials.
+    "SM_HourHand",
+    "SM_MinuterHand",
+    "SM_Second",
     "SM_LightMeshGeneral",
     "SM_00a_01",
     "Cube001",
