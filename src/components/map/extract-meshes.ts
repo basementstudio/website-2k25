@@ -356,10 +356,8 @@ export const extractMeshes = ({
   useMesh.setState({ cars })
 
   // --- Services --- //
-  // The clock's eyes + tail used to be 3 separate rotating meshes. They're
-  // now one shape key ("Time") on a nested child mesh ("Kit-Cat", one level
-  // under the SM_KitCat placement node) — same mechanic as the arcade
-  // controls and the blog door.
+  // Time drives the tail on Kit-Cat. Older exports also include the eyes;
+  // newer exports have separate eye meshes animated by Clock.
 
   const clock = office.getObjectByName("SM_KitCat") as Mesh | undefined
   const clockBody = clock?.getObjectByName("Kit-Cat") as Mesh | undefined

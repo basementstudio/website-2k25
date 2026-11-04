@@ -31,6 +31,8 @@ export interface AssetsResult {
   lightmapAtlasKtx2: string
   /** Ambient occlusion for the shared atlas — same UV layout as lightmapAtlas. */
   lightmapAtlasAo: string
+  /** AO1 atlas for meshes tagged AO: "AO1", using TEXCOORD_1. */
+  ao1Atlas: string
   bakes: {
     title: string
     lightmap: string

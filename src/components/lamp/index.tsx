@@ -174,12 +174,11 @@ export const Lamp = memo(function LampInner() {
   useEffect(() => {
     if (lampTargets) {
       for (const target of lampTargets) {
-        // @ts-ignore
-        target.material.uniforms.lampLightmap.value = lightmap
-        // @ts-ignore
-        target.material.uniforms.lightMap.value = lightmapOff
-        // @ts-ignore
-        target.material.uniforms.lightMapIntensity.value = 1
+        const material = target.material as THREE.ShaderMaterial
+        material.uniforms.lampLightmap.value = lightmap
+        material.uniforms.lightMap.value = lightmapOff
+        material.uniforms.lightMapIntensity.value = 1
+        material.uniforms.lightMapEnabled.value = true
       }
     }
   }, [lightmap, lightmapOff, lampTargets])
