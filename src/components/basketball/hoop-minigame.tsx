@@ -1,5 +1,6 @@
 import { useThree } from "@react-three/fiber"
 import { type RapierRigidBody, RigidBody } from "@react-three/rapier"
+import * as Sentry from "@sentry/nextjs"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import type * as THREE from "three"
 import { MathUtils, Vector2, Vector3 } from "three"
@@ -30,6 +31,7 @@ import {
 } from "./curveball"
 import { GhostBalls } from "./ghost-balls"
 import { NetPhysics } from "./net-physics"
+import { getLiveBody } from "./rapier-body"
 import { RigidBodies } from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
@@ -184,9 +186,10 @@ const HoopMinigameInner = () => {
   useEffect(() => {
     if (isBasketball && readyToPlay) {
       resetState()
-      if (ballRef.current) {
-        ballRef.current.setTranslation(initialPosition, true)
-        ballRef.current.setBodyType(2, true)
+      const ball = getLiveBody(ballRef)
+      if (ball) {
+        ball.setTranslation(initialPosition, true)
+        ball.setBodyType(2, true)
         isThrowable.current = true
       }
     }
@@ -217,7 +220,7 @@ const HoopMinigameInner = () => {
       // Don't reset if timer is ending or component is unmounting
       if (
         !isBasketball ||
-        !ballRef.current ||
+        !getLiveBody(ballRef) ||
         isTimerEnding.current ||
         isUnmounting.current
       )
@@ -283,9 +286,9 @@ const HoopMinigameInner = () => {
             isTimerLow.current = true
 
             // If the user is currently dragging the ball, release it
-            if (isDragging && ballRef.current) {
+            if (isDragging) {
               setIsDragging(false)
-              ballRef.current.setBodyType(0, true)
+              getLiveBody(ballRef)?.setBodyType(0, true)
             }
           }
 
@@ -300,9 +303,9 @@ const HoopMinigameInner = () => {
               isTimerLow.current = true
 
               // release ball if held after game timeout
-              if (isDragging && ballRef.current) {
+              if (isDragging) {
                 setIsDragging(false)
-                ballRef.current.setBodyType(0, true)
+                getLiveBody(ballRef)?.setBodyType(0, true)
               }
 
               // If the ball is currently resetting, cancel the reset
@@ -310,9 +313,7 @@ const HoopMinigameInner = () => {
                 setIsResetting(false)
 
                 // If we have a ball reference, make sure it's a dynamic body
-                if (ballRef.current) {
-                  ballRef.current.setBodyType(0, true)
-                }
+                getLiveBody(ballRef)?.setBodyType(0, true)
               }
 
               // Let the ball fall naturally for a short time before ending the game
@@ -323,13 +324,14 @@ const HoopMinigameInner = () => {
 
                 // if the ball is still in play, we add it to played balls
                 // only if it doesn't already exist there
-                if (ballRef.current && !isUnmounting.current) {
+                const finalBall = getLiveBody(ballRef)
+                if (finalBall && !isUnmounting.current) {
                   try {
                     // Create a completely separate copy of all ball data first
                     // to avoid any aliasing issues with the ball object
-                    const ballTranslation = ballRef.current.translation()
-                    const ballVelocity = ballRef.current.linvel()
-                    const ballRotation = ballRef.current.rotation()
+                    const ballTranslation = finalBall.translation()
+                    const ballVelocity = finalBall.linvel()
+                    const ballRotation = finalBall.rotation()
 
                     const currentPos = {
                       x: ballTranslation.x,
@@ -375,7 +377,7 @@ const HoopMinigameInner = () => {
                       })
                     }
                   } catch (error) {
-                    console.warn("Final ball check failed:", error)
+                    Sentry.captureException(error)
                   }
                 }
 
@@ -460,9 +462,15 @@ const HoopMinigameInner = () => {
   useFrameCallback(({ pointer }, delta) => {
     if (!isBasketball) return
 
-    if (isDragging && ballRef.current) {
+    // Validate the handle before any rapier call: a call on a freed body
+    // panics the WASM and leaves rapier unusable for the rest of the session.
+    const liveBall = getLiveBody(ballRef)
+
+    if (isDragging && !liveBall) {
+      setIsDragging(false)
+    } else if (isDragging && liveBall) {
       try {
-        const ball = ballRef.current
+        const ball = liveBall
         const nd = normalizeDelta(delta)
 
         throwVelocity.current.x =
@@ -528,14 +536,17 @@ const HoopMinigameInner = () => {
           setIsDragging(false)
           resetBallToInitialPosition()
         }
-      } catch (_) {
-        console.warn("Failed to update ball position, physics might be paused")
+      } catch (error) {
+        Sentry.captureException(error)
         setIsDragging(false)
       }
     }
 
     // reset ball anim
-    if (isResetting && ballRef.current) {
+    if (isResetting && !liveBall) {
+      setIsResetting(false)
+      resetProgress.current = 0
+    } else if (isResetting && liveBall) {
       try {
         resetProgress.current += delta * 3
         const progress = MathUtils.clamp(resetProgress.current, 0, 1)
@@ -565,9 +576,7 @@ const HoopMinigameInner = () => {
             y: newPosition.y,
             z: newPosition.z
           }
-          // Get a fresh reference to the ball
-          const ball = ballRef.current
-          ball.setTranslation(positionToSet, true)
+          liveBall.setTranslation(positionToSet, true)
         } else {
           console.warn("invalid position during ball reset")
           setIsResetting(false)
@@ -578,20 +587,16 @@ const HoopMinigameInner = () => {
             y: initialPosition.y,
             z: initialPosition.z
           }
-          // Get a fresh reference to the ball
-          const ball = ballRef.current
-          ball.setTranslation(initialPos, true)
+          liveBall.setTranslation(initialPos, true)
         }
 
         if (progress === 1) {
           setIsResetting(false)
           resetProgress.current = 0
-          // Get a fresh reference to the ball
-          const ball = ballRef.current
-          ball.setBodyType(2, true)
+          liveBall.setBodyType(2, true)
         }
-      } catch (_) {
-        console.warn("Failed to reset ball animation, physics might be paused")
+      } catch (error) {
+        Sentry.captureException(error)
         setIsResetting(false)
         resetProgress.current = 0
       }

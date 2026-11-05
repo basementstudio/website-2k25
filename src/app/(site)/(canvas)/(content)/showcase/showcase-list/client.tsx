@@ -44,8 +44,12 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
 
     const getStoredPreference = () => {
       if (typeof window === "undefined") return "grid"
-      const stored = localStorage.getItem("showcase-view-mode")
-      return stored === "rows" || stored === "grid" ? stored : "grid"
+      try {
+        const stored = localStorage.getItem("showcase-view-mode")
+        return stored === "rows" || stored === "grid" ? stored : "grid"
+      } catch {
+        return "grid"
+      }
     }
 
     const [viewMode, setViewMode] = useState<"grid" | "rows">(
@@ -112,7 +116,9 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
         if (!isDesktop) return
 
         setViewMode(mode)
-        localStorage.setItem("showcase-view-mode", mode)
+        try {
+          localStorage.setItem("showcase-view-mode", mode)
+        } catch {}
       },
       [isDesktop]
     )

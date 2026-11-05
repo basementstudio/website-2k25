@@ -124,6 +124,7 @@ export const useInitializeAudioContext = () => {
     let unlocked = false
 
     const unlock = () => {
+      if (typeof AudioContext === "undefined") return
       if (player) {
         targetElement.removeEventListener("click", unlock)
         return
