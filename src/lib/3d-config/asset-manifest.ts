@@ -36,7 +36,7 @@ export const ASSETS_BASE: AssetsBase = {
     path: "/3d/models/airplane-path-2539e215.glb"
   },
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-optimized-9544c40d.glb",
+  officeItems: "/3d/models/officeItems-optimized2-3e3e8459.glb",
   office: "/3d/models/office-g04-optimized-a0a7702c.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-7e5bd72e.glb",
