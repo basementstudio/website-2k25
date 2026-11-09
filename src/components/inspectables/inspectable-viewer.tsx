@@ -3,36 +3,10 @@
 import { PortableText } from "@portabletext/react"
 import { Fragment, useEffect, useState } from "react"
 
-import { useAirplaneStore } from "@/components/airplane-mode/store"
 import { useAssets } from "@/components/assets-provider"
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useInspectable } from "@/components/inspectables/context"
-import { Arrow } from "@/components/primitives/icons/arrow"
-import { useFujifilmPhotos } from "@/hooks/use-fujifilm-photos"
 import { cn } from "@/utils/cn"
-
-// Bespoke to this one inspectable's photo-grid screen — the prev/next
-// arrows themselves are rendered in inspectable.tsx, anchored to
-// SM_FujifilmScreen's actual edges via drei's <Html>. This file only owns
-// resetting the shared photo-index store when the selection changes away.
-const FUJIFILM_MESH_NAME = "SM_Fujifilm"
-
-// The paper plane used to have its own dedicated "resting" model in
-// airplane-mode/flight.tsx (clicking it called enter() to start flying) —
-// now that SM_Plane ships as a regular Items inspectable, that duplicate
-// was removed (see scene/index.tsx) and this button is the one way to
-// start a flight instead (Nico: one click inspects, a button flies).
-const PLANE_MESH_NAME = "SM_Plane"
-
-const FlyButton = ({ onFly }: { onFly: () => void }) => (
-  <button
-    className="actionable-opacity group flex items-center gap-2 self-start rounded-sm bg-brand-w1 px-3 py-1.5 text-f-p-mobile text-brand-k [--anim-duration:250ms] lg:text-f-p"
-    onClick={onFly}
-  >
-    <span className="group-hover:underline">Launch the plane</span>
-    <Arrow className="size-4 shrink-0" />
-  </button>
-)
 
 type InspectableData = AssetsResult["inspectables"][number]
 
@@ -82,7 +56,6 @@ export const InspectableViewer = () => {
   const { inspectables } = useAssets()
   const { selected, setSelected } = useInspectable()
   const [data, setData] = useState<InspectableData | null>(null)
-  const resetFujifilmPhotos = useFujifilmPhotos((state) => state.reset)
 
   useEffect(() => {
     setData(null)
@@ -99,12 +72,6 @@ export const InspectableViewer = () => {
 
     fetchData()
   }, [selected, inspectables])
-
-  // Always start back at photo 0 next time Fujifilm is opened, whether this
-  // run closed it or moved on to a different inspectable.
-  useEffect(() => {
-    if (selected !== FUJIFILM_MESH_NAME) resetFujifilmPhotos()
-  }, [selected, resetFujifilmPhotos])
 
   return (
     <div
@@ -123,16 +90,6 @@ export const InspectableViewer = () => {
           </div>
           <div className="row-span-1 flex flex-col justify-center gap-4">
             {data && <Content data={data} />}
-            {selected === PLANE_MESH_NAME && (
-              <FlyButton
-                onFly={() => {
-                  setSelected(null)
-                  // Free mode only for now (Nico) — enterMode() skips the
-                  // trial/free choice screen that launch() would show.
-                  useAirplaneStore.getState().enterMode("free")
-                }}
-              />
-            )}
           </div>
         </div>
       </div>

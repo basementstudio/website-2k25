@@ -8,15 +8,6 @@ type GLTFResult = GLTF & {
   nodes: { [key: string]: Mesh }
 }
 
-// office/officeItems/outdoor/outdoorCars/routingElements are Draco-compressed
-// (godrays/basketballNet aren't, but passing this is harmless for them — the
-// decoder is only invoked if a mesh actually carries the extension). Without
-// an explicit path, drei's useGLTF still enables Draco by default, but
-// fetches the decoder from Google's CDN (gstatic.com) — self-hosting it here
-// matches the existing self-hosted basis-transcoder (KTX2) pattern and
-// drops an unnecessary third-party runtime dependency.
-const DRACO_DECODER_PATH = "/draco/"
-
 export const useLoader = () => {
   const {
     officeItems: officeItemsUrl,
@@ -36,18 +27,15 @@ export const useLoader = () => {
     outdoorCars,
     basketballNet,
     routingElements
-  ] = useKTX2GLTF<GLTFResult>(
-    [
-      officeUrl,
-      officeItemsUrl,
-      outdoorUrl,
-      godraysUrl,
-      outdoorCarsUrl,
-      basketballNetUrl,
-      routingElementsUrl
-    ],
-    DRACO_DECODER_PATH
-  )
+  ] = useKTX2GLTF<GLTFResult>([
+    officeUrl,
+    officeItemsUrl,
+    outdoorUrl,
+    godraysUrl,
+    outdoorCarsUrl,
+    basketballNetUrl,
+    routingElementsUrl
+  ])
 
   return {
     office: office.scene,
