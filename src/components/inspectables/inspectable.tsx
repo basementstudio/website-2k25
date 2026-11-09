@@ -26,8 +26,12 @@ import { useSelectStore } from "@/hooks/use-select-store"
 
 import { useAssets } from "../assets-provider"
 import type { ICameraConfig } from "../navigation-handler/navigation.interface"
+import { PlayableRubiksCube } from "../rubiks-cube"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
+
+const RUBIKS_MESH_ID = "SM_06_06"
+const noopRaycast = () => null
 
 interface InspectableProps {
   id: string
@@ -314,9 +318,19 @@ export const Inspectable = memo(function InspectableInner({
         domElement={document.querySelector("#canvas canvas") as HTMLElement}
       >
         <primitive object={mesh} raycast={() => null} />
+        {id === RUBIKS_MESH_ID && (
+          <PlayableRubiksCube baseMesh={mesh} active={selected === id} />
+        )}
         <mesh
           position={[...offsetedBoundingBox]}
           rotation={[mesh.rotation.x, mesh.rotation.y, mesh.rotation.z]}
+          raycast={
+            // While the cube is being played, let raycasts through to the
+            // cubelets instead of this proxy hit-box.
+            id === RUBIKS_MESH_ID && selected === id
+              ? noopRaycast
+              : Mesh.prototype.raycast
+          }
         >
           <boxGeometry
             args={[size.current.x, size.current.y, size.current.z]}
