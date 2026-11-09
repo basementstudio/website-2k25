@@ -18,8 +18,6 @@ import {
 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
-import { useFadeAnimation } from "@/components/inspectables/use-fade-animation"
-import { RearBuildings } from "@/components/rear-buildings"
 import { useWeather } from "@/components/weather/weather-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
@@ -51,7 +49,6 @@ import {
   smoothstep,
   WEATHER_SMOOTH_SECONDS
 } from "./config"
-import { ExteriorGround } from "./ground"
 import { SKY_TIME_PRESETS } from "./presets"
 import { skyDebug } from "./sky-settings"
 import { skyState } from "./sky-state"
@@ -112,7 +109,6 @@ const EVENING_HORIZON = new Vector3(1.25, 0.55, 0.28)
 const EVENING_ZENITH = new Vector3(0.75, 0.65, 1.1)
 
 export const Sky = () => {
-  const { fadeFactor } = useFadeAnimation()
   const { lutTarget, lutScene, lutCamera, lutMaterial, skyMaterial } =
     useMemo(() => {
       const lutTarget = new WebGLRenderTarget(SKY_LUT_WIDTH, SKY_LUT_HEIGHT, {
@@ -203,7 +199,6 @@ export const Sky = () => {
   useFrameCallback((state, delta, elapsedTime) => {
     const { gl } = state
     const debug = skyDebug.current
-    skyMaterial.uniforms.fadeFactor.value = fadeFactor.current.get()
 
     if (process.env.NODE_ENV !== "production") {
       const handle = (window as unknown as Record<string, any>).__sky
@@ -339,7 +334,6 @@ export const Sky = () => {
     skyState.sunElevationDeg = elevationDeg
     skyState.sunAzimuthDeg = azimuthDeg
     skyState.daylightFactor = daylightFactor
-    skyState.lightning = flash
 
     outdoorTintForElevation(elevationDeg, tintScratch)
     const weatherDim = 1 - 0.4 * Math.min(1, cloud * 0.5 + rain * 0.3)
@@ -424,13 +418,9 @@ export const Sky = () => {
   }, 0)
 
   return (
-    <>
-      <ExteriorGround skyMaterial={skyMaterial} />
-      <RearBuildings skyMaterial={skyMaterial} />
-      <mesh position={SKY_SPHERE_CENTER} renderOrder={1} frustumCulled={false}>
-        <sphereGeometry args={[SKY_SPHERE_RADIUS, 32, 16]} />
-        <primitive object={skyMaterial} attach="material" />
-      </mesh>
-    </>
+    <mesh position={SKY_SPHERE_CENTER} renderOrder={1} frustumCulled={false}>
+      <sphereGeometry args={[SKY_SPHERE_RADIUS, 32, 16]} />
+      <primitive object={skyMaterial} attach="material" />
+    </mesh>
   )
 }

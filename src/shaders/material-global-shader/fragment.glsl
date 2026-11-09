@@ -3,8 +3,6 @@ precision highp float;
 
 varying vec2 vUv;
 varying vec2 vUv2;
-varying vec2 vAoUv;
-uniform bool aoUseSecondUv;
 varying vec3 vWorldPosition;
 varying vec3 vMvPosition;
 varying vec3 vNormal;
@@ -23,13 +21,6 @@ uniform float uTime;
 // Lightmap
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
-uniform bool lightMapEnabled;
-uniform float lightMapSaturation;
-uniform float lightMapGamma;
-// Power cut / lightning (Halloween storm) — 1 and 0 when idle.
-uniform float uLightFlicker;
-uniform vec3 uLightmapTint;
-uniform float uLightning;
 
 // Lights
 #ifdef LIGHT
@@ -44,16 +35,6 @@ uniform vec3 backLightDirection;
 uniform sampler2D aoMap;
 uniform float aoMapIntensity;
 
-// Metal/roughness — cheap specular highlight, only visible in inspection
-// mode (see isInspectionMode below), using the same view-derived light
-// directions as the 3-point rig rather than a real environment map.
-uniform float metalness;
-uniform float roughness;
-#ifdef METAL
-// glTF packs roughness in G and metalness in B of one combined texture.
-uniform sampler2D metalRoughnessMap;
-#endif
-
 uniform float noiseFactor;
 uniform bool uReverse;
 
@@ -63,13 +44,14 @@ uniform sampler2D alphaMap;
 uniform mat3 alphaMapTransform;
 
 // Emissive
-#if defined(USE_EMISSIVE) || defined(USE_EMISSIVEMAP)
+#ifdef USE_EMISSIVE
 uniform vec3 emissive;
 uniform float emissiveIntensity;
 #endif
 
 #ifdef USE_EMISSIVEMAP
 uniform sampler2D emissiveMap;
+uniform float emissiveIntensity;
 #endif
 
 // Fog
@@ -116,12 +98,6 @@ uniform bool daylight;
 uniform bool inspectingEnabled;
 uniform float inspectingFactor;
 uniform float fadeFactor;
-// Idle hint — subtle breathing rim-light pulse nudging the user toward
-// inspectable items after a few seconds of no pointer movement (see
-// Inspectable's useFrameCallback + use-frame-loop.ts). 0 on every
-// non-inspectable mesh, so this is unconditional rather than behind a
-// #define — always available, only ever driven nonzero where it matters.
-uniform float hintFactor;
 
 // Lamp
 uniform sampler2D lampLightmap;
@@ -177,9 +153,6 @@ void main() {
 
   #ifdef USE_MAP
   vec2 mapUv = (mapMatrix * vec3(vUv, 1.0)).xy * mapRepeat;
-  #ifdef TWO_SIDED_ATLAS
-  if (!gl_FrontFacing) mapUv.x += 0.5;
-  #endif
   #endif
 
   #ifdef USE_ALPHA_MAP
@@ -237,19 +210,7 @@ void main() {
 
   #ifdef USE_EMISSIVEMAP
   vec4 emissiveColor = texture2D(emissiveMap, vUv);
-  #ifdef VIDEO
-  // Video screens reuse the same texture for map + emissiveMap and rely on
-  // this self-multiply to punch up brightness/contrast — keep as-is.
   irradiance *= emissiveColor.rgb * ei;
-  #else
-  // Pure-emissive surfaces (baked light atlases, neon, etc.) are authored
-  // with baseColorFactor near black — multiplying would zero them out, so
-  // add the emissive contribution instead, same as the non-mapped path above.
-  // Also tint by the material's emissiveFactor (the "emissive" uniform),
-  // same as three.js's standard material — lets a warm/colored tint be set
-  // in Blender on top of a neutral mask texture without touching the shader.
-  irradiance += emissiveColor.rgb * emissive * ei;
-  #endif
   #endif
 
   vec3 lf = irradiance.rgb;
@@ -266,34 +227,6 @@ void main() {
     vec3 rimLightDir = normalize(-normalizedViewDir + vec3(0.0, 0.5, 0.0));
     lf *= basicLight(normalizedNormal, rimLightDir, 3.0);
 
-    // Metal specular highlight — cheap, no real environment map: reuses the
-    // same view-derived directions as the light rig above instead of a
-    // reflection probe. roughness narrows/widens the highlight, metalness
-    // scales its strength; both come from the baked metallicRoughnessTexture
-    // (glTF convention: G = roughness, B = metalness). Gated on an actual
-    // texture (METAL define), not just the metalness/roughness scalars —
-    // several materials leave those at the glTF default (1.0) without
-    // meaning to look metallic, so a flat-uniform fallback would light them
-    // up too.
-    #ifdef METAL
-    vec4 metalRoughnessSample = texture2D(metalRoughnessMap, vUv);
-    float roughnessValue = clamp(metalRoughnessSample.g * roughness, 0.04, 1.0);
-    float metalnessValue = clamp(metalRoughnessSample.b * metalness, 0.0, 1.0);
-
-    if (metalnessValue > 0.0) {
-      float shininess = mix(96.0, 8.0, roughnessValue);
-      float keySpec = pow(
-        max(dot(normalizedNormal, normalizedViewDir), 0.0),
-        shininess
-      );
-      float rimSpec = pow(
-        max(dot(normalizedNormal, rimLightDir), 0.0),
-        shininess * 0.5
-      );
-      lf += vec3(keySpec * 1.5 + rimSpec * 2.0) * metalnessValue;
-    }
-    #endif
-
     #ifdef MATCAP
     vec3 nvz = vec3(-normalizedViewDir.z, 0.0, normalizedViewDir.x);
     vec3 x = normalize(nvz);
@@ -307,37 +240,14 @@ void main() {
   }
 
   #ifndef VIDEO
-  if (lightMapEnabled) {
-    // Grade the lightmap before saturation/intensity; retain HDR values.
-    lightMapSample = pow(
-      max(lightMapSample, vec3(0.0)),
-      vec3(1.0 / max(lightMapGamma, 0.25))
-    );
-    float lightMapLuminance = dot(lightMapSample, vec3(0.2126, 0.7152, 0.0722));
-    lightMapSample = max(
-      mix(vec3(lightMapLuminance), lightMapSample, lightMapSaturation),
-      vec3(0.0)
-    );
-    irradiance *=
-      lightMapSample * uLightmapTint * lightMapIntensity * uLightFlicker;
-  }
-  if (uLightning > 0.0) {
-    // Lightning comes in through the front windows (z ≈ -6): strongest
-    // there, falling off toward the back of the office.
-    float windowFactor = mix(
-      0.35,
-      1.0,
-      smoothstep(-20.0, -6.0, vWorldPosition.z)
-    );
-    irradiance += color * vec3(0.6, 0.7, 1.0) * uLightning * windowFactor;
+  if (lightMapIntensity > 0.0) {
+    irradiance *= lightMapSample * lightMapIntensity;
   }
   #endif
 
   if (aoMapIntensity > 0.0) {
     float ambientOcclusion =
-      (texture2D(aoMap, aoUseSecondUv ? vAoUv : vUv2).r - 1.0) *
-        aoMapIntensity +
-      1.0;
+      (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
 
     irradiance *= ambientOcclusion;
   }
@@ -349,16 +259,6 @@ void main() {
     } else {
       irradiance = lf;
     }
-  }
-
-  if (hintFactor > 0.0) {
-    float hintFresnel = pow(
-      1.0 - max(dot(normalizedNormal, normalizedViewDir), 0.0),
-      2.5
-    );
-    float hintPulse = 0.5 + 0.5 * sin(uTime * 2.0);
-    irradiance +=
-      vec3(1.0, 0.92, 0.8) * hintFresnel * hintFactor * hintPulse * 0.35;
   }
 
   float opacityResult = 1.0;
@@ -444,21 +344,6 @@ void main() {
       gl_FragColor.rgb * (1.0 - mixFactor) + reflexSample.rgb * mixFactor;
   }
   gl_FragColor.a *= pattern;
-  #endif
-
-  #if !defined(OUTDOOR) && !defined(VIDEO) && !defined(GODRAY)
-  #if defined(USE_EMISSIVE) || defined(USE_EMISSIVEMAP)
-  // Unbaked luminaires bypass the lightmap's power-cut multiplier. Dim
-  // their whole surface, including glass reflections, with the same signal.
-  // Baked surfaces already received it above; avoid dimming them twice.
-  if (
-    !lightMapEnabled &&
-    emissiveIntensity > 0.0 &&
-    dot(emissive, vec3(1.0)) > 0.0
-  ) {
-    gl_FragColor.rgb *= uLightFlicker;
-  }
-  #endif
   #endif
 
   #ifdef GODRAY

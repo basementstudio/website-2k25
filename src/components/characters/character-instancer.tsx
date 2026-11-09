@@ -1,12 +1,11 @@
 import { useTexture } from "@react-three/drei"
-import { memo, useMemo, useState } from "react"
+import { memo, useMemo } from "react"
 import type * as THREE from "three"
 import { BufferAttribute, Color, FloatType } from "three"
 
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createCharacterMaterial } from "@/shaders/material-characters"
-import { IsHalloweenSeason } from "@/utils/special-events"
 
 import { useAssets } from "../assets-provider"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
@@ -47,19 +46,13 @@ export const setGeometryFloatAttribute = (
 
 function CharacterInstanceConfigInner() {
   const { characters } = useAssets()
-  // Match the decorations: keep the preview flag across client navigation.
-  const [halloween] = useState(IsHalloweenSeason)
 
   const { nodes, animations } = useKTX2GLTF(
     characters.model
   ) as unknown as CharactersGLTF
 
-  const textureBody = useTexture(
-    halloween ? characters.textureBodyHalloween : characters.textureBody
-  )
-  const textureFaces = useTexture(
-    halloween ? characters.textureFacesHalloween : characters.textureFaces
-  )
+  const textureBody = useTexture(characters.textureBody)
+  const textureFaces = useTexture(characters.textureFaces)
   const textureArms = useTexture(characters.textureArms)
   const textureComic = useTexture(characters.textureComic)
 

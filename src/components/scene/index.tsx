@@ -3,18 +3,14 @@
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
-import { ErrorBoundary as FlightErrorBoundary } from "react-error-boundary"
 import * as THREE from "three"
 
-import { AirplaneHud } from "@/components/airplane-mode/hud"
-import { useAirplaneStore } from "@/components/airplane-mode/store"
 import ErrorBoundary from "@/components/basketball/error-boundary"
 import { CameraController } from "@/components/camera/camera-controller"
 import { CharacterInstanceConfig } from "@/components/characters/character-instancer"
 import { CharactersSpawn } from "@/components/characters/characters-spawn"
 import { UpdateCanvasCursor } from "@/components/custom-cursor"
 import { Debug } from "@/components/debug"
-import { Halloween } from "@/components/halloween"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Lamp } from "@/components/lamp"
 import { Map } from "@/components/map"
@@ -30,14 +26,6 @@ import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
 import { DoomJs } from "../doom-js"
-
-const AirplaneFlight = dynamic(
-  () =>
-    import("@/components/airplane-mode/flight").then(
-      (mod) => mod.AirplaneFlight
-    ),
-  { ssr: false }
-)
 
 const HoopMinigame = dynamic(
   () =>
@@ -65,7 +53,6 @@ const PhysicsWorld = dynamic(
 )
 
 export const Scene = () => {
-  const airplaneActive = useAirplaneStore((s) => s.phase !== "off")
   // Per-field selectors: destructuring the whole store re-rendered the entire
   // <Canvas> subtree on every unrelated navigation-store write.
   const setIsCanvasTabMode = useNavigationStore(
@@ -161,7 +148,6 @@ export const Scene = () => {
 
   return (
     <>
-      <AirplaneHud />
       <div
         className={cn(
           "absolute inset-0",
@@ -214,18 +200,7 @@ export const Scene = () => {
                     <WebGlTunnelOut />
                   </Suspense>
                   <Suspense fallback={null}>
-                    {airplaneActive ? (
-                      <FlightErrorBoundary
-                        fallback={null}
-                        onError={() =>
-                          useAirplaneStore.setState({ phase: "error" })
-                        }
-                      >
-                        <AirplaneFlight />
-                      </FlightErrorBoundary>
-                    ) : (
-                      <CameraController />
-                    )}
+                    <CameraController />
                   </Suspense>
                   <Suspense fallback={null}>
                     <Sparkles />
@@ -249,7 +224,6 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Pets />
                   </Suspense>
-                  <Halloween />
                 </>
               }
             />

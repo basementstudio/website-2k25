@@ -47,8 +47,7 @@ export const createSkyMaterial = (lut: Texture) =>
       uMoonBitangent: { value: new Vector3(0, 0, 1) },
       uMoonLight: { value: 0 },
       uMoonMap: { value: null },
-      uLightning: { value: 0 },
-      fadeFactor: { value: 0 }
+      uLightning: { value: 0 }
     },
     vertexShader: displayVertexShader,
     fragmentShader: displayFragmentShader

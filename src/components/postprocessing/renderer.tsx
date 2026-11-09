@@ -1,7 +1,6 @@
 import { createPortal, useThree } from "@react-three/fiber"
 import { memo, useEffect, useMemo, useRef } from "react"
 import {
-  Color,
   DepthTexture,
   HalfFloatType,
   LinearSRGBColorSpace,
@@ -20,7 +19,6 @@ import {
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
-import { usePerfStats } from "@/hooks/use-perf-stats"
 import { createBloomMaterial } from "@/shaders/material-bloom"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 import { doubleFbo } from "@/utils/double-fbo"
@@ -57,13 +55,6 @@ cctvConfig.camera.lookAt(new Vector3(6.8, 3.2, -8.51))
 cctvConfig.camera.fov = 100
 cctvConfig.camera.aspect = 16 / 9
 cctvConfig.camera.updateProjectionMatrix()
-
-// Ground fog in the post pass. Seasonal code (src/components/halloween)
-// writes it; amount 0 skips the fog entirely.
-export const fogConfig = {
-  amount: 0,
-  color: new Color()
-}
 
 export const Renderer = memo(RendererInner)
 
@@ -134,8 +125,6 @@ function RendererInner({ sceneChildren }: RendererProps) {
     bloomTarget.setSize(bloomResolution.x, bloomResolution.y)
   }, [bloomTarget, bloomResolution])
 
-  const statsFrame = useRef(0)
-
   useFrameCallback(({ gl }) => {
     if (
       !mainCamera ||
@@ -151,39 +140,12 @@ function RendererInner({ sceneChildren }: RendererProps) {
     gl.setRenderTarget(mainTarget)
     gl.render(mainScene, mainCamera)
 
-    // Read draw-call/memory stats right here, before the CCTV and
-    // postprocessing render() calls below reset gl.info.render.* again —
-    // this is the count for the actual office/map scene, which is what the
-    // debug panel (src/components/debug/perf-stats-panel.tsx) is measuring.
-    statsFrame.current++
-    if (statsFrame.current % 15 === 0) {
-      const info = gl.info
-      usePerfStats.setState({
-        calls: info.render.calls,
-        triangles: info.render.triangles,
-        geometries: info.memory.geometries,
-        textures: info.memory.textures
-      })
-    }
-
     // 404 scene on tv
     if (cctvConfig.shouldBakeCCTV) {
       gl.setRenderTarget(cctvConfig.renderTarget.write)
       gl.render(mainScene, cctvConfig.camera)
       cctvConfig.renderTarget.swap()
       cctvConfig.shouldBakeCCTV = false
-    }
-
-    // Fog reconstructs world positions from the depth this pass just wrote,
-    // so it needs this frame's camera.
-    const fogUniforms = postProcessingMaterial.uniforms
-    fogUniforms.uFogAmount.value = fogConfig.amount
-    if (fogConfig.amount > 0) {
-      fogUniforms.uFogColor.value.copy(fogConfig.color)
-      fogUniforms.uCameraProjectionInverse.value.copy(
-        mainCamera.projectionMatrixInverse
-      )
-      fogUniforms.uCameraWorld.value.copy(mainCamera.matrixWorld)
     }
 
     // bloom — skipped where the post shader won't read it (uActiveBloom is 0

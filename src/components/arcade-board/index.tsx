@@ -9,12 +9,9 @@ import { CoffeeSteam } from "./coffee-steam"
 import { Stick } from "./stick"
 
 export const ArcadeBoard = () => {
-  // The buttons/joysticks are morph targets on a single merged mesh (SM_Controls),
-  // which is already rendered as part of the office. Here we only mount the
-  // invisible interaction proxies that drive those morphs.
-  const buttons = useMesh((state) => state.arcade.buttons)
-  const sticks = useMesh((state) => state.arcade.sticks)
-  const sequence = useRef<(number | string)[]>([])
+  const { arcade } = useMesh()
+  const { buttons, sticks } = arcade
+  const sequence = useRef<number[]>([])
   const setIsInGame = useArcadeStore((state) => state.setIsInGame)
 
   useEffect(() => {
@@ -42,7 +39,9 @@ export const ArcadeBoard = () => {
 
   return (
     <>
-      {buttons?.map((button) => <Button key={button.name} button={button} />)}
+      {buttons?.map((button) => (
+        <Button key={button.name} buttonName={button.name} />
+      ))}
       {sticks?.map((stick) => (
         <Stick key={stick.name} stick={stick} sequence={sequence} />
       ))}

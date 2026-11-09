@@ -13,11 +13,9 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
-import { lightFlickerUniform } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
-import { useGhostAttention } from "./use-ghost-attention"
 
 enum PetSkinnedName {
   PURE = "Pure-v1",
@@ -120,9 +118,7 @@ export function Pets() {
   const { fadeFactor } = useFadeAnimation()
 
   useFrameCallback(() => {
-    // Unlit, so dim by hand with the office lights (Halloween power cuts).
-    const f =
-      (1 - fadeFactor.current.get()) * (0.2 + 0.8 * lightFlickerUniform.value)
+    const f = 1 - fadeFactor.current.get()
     if (bostonSkinned && bostonSkinned.material) {
       const m = bostonSkinned.material as THREE.MeshBasicMaterial
       m.color.set(new Color(f, f, f))
@@ -165,7 +161,6 @@ function PetsInner({
   const { actions } = useAnimations(animations, pureSkinned)
   const { actions: bostonActions } = useAnimations(animations, bostonSkinned)
   const currentScene = useCurrentScene()
-  useGhostAttention(pureSkinned, currentScene === "home")
 
   const setCursor = useCursor()
 
