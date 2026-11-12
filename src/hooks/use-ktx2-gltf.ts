@@ -7,6 +7,11 @@ import { getKTX2Loader } from "./use-ktx2-loader"
 
 type KTX2Capable = { setKTX2Loader: (loader: KTX2Loader) => unknown }
 
+// Self-hosted Draco decoder (synced from `three` by `pnpm basis:sync`).
+// Without an explicit path DRACOLoader fetches from www.gstatic.com, which
+// fails in Safari when blocked or on flaky networks.
+export const DRACO_DECODER_PATH = "/draco/"
+
 export function useKTX2GLTF<T extends GLTF>(
   path: string,
   draco?: string,
@@ -25,7 +30,7 @@ export function useKTX2GLTF<T extends GLTF>(
 ): T | T[] {
   const { gl } = useThree()
 
-  return useGLTF(path, draco, useCaching, (loader) => {
+  return useGLTF(path, draco ?? DRACO_DECODER_PATH, useCaching, (loader) => {
     ;(loader as unknown as KTX2Capable).setKTX2Loader(getKTX2Loader(gl))
   }) as unknown as T | T[]
 }
