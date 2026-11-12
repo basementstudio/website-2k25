@@ -85,7 +85,8 @@ interface GLTFNodes extends GLTF {
 
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const { actualCamera } = useLoadingWorkerStore()
-  const { nodes } = useGLTF(modelUrl!) as any as GLTFNodes
+  // Self-hosted decoder; see DRACO_DECODER_PATH in src/hooks/use-ktx2-gltf.ts
+  const { nodes } = useGLTF(modelUrl!, "/draco/") as any as GLTFNodes
 
   const solidParent = nodes.SM_Solid
 
