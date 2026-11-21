@@ -110,8 +110,12 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/showcase/basement-chronicles",
-        destination:
-          "/showcase/showcase/basement-chronicles-the-internet-needs-you",
+        destination: "/showcase/basement-chronicles-the-internet-needs-you",
+        permanent: true
+      },
+      {
+        source: "/showcase/showcase/:slug",
+        destination: "/showcase/:slug",
         permanent: true
       },
 
