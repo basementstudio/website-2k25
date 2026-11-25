@@ -93,6 +93,8 @@ export const Button = memo(function ButtonInner({ buttonName }: ButtonProps) {
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
       if (scene !== "lab") return
+      // Some synthetic key events (e.g. Chrome autofill) have no `key`
+      if (typeof event.key !== "string") return
 
       const isKeyDown = event.type === "keydown"
       const buttonKey = VALID_BUTTONS[button.name as keyof typeof VALID_BUTTONS]

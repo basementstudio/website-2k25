@@ -165,6 +165,8 @@ const DesktopInput = ({
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
+      // Some synthetic key events (e.g. Chrome autofill) have no `key`
+      if (typeof event.key !== "string") return
       const pressedKey = event.key.toUpperCase()
       if (LETTERS.includes(pressedKey)) {
         setSubmitError(null)
