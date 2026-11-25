@@ -17,6 +17,7 @@ import {
 import { OBB } from "three/addons/math/OBB.js"
 
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { createId } from "@/utils/create-id"
 
 export interface SensorInterface {
   id: string
@@ -71,7 +72,7 @@ export const Sensor = forwardRef<SensorInterface, SensorProps>(function Sensor(
     )
 
     const newSensor: SensorInterface = {
-      id: crypto.randomUUID(),
+      id: createId(),
       active,
       position: positionVec,
       halfSize: halfSizeVec,

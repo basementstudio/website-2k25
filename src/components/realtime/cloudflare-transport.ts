@@ -1,5 +1,7 @@
 import PartySocket from "partysocket"
 
+import { createId } from "@/utils/create-id"
+
 import type {
   PresenceState,
   RealtimeChannelLike,
@@ -241,7 +243,7 @@ export const createCloudflareClient = (host: string): RealtimeClientLike => ({
     new CloudflareChannel(
       host,
       topic,
-      options?.config?.presence?.key || crypto.randomUUID()
+      options?.config?.presence?.key || createId()
     ),
   removeChannel: (channel: RealtimeChannelLike) => {
     if (channel instanceof CloudflareChannel) channel.close()

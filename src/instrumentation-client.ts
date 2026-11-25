@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/nextjs"
 
 import { resolveTracesSampleRate } from "@/lib/sentry-sampling"
+import { createId } from "@/utils/create-id"
 
 const environment = process.env.NEXT_PUBLIC_VERCEL_ENV ?? "development"
 
@@ -39,7 +40,7 @@ Sentry.init({
 // sendDefaultPii can stay off.
 try {
   const stored = sessionStorage.getItem(ANONYMOUS_ID_KEY)
-  const id = stored ?? crypto.randomUUID()
+  const id = stored ?? createId()
 
   if (!stored) sessionStorage.setItem(ANONYMOUS_ID_KEY, id)
   Sentry.setUser({ id })

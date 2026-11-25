@@ -1,3 +1,5 @@
+import { createId } from "@/utils/create-id"
+
 import { useInterval } from "../hooks/use-interval"
 import { random, roundStep } from "../lib/math"
 import { useGame } from "../lib/use-game"
@@ -34,7 +36,7 @@ const getMotorcycleX = (): number => {
 }
 
 const getMotorcycle = (): NpcTypeMotorcycle => ({
-  id: crypto.randomUUID(),
+  id: createId(),
   type: "motorcycle",
   startingPosition: [getMotorcycleX(), 0, -CHUNK_SIZE * TOTAL_CHUNKS],
   speed: 0.1,

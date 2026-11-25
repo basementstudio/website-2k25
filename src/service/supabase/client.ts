@@ -1,5 +1,7 @@
 import { createBrowserClient } from "@supabase/ssr"
 
+import { createId } from "@/utils/create-id"
+
 type ScoreUpdateListener = () => void
 const scoreUpdateListeners = new Set<ScoreUpdateListener>()
 
@@ -23,7 +25,7 @@ const getClientId = () => {
 
   let clientId = localStorage.getItem("basketball_client_id")
   if (!clientId) {
-    clientId = crypto.randomUUID()
+    clientId = createId()
     localStorage.setItem("basketball_client_id", clientId)
   }
   return clientId
