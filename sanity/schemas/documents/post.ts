@@ -46,6 +46,13 @@ export const post = defineType({
       options: { hotspot: true }
     }),
     defineField({
+      name: "ogImage",
+      title: "OG Image Override",
+      description:
+        "Optional image for Open Graph and Twitter previews. Leave empty to use the site default. Recommended size: 1200 × 630. Does not change the hero image.",
+      type: "image"
+    }),
+    defineField({
       name: "heroVideo",
       title: "Hero Video URL (legacy)",
       type: "url",
