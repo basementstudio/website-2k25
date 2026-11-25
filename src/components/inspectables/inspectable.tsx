@@ -13,6 +13,7 @@ import {
   Mesh,
   type PerspectiveCamera,
   Quaternion,
+  type ShaderMaterial,
   Vector3
 } from "three"
 
@@ -102,6 +103,7 @@ export const Inspectable = memo(function InspectableInner({
 
   const inspectingFactor = useRef(new MotionValue(0))
   const inspectingFactorTL = useRef<AnimationPlaybackControls | null>(null)
+  const warnedMeshes = useRef(new Set<string>())
 
   const hasPlaced = useRef(false)
 
@@ -261,8 +263,25 @@ export const Inspectable = memo(function InspectableInner({
     const inspectingFactorValue = inspectingFactor.current.get()
 
     mesh?.traverse((child) => {
-      if (child instanceof Mesh) {
-        child.material.uniforms.inspectingFactor.value = inspectingFactorValue
+      if (!(child instanceof Mesh)) return
+
+      const materials = Array.isArray(child.material)
+        ? child.material
+        : [child.material]
+
+      for (const material of materials) {
+        const uniform = (material as Partial<ShaderMaterial> | undefined)
+          ?.uniforms?.inspectingFactor
+
+        if (uniform) {
+          uniform.value = inspectingFactorValue
+        } else if (!warnedMeshes.current.has(child.uuid)) {
+          // Child missed the global shader swap; skip it instead of crashing the frame loop.
+          warnedMeshes.current.add(child.uuid)
+          console.warn(
+            `[inspectable] mesh "${child.name}" in inspectable "${id}" has no inspectingFactor uniform (material: ${material?.type ?? "none"}); skipping.`
+          )
+        }
       }
     })
   })
