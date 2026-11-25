@@ -1,4 +1,4 @@
-import type { Metadata, ResolvingMetadata } from "next"
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
@@ -17,10 +17,9 @@ interface ProjectPostProps {
   params: Promise<{ slug: string }>
 }
 
-export const generateMetadata = async (
-  { params }: ProjectPostProps,
-  parent: ResolvingMetadata
-): Promise<Metadata | null> => {
+export const generateMetadata = async ({
+  params
+}: ProjectPostProps): Promise<Metadata | null> => {
   const { slug } = await params
   const post = await fetchPostMeta(slug)
 
@@ -43,7 +42,6 @@ export const generateMetadata = async (
 
   const asset = post.ogImage?.asset
   if (asset?.url) {
-    const inherited = await parent
     const image = {
       url: asset.url,
       width: asset.metadata.dimensions.width,
@@ -52,14 +50,15 @@ export const generateMetadata = async (
     }
 
     metadata.openGraph = {
-      ...inherited.openGraph,
+      type: "website",
       title: `${title} | Blog`,
       description,
       images: [image]
     }
     metadata.twitter = {
-      ...inherited.twitter,
       card: "summary_large_image",
+      site: "@basementstudio",
+      creator: "@basementstudio",
       title: `${title} | Blog`,
       description,
       images: [image]
