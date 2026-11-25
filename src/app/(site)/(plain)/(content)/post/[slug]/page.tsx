@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
@@ -16,7 +17,9 @@ interface ProjectPostProps {
   params: Promise<{ slug: string }>
 }
 
-export const generateMetadata = async ({ params }: ProjectPostProps) => {
+export const generateMetadata = async ({
+  params
+}: ProjectPostProps): Promise<Metadata | null> => {
   const { slug } = await params
   const post = await fetchPostMeta(slug)
 
@@ -27,7 +30,7 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
     truncateDescription(extractPlainText(post.intro)) ||
     `Read ${title} on the basement.studio blog — insights on design, engineering, and building cool shit that performs.`
 
-  return {
+  const metadata: Metadata = {
     title: {
       absolute: `${title} | Blog`
     },
@@ -36,6 +39,33 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
       canonical: `https://basement.studio/post/${slug}`
     }
   }
+
+  const asset = post.ogImage?.asset
+  if (asset?.url) {
+    const image = {
+      url: asset.url,
+      width: asset.metadata.dimensions.width,
+      height: asset.metadata.dimensions.height,
+      alt: post.ogImage?.alt || title
+    }
+
+    metadata.openGraph = {
+      type: "website",
+      title: `${title} | Blog`,
+      description,
+      images: [image]
+    }
+    metadata.twitter = {
+      card: "summary_large_image",
+      site: "@basementstudio",
+      creator: "@basementstudio",
+      title: `${title} | Blog`,
+      description,
+      images: [image]
+    }
+  }
+
+  return metadata
 }
 
 export default async function Blog({ params }: ProjectPostProps) {

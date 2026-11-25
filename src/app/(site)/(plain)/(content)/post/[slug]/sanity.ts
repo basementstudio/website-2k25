@@ -176,11 +176,20 @@ export async function fetchAllPostSlugs(): Promise<string[]> {
 
 export async function fetchPostMeta(
   slug: string
-): Promise<{ title: string; intro: PortableTextBlock[] | null } | null> {
-  const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{ title, intro }`
+): Promise<{
+  title: string
+  intro: PortableTextBlock[] | null
+  ogImage: SanityImage | null
+} | null> {
+  const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{
+    title,
+    intro,
+    ogImage ${imageFragment}
+  }`
   return sanityFetchCached<{
     title: string
     intro: PortableTextBlock[] | null
+    ogImage: SanityImage | null
   } | null>({
     query,
     params: { slug },
