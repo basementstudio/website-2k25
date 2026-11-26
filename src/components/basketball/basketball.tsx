@@ -8,6 +8,7 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
+import { getLiveBall } from "./basketball-utils"
 import { BALL_GROUP } from "./collision"
 
 interface BasketballProps {
@@ -80,15 +81,15 @@ export const Basketball = ({
 
         if (bounceCount.current >= 1) {
           bounceCount.current = 0
-          if (ballRef.current && !isTimerLow && !isTimerEnding) {
-            const ball = ballRef.current
+          const ball = getLiveBall(ballRef)
+          if (ball && !isTimerLow && !isTimerEnding) {
             const translation = ball.translation()
             const currentPos = {
               x: translation.x,
               y: translation.y,
               z: translation.z
             }
-            ball.setBodyType(2)
+            ball.setBodyType(2, false)
             resetBallToInitialPosition(currentPos)
           }
         }
@@ -102,6 +103,14 @@ export const Basketball = ({
       resetBallToInitialPosition()
     }
   }
+
+  // react-three-rapier removes the body on unmount but leaves the forwarded
+  // ref pointing at it; clear it so nothing calls into a freed rapier body.
+  useEffect(() => {
+    return () => {
+      ballRef.current = null
+    }
+  }, [ballRef])
 
   useEffect(() => {
     if (isDragging) {

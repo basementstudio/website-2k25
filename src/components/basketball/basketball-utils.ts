@@ -4,6 +4,19 @@ import { Vector2, Vector3 } from "three"
 
 import { SiteAudioSFXKey } from "@/hooks/use-site-audio"
 
+/**
+ * Returns the ball only while its rapier body is still in the world.
+ * The ref outlives the <RigidBody> (react-three-rapier never clears it), and
+ * calling into a removed body panics the WASM while it holds the body-set
+ * borrow, poisoning every later physics call with "recursive use of an object".
+ */
+export const getLiveBall = (
+  ballRef: RefObject<RapierRigidBody | null>
+): RapierRigidBody | null => {
+  const ball = ballRef.current
+  return ball && ball.isValid() ? ball : null
+}
+
 interface Position {
   x: number
   y: number
@@ -191,8 +204,8 @@ export const handlePointerDown = ({
   event.stopPropagation()
   setIsDragging(true)
 
-  if (ballRef.current) {
-    const ball = ballRef.current
+  const ball = getLiveBall(ballRef)
+  if (ball) {
     const pos = ball.translation()
     dragStartPos.set(pos.x, pos.y, pos.z)
     initialGrabPos.current.set(pos.x, pos.y, pos.z)
@@ -216,8 +229,8 @@ export const handlePointerMove = ({
   mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
   mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
 
-  if (ballRef.current) {
-    const ball = ballRef.current
+  const ball = getLiveBall(ballRef)
+  if (ball) {
     const currentPos = ball.translation()
 
     const moveDistance = new Vector3(
@@ -258,12 +271,12 @@ export const handlePointerUp = ({
   throwVelocity
 }: HandlePointerUpParams): boolean => {
   let threw = false
-  if (ballRef.current && isThrowable.current) {
+  const ball = getLiveBall(ballRef)
+  if (ball && isThrowable.current) {
     if (!isGameActive) {
       startGame()
     }
 
-    const ball = ballRef.current
     const currentPos = ball.translation()
     const dragDelta = new Vector3(
       dragStartPos.x - currentPos.x,
