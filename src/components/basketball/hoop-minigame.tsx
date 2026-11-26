@@ -7,6 +7,7 @@ import { MathUtils, Vector2, Vector3 } from "three"
 import { normalizeDelta } from "@/components/arcade-game/lib/math"
 import { useAssets } from "@/components/assets-provider"
 import {
+  getLiveBall,
   handlePointerDown as utilsHandlePointerDown,
   handlePointerMove as utilsHandlePointerMove,
   handlePointerUp as utilsHandlePointerUp
@@ -184,9 +185,13 @@ const HoopMinigameInner = () => {
   useEffect(() => {
     if (isBasketball && readyToPlay) {
       resetState()
-      if (ballRef.current) {
-        ballRef.current.setTranslation(initialPosition, true)
-        ballRef.current.setBodyType(2, true)
+      const ball = getLiveBall(ballRef)
+      if (ball) {
+        ball.setTranslation(
+          { x: initialPosition.x, y: initialPosition.y, z: initialPosition.z },
+          true
+        )
+        ball.setBodyType(2, true)
         isThrowable.current = true
       }
     }
@@ -217,7 +222,7 @@ const HoopMinigameInner = () => {
       // Don't reset if timer is ending or component is unmounting
       if (
         !isBasketball ||
-        !ballRef.current ||
+        !getLiveBall(ballRef) ||
         isTimerEnding.current ||
         isUnmounting.current
       )
@@ -283,9 +288,10 @@ const HoopMinigameInner = () => {
             isTimerLow.current = true
 
             // If the user is currently dragging the ball, release it
-            if (isDragging && ballRef.current) {
+            const ball = getLiveBall(ballRef)
+            if (isDragging && ball) {
               setIsDragging(false)
-              ballRef.current.setBodyType(0, true)
+              ball.setBodyType(0, true)
             }
           }
 
@@ -300,9 +306,10 @@ const HoopMinigameInner = () => {
               isTimerLow.current = true
 
               // release ball if held after game timeout
-              if (isDragging && ballRef.current) {
+              const liveBall = getLiveBall(ballRef)
+              if (isDragging && liveBall) {
                 setIsDragging(false)
-                ballRef.current.setBodyType(0, true)
+                liveBall.setBodyType(0, true)
               }
 
               // If the ball is currently resetting, cancel the reset
@@ -310,8 +317,8 @@ const HoopMinigameInner = () => {
                 setIsResetting(false)
 
                 // If we have a ball reference, make sure it's a dynamic body
-                if (ballRef.current) {
-                  ballRef.current.setBodyType(0, true)
+                if (liveBall) {
+                  liveBall.setBodyType(0, true)
                 }
               }
 
@@ -323,13 +330,14 @@ const HoopMinigameInner = () => {
 
                 // if the ball is still in play, we add it to played balls
                 // only if it doesn't already exist there
-                if (ballRef.current && !isUnmounting.current) {
+                const endBall = getLiveBall(ballRef)
+                if (endBall && !isUnmounting.current) {
                   try {
                     // Create a completely separate copy of all ball data first
                     // to avoid any aliasing issues with the ball object
-                    const ballTranslation = ballRef.current.translation()
-                    const ballVelocity = ballRef.current.linvel()
-                    const ballRotation = ballRef.current.rotation()
+                    const ballTranslation = endBall.translation()
+                    const ballVelocity = endBall.linvel()
+                    const ballRotation = endBall.rotation()
 
                     const currentPos = {
                       x: ballTranslation.x,
@@ -460,9 +468,11 @@ const HoopMinigameInner = () => {
   useFrameCallback(({ pointer }, delta) => {
     if (!isBasketball) return
 
-    if (isDragging && ballRef.current) {
+    const liveBall = getLiveBall(ballRef)
+
+    if (isDragging && liveBall) {
       try {
-        const ball = ballRef.current
+        const ball = liveBall
         const nd = normalizeDelta(delta)
 
         throwVelocity.current.x =
@@ -535,7 +545,7 @@ const HoopMinigameInner = () => {
     }
 
     // reset ball anim
-    if (isResetting && ballRef.current) {
+    if (isResetting && liveBall) {
       try {
         resetProgress.current += delta * 3
         const progress = MathUtils.clamp(resetProgress.current, 0, 1)
@@ -565,8 +575,7 @@ const HoopMinigameInner = () => {
             y: newPosition.y,
             z: newPosition.z
           }
-          // Get a fresh reference to the ball
-          const ball = ballRef.current
+          const ball = liveBall
           ball.setTranslation(positionToSet, true)
         } else {
           console.warn("invalid position during ball reset")
@@ -578,16 +587,14 @@ const HoopMinigameInner = () => {
             y: initialPosition.y,
             z: initialPosition.z
           }
-          // Get a fresh reference to the ball
-          const ball = ballRef.current
+          const ball = liveBall
           ball.setTranslation(initialPos, true)
         }
 
         if (progress === 1) {
           setIsResetting(false)
           resetProgress.current = 0
-          // Get a fresh reference to the ball
-          const ball = ballRef.current
+          const ball = liveBall
           ball.setBodyType(2, true)
         }
       } catch (_) {
